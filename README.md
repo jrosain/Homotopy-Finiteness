@@ -24,7 +24,9 @@ derive and formalise a new proof that will be both more computationally (and hum
 
 ## Organisation of this repository
 
-TBD
+This repository is organised in two folders: `lib/` and `src/`. The former contains classical results
+that can be found in [1]. The latter contains the formalisation of the proof in [3]. [2] has been a
+massive inspiration.
 
 ## References
 
