@@ -48,6 +48,24 @@
   :group 'org-babel
   :type 'string)
 
+(defun file-to-list (file)
+  "Return a list of lines of a file"
+  (with-temp-buffer
+    (insert-file-contents file)
+    (split-string (buffer-string) "\n" t)))
+
+(defun load-imports (filename directory)
+  (let ((lines (file-to-list filename)))
+    (while lines
+      (if (string-prefix-p "import" (car lines))
+	  (let* ((dst-name (cadr (split-string (car lines))))
+		  (dst-file (concat "/tmp/" dst-name ".ctt"))
+		  (dst-source-file (concat directory dst-name ".org")))
+	     (message (concat "Found " dst-source-file))
+	     (org-babel-tangle-file dst-source-file dst-file)
+	     (load-imports dst-file (file-name-directory dst-source-file))))
+      (pop lines))))
+
 ;; This is a bit of a weird block execution function. Indeed, it is not a block but the whole source
 ;; file that is dumped in /tmp/ and evaluated. It could be avoided using session and repl I guess
 ;; but we might want to do this because of imports.
@@ -55,9 +73,11 @@
   "Execute a block of Postt code with org-babel.
 This function is called by `org-babel-execute-src-block'"
   (message "executing Postt source code block")
-  (let* ((src-file (let ((file (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))))
+  (let* ((dir (file-name-directory (buffer-file-name)))
+	 (src-file (let ((file (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))))
 		     (concat "/tmp/" file ".ctt"))))
     (org-babel-tangle :target-file src-file)
+    (load-imports src-file dir)
     (org-babel-eval
      (concat org-babel-postt-interpreter " eval " src-file) "")))
 

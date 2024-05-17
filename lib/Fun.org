@@ -1,6 +1,8 @@
 #+NAME: Fun
 #+AUTHOR: Johann Rosain
 
+* Functions
+
 #+BEGIN_SRC postt
 module Fun where
 
@@ -9,14 +11,14 @@ import Identity
 
 This file implements classical functions and their associated properties.
 
-* Identity
+** Identity
 
 The identity is the function that returns its argument.
 #+BEGIN_SRC postt
 id (A : U) (x : A) : A = x
 #+END_SRC
 
-* Composition
+** Composition
 
 Two functions (f : A \to B) and (g : B \to C) can be composed in a function (f \circ g : A \to C).
 #+BEGIN_SRC postt

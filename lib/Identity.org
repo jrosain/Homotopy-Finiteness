@@ -1,13 +1,15 @@
 #+NAME: Identity
 #+AUTHOR: Johann Rosain
 
+* Propositional Equality
+
 #+BEGIN_SRC postt
 module Identity where
 #+END_SRC
 
 This file implements the classical functions of identity types. In =postt=, the identity is defined as a native type =Path=, while classically, it is defined is an inductive type with one constructor: =refl=.
 
-* Reflexivity
+** Reflexivity
 
 First, we introduce the constant path: =refl=. In =postt=, paths are defined using an interval between 0 and 1. Thus, the constant path is the path that ignores its argument and always returns the same point.
 #+BEGIN_SRC postt
