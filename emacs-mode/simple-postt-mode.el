@@ -1,5 +1,13 @@
 ;; Very light major mode to do some syntax coloring, but nothing too fancy.
 
+;; Add the following code to prettify the symbols used in postt:
+;; (add-hook 'org-mode-hook 
+;;           (lambda ()
+;;             "Beautify Org Checkbox Symbol"
+;;             (push '("->" . "→") prettify-symbols-alist)
+;;             (push '("\\ " . "λ") prettify-symbols-alist)
+;;             (prettify-symbols-mode)))
+
 (setq postt-keywords '("module" "where" "import" "data"))
 (setq postt-types '("U" "Path" "Ext"))
 (setq postt-functions '("coe" "hcomp"))

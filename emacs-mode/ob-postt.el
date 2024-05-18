@@ -87,5 +87,8 @@ This function is called by `org-babel-execute-src-block'"
   "Prepare SESSION according to the header arguments specified in PARAMS."
   )
 
+;; Update background of the code blocks (comment if undesired)
+(push '("postt" (:background "#303030" :extend t)) org-src-block-faces)
+
 (provide 'ob-postt)
 ;;; ob-postt.el ends here

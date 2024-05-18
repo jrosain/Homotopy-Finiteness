@@ -18,18 +18,20 @@ The identity is the function that returns its argument.
 id (A : U) (x : A) : A = x
 #+END_SRC
 
+#+RESULTS:
+
 ** Composition
 
 Two functions (f : A \to B) and (g : B \to C) can be composed in a function (f \circ g : A \to C).
 #+BEGIN_SRC postt
 comp (A B C : U) (g : B -> C) (f : A -> B) : A -> C =
-  \x. g (f x)
+  \ x. g (f x)
 #+END_SRC
 The composition of 3 functions should be associative.
 #+BEGIN_SRC postt
 comp-assoc (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) :
                          Path (A -> D) (comp (comp h g) f) (comp h (comp g f)) =
-  refl (A -> D) (\x. h (g (f x)))
+  refl (A -> D) (\ x. h (g (f x)))
 #+END_SRC
 
 #+RESULTS:
