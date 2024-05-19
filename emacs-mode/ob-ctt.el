@@ -26,7 +26,7 @@
 
 ;;; Requirements:
 
-;; Have postt installed, see
+;; Have ctt installed, see
 ;;    https://github.com/JonasHoefer/poset-type-theory/
 
 (require 'ob)
@@ -41,10 +41,10 @@
 (add-to-list 'org-babel-tangle-lang-exts '("ctt"))
 
 ;; optionally declare default header arguments for this language
-(defvar org-babel-default-header-args:postt '())
+(defvar org-babel-default-header-args:ctt '())
 
-(defcustom org-babel-postt-interpreter "postt"
-  "Name of the postt interpreter."
+(defcustom org-babel-ctt-interpreter "postt"
+  "Name of the ctt interpreter."
   :group 'org-babel
   :type 'string)
 
@@ -69,26 +69,26 @@
 ;; This is a bit of a weird block execution function. Indeed, it is not a block but the whole source
 ;; file that is dumped in /tmp/ and evaluated. It could be avoided using session and repl I guess
 ;; but we might want to do this because of imports.
-(defun org-babel-execute:postt (body params)
-  "Execute a block of Postt code with org-babel.
+(defun org-babel-execute:ctt (body params)
+  "Execute a block of Ctt code with org-babel.
 This function is called by `org-babel-execute-src-block'"
-  (message "executing Postt source code block")
+  (message "executing Ctt source code block")
   (let* ((dir (file-name-directory (buffer-file-name)))
 	 (src-file (let ((file (file-name-sans-extension (file-name-nondirectory (buffer-file-name)))))
 		     (concat "/tmp/" file ".ctt"))))
     (org-babel-tangle :target-file src-file)
     (load-imports src-file dir)
     (org-babel-eval
-     (concat org-babel-postt-interpreter " eval " src-file) "")))
+     (concat org-babel-ctt-interpreter " eval " src-file) "")))
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.
-(defun org-babel-prep-session:postt (session params)
+(defun org-babel-prep-session:ctt (session params)
   "Prepare SESSION according to the header arguments specified in PARAMS."
   )
 
 ;; Update background of the code blocks (comment if undesired)
-(push '("postt" (:background "#303030" :extend t)) org-src-block-faces)
+(push '("ctt" (:background "#303030" :extend t)) org-src-block-faces)
 
-(provide 'ob-postt)
-;;; ob-postt.el ends here
+(provide 'ob-ctt)
+;;; ob-ctt.el ends here
