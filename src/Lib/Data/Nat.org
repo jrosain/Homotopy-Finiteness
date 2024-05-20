@@ -1,0 +1,38 @@
+#+NAME: Nat 
+#+AUTHOR: Johann Rosain
+
+* Natural numbers
+
+  #+begin_src ctt
+  module Lib.Data.Nat where
+  #+end_src
+
+The standard library provides the usual inductive definition of natural numbers using unary encoding. This file gives the induction principle of =Nat= together with some shortcuts.
+
+#+begin_src ctt
+  import Stdlib.Nat.Base
+#+end_src
+
+** Induction principle
+
+#+begin_src ctt
+  ind-Nat (P : Nat -> U) (pz : P zero) (ps : ((n : Nat) -> P n -> P (suc n))) : (n : Nat) -> P n = split
+    zero -> pz
+    suc n' -> ps n' (ind-Nat P pz ps n')
+#+end_src
+
+** Shortcuts
+
+   #+begin_src ctt
+  one-Nat : Nat = suc zero
+
+  two-Nat : Nat = suc one-Nat
+
+  three-Nat : Nat = suc two-Nat
+
+  four-Nat : Nat = suc three-Nat
+
+  five-Nat : Nat = suc four-Nat    
+   #+end_src
+
+#+RESULTS:

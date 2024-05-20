@@ -1,0 +1,20 @@
+module Lib.FiniteTypes where
+
+import Lib.Prop.Equiv
+import Lib.Data.Fin
+
+count (A : U) : U =
+  Sg Nat (\ k. Equiv (Fin k) A)
+
+number-of-elements (A : U) (c : count A) : Nat = c.1
+count/is-counting (A : U) (c : count A) : Equiv (Fin (number-of-elements A c)) A = c.2
+
+count/fin-count (k : Nat) : count (Fin k) =
+  (k, IdEquiv (Fin k))
+
+count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
+  (number-of-elements B c,
+   Equiv/trans (Fin (number-of-elements B c)) B A (count/is-counting B c) (Equiv/sym A B e))
+
+count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
+  count/closed-equiv B A (Equiv/sym A B e) c

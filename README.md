@@ -25,13 +25,13 @@ derive and formalise a new proof that will be both more computationally (and hum
 ## Organisation of this repository
 
 I've developed a little emacs mode that allows the use of `org-mode` when formalising things in
-`postt`. It can be found in `emacs-mode/` and loaded with `M-x load-file RET
-emacs-mode/ob-postt.el`. It then suffices to press `C-c C-c` (in a code block) to evaluate a file. A
-minimal major mode for `postt` is also available at `emacs-mode/simple-postt-mode.el`.
+`ctt`. It can be found in `emacs-mode/` and loaded with `M-x load-file RET
+emacs-mode/ob-ctt.el`. It then suffices to press `C-c C-c` (in a code block) to evaluate a file. A
+minimal major mode for `ctt` is also available [here](https://github.com/JonasHoefer/poset-type-theory/blob/main/ctt-mode.el).
 
-This repository is otherwise organised in two folders: `lib/` and `src/`. The former contains
-classical results that can be found in [1]. The latter contains the formalisation of the proof in
-[3]. [2] has been a massive inspiration.
+This repository is otherwise organised as follows: the `src/` folder contains the formalisation of [3]
+the `lib/` folder inside containing classical results that can be found in [1]. [2] has helped me a
+lot.
 
 ## References
 

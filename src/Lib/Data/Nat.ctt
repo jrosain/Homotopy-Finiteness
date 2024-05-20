@@ -1,0 +1,17 @@
+module Lib.Data.Nat where
+
+import Stdlib.Nat.Base
+
+ind-Nat (P : Nat -> U) (pz : P zero) (ps : ((n : Nat) -> P n -> P (suc n))) : (n : Nat) -> P n = split
+  zero -> pz
+  suc n' -> ps n' (ind-Nat P pz ps n')
+
+one-Nat : Nat = suc zero
+
+two-Nat : Nat = suc one-Nat
+
+three-Nat : Nat = suc two-Nat
+
+four-Nat : Nat = suc three-Nat
+
+five-Nat : Nat = suc four-Nat

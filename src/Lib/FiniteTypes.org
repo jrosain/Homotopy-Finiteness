@@ -1,0 +1,49 @@
+#+NAME: Finite Types
+#+AUTHOR: Johann Rosain
+
+* Finite Types
+
+  #+begin_src ctt
+  module Lib.FiniteTypes where
+  #+end_src
+
+Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[Lib/Data/][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Prop.Equiv
+  import Lib.Data.Fin  
+   #+end_src
+
+** Counting
+
+*** Definition
+
+A type =A= can be counted if there is some =k : Nat= such that =A= is equivalent to =Fin k=.
+    #+begin_src ctt
+  count (A : U) : U =
+    Sg Nat (\ k. Equiv (Fin k) A)
+    #+end_src
+=k= is also called the /number of elements/ of =A=.
+#+begin_src ctt
+  number-of-elements (A : U) (c : count A) : Nat = c.1
+  count/is-counting (A : U) (c : count A) : Equiv (Fin (number-of-elements A c)) A = c.2
+#+end_src
+
+*** Properties
+
+It follows from the definition that every standard finite type can be counted in a canonical way.
+#+begin_src ctt
+  count/fin-count (k : Nat) : count (Fin k) =
+    (k, IdEquiv (Fin k))
+#+end_src
+Furthermore, types with counting are closed under equivalence.
+#+begin_src ctt
+  count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
+    (number-of-elements B c,
+     Equiv/trans (Fin (number-of-elements B c)) B A (count/is-counting B c) (Equiv/sym A B e))
+
+  count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
+    count/closed-equiv B A (Equiv/sym A B e) c
+#+end_src

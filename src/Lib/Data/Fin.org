@@ -1,0 +1,101 @@
+#+NAME: Fin
+#+AUTHOR: Johann Rosain
+
+* Standard finite types
+
+  #+begin_src ctt
+  module Lib.Data.Fin where
+  #+end_src
+
+This file defines the standard finite types as done in [[https://arxiv.org/pdf/2212.11082][[1, Def. 7.3.2]​]] by recursion over the natural numbers.
+
+#+begin_src ctt
+  import Lib.Data.Nat
+  import Lib.Data.Empty
+  import Lib.Data.Unit
+  import Lib.Data.Coprod  
+#+end_src
+
+** Definition
+
+   #+begin_src ctt
+  Fin : Nat -> U = split
+    zero -> Empty
+    suc k -> Coprod (Fin k) Unit
+   #+end_src
+
+#+RESULTS:
+#+begin_example
+
+Checking Definition: Nat
+U
+[Sum]
+
+Checking Definition: Unit
+U
+[Sum]
+
+Checking Definition: ind-Unit
+(P : Unit -> U) -> (p : P star) -> (x : Unit) -> P x
+\ P. \ p. [Split]
+
+Checking Definition: ind-Nat
+(P : Nat -> U) -> (pz : P zero) -> (ps : (n : Nat) -> P n -> P (suc n)) -> (n : Nat) -> P n
+\ P. \ pz. \ ps. [Split]
+
+Checking Definition: one-Nat
+Nat
+suc zero
+
+Checking Definition: two-Nat
+Nat
+suc one-Nat
+
+Checking Definition: three-Nat
+Nat
+suc two-Nat
+
+Checking Definition: four-Nat
+Nat
+suc three-Nat
+
+Checking Definition: five-Nat
+Nat
+suc four-Nat
+
+Checking Definition: Empty
+U
+[Sum]
+
+Checking Definition: ind-Empty
+(P : Empty -> U) -> (x : Empty) -> P x
+\ P. [Split]
+
+Checking Definition: ex-falso
+(A : U) -> Empty -> A
+\ A. ind-Empty (\ _. A)
+
+Checking Definition: neg
+(A : U) -> U
+\ A. A -> Empty
+
+Checking Definition: Coprod
+(A : U) -> (B : U) -> U
+\ A. \ B. [Sum]
+
+Checking Definition: ind-Coprod
+(A : U) -> (B : U) -> (P : Coprod A B -> U) -> (f : (x : A) -> P (inl x)) -> (g : (y : B) -> P (inr y)) -> (z : Coprod A B) -> P z
+\ A. \ B. \ P. \ f. \ g. [Split]
+
+Checking Definition: coprod-map
+(A : U) -> (B : U) -> (A' : U) -> (B' : U) -> (f : A -> A') -> (g : B -> B') -> (z : Coprod A B) -> Coprod A' B'
+\ A. \ B. \ A'. \ B'. \ f. \ g. ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
+
+Checking Definition: Fin
+Nat -> U
+[Split]
+
+Successfully checked 17 definitions
+Evaluation of [Split]
+Yields Fin
+#+end_example

@@ -1,0 +1,4 @@
+module Lib.Data.Fun where
+
+fun/comp (A B C : U) (g : B -> C) (f : A -> B) : A -> C =
+  \ x. g (f x)

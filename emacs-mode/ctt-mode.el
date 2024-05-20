@@ -86,8 +86,8 @@
   ;; Code for syntax highlighting
   (setq font-lock-defaults '(ctt-font-lock-keywords))
 
-	;; Indentation
-	(setq indent-line-function 'ctt-indent-line)
+  ;; Indentation
+  (setq indent-line-function 'ctt-indent-line)
 
   ;; Clear memory
   (setq ctt-keywords-regexp nil)

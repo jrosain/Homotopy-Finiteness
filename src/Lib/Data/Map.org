@@ -1,0 +1,27 @@
+#+NAME: Fun
+#+AUTHOR: Johann Rosain
+
+* Functions
+
+  #+begin_src ctt
+  module Lib.Data.Map where
+  #+end_src
+
+This file provides and proves basic facts about maps.
+
+** Composition
+
+   #+begin_src ctt
+  map/comp (A B C : U) (g : B -> C) (f : A -> B) : A -> C =
+    \ x. g (f x)
+   #+end_src
+
+#+RESULTS:
+: 
+: Checking Definition: fun/comp
+: (A : U) -> (B : U) -> (C : U) -> (g : B -> C) -> (f : A -> B) -> A -> C
+: \ A. \ B. \ C. \ g. \ f. \ x. g (f x)
+: 
+: Successfully checked 1 definitions
+: Evaluation of \ A. \ B. \ C. \ g. \ f. \ x. g (f x)
+: Yields \ A. \ B. \ C. \ g. \ f. \ x. g (f x)

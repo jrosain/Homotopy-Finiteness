@@ -1,0 +1,10 @@
+module Lib.Data.Fin where
+
+import Lib.Data.Nat
+import Lib.Data.Empty
+import Lib.Data.Unit
+import Lib.Data.Coprod
+
+Fin : Nat -> U = split
+  zero -> Empty
+  suc k -> Coprod (Fin k) Unit

@@ -1,0 +1,58 @@
+#+NAME: Empty
+#+AUTHOR: Johann Rosain
+
+* Empty
+
+  #+begin_src ctt
+  module Lib.Data.Empty where
+  #+end_src
+
+This file defines the empty type, i.e., the type that is not inhabited. It provides its (degenerate) induction principle together with the very useful =ex-falso=. It also defines the negation, that is, the /emptiness/ of a type.
+
+** Definition
+
+   #+begin_src ctt
+  data Empty : U =
+   #+end_src
+
+** Induction principle
+
+   #+begin_src ctt
+  ind-Empty (P : Empty -> U) : (x : Empty) -> P x = split
+   #+end_src
+
+=ex-falso= is actually a special case of the induction principle.
+   #+begin_src ctt
+  ex-falso (A : U) : Empty -> A = ind-Empty (\ _. A)
+   #+end_src
+
+** Negation
+
+The negation on a type =A= is a proof that =A= is not inhabited.
+#+begin_src ctt
+  neg (A : U) : U = A -> Empty
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Checking Definition: Empty
+U
+[Sum]
+
+Checking Definition: ind-Empty
+(P : Empty -> U) -> (x : Empty) -> P x
+\ P. [Split]
+
+Checking Definition: ex-falso
+(A : U) -> Empty -> A
+\ A. ind-Empty (\ _. A)
+
+Checking Definition: neg
+(A : U) -> U
+\ A. A -> Empty
+
+Successfully checked 4 definitions
+Evaluation of \ A. A -> Empty
+Yields \ A. A -> Empty
+#+end_example

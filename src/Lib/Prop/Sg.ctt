@@ -1,0 +1,10 @@
+module Lib.Prop.Sg where
+
+import Stdlib.Prelude
+
+Sg-path/left (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v) : Path A u.1 v.1 =
+  J (Sg A B) u (\ w _. Path A u.1 w.1) (refl A u.1) v p
+
+-- Sg-path/right (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v)
+--   : PathO A u.1 v.1 (Sg-path/left A B u v p) B u.2 v.2 =
+--   J (Sg A B) u (\ w q. Path (B w.1) (tr A u.1 w.1 (Sg-path/left A B u w q) B u.2) w.2) (refl (tr A u.1 u.1 (refl A u.1) B u.2) u.2) v p

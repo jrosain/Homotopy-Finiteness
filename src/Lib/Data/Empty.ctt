@@ -1,0 +1,9 @@
+module Lib.Data.Empty where
+
+data Empty : U =
+
+ind-Empty (P : Empty -> U) : (x : Empty) -> P x = split
+
+ex-falso (A : U) : Empty -> A = ind-Empty (\ _. A)
+
+neg (A : U) : U = A -> Empty

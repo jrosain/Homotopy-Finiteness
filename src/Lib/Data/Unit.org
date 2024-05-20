@@ -1,0 +1,39 @@
+#+NAME: Unit
+#+AUTHOR: Johann Rosain
+
+* Unit
+
+  #+begin_src ctt
+  module Lib.Data.Unit where
+  #+end_src
+
+This file defines the unit type, i.e., the type that is inhabited by a unique element (often named =star=). As it is an inductive type, it also comes equiped with an induction principle.
+
+** Definition
+
+   #+begin_src ctt
+  data Unit : U = star
+   #+end_src
+
+** Induction principle
+
+   #+begin_src ctt
+  ind-Unit (P : Unit -> U) (p : P star) : (x : Unit) -> P x = split
+    star -> p
+   #+end_src
+
+#+RESULTS:
+#+begin_example
+
+Checking Definition: Unit
+U
+[Sum]
+
+Checking Definition: ind-Unit
+(P : Unit -> U) -> (p : P star) -> (x : Unit) -> P x
+\ P. \ p. [Split]
+
+Successfully checked 2 definitions
+Evaluation of \ P. \ p. [Split]
+Yields \ P. \ p. ind-Unit P p
+#+end_example

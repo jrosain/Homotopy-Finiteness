@@ -1,0 +1,9 @@
+module Lib.Prop.Contr where
+
+import Stdlib.Prelude
+
+center (A : U) (c : is-contr A) : A =
+  c.1
+
+contraction (A : U) (c : is-contr A) : (x : A) -> Path A (center A c) x =
+  c.2

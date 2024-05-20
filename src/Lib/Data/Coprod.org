@@ -1,0 +1,52 @@
+#+NAME: Coprod
+#+AUTHOR: Johann Rosain
+
+* Co-products
+
+  #+begin_src ctt
+module Lib.Data.Coprod where  
+  #+end_src
+
+This file defines the coproduct of two types =A= and =B=, usually denoted =A + B=, and proves basic facts on this new type.
+
+** Inductive definition
+
+  #+begin_src ctt
+  data Coprod (A B : U) : U = inl (x : A) | inr (y : B)
+  #+end_src
+
+** Induction principle
+
+   #+begin_src ctt
+  ind-Coprod (A B : U) (P : Coprod A B -> U) (f : (x : A) -> P (inl x)) (g : (y : B) -> P (inr y)) : (z : Coprod A B) -> (P z) = split
+    inl x -> f x
+    inr y -> g y
+   #+end_src
+
+** Basic facts
+
+If =A=, =A'=, =B=, =B'= are types, then there is a map =h : A + B -> A' + B'=.
+#+begin_src ctt
+  coprod-map (A B A' B' : U) (f : A -> A') (g : B -> B') : (z : Coprod A B) -> (Coprod A' B') =
+    ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
+#+end_src
+
+#+RESULTS:
+#+begin_example
+
+Checking Definition: Coprod
+(A : U) -> (B : U) -> U
+\ A. \ B. [Sum]
+
+Checking Definition: ind-Coprod
+(A : U) -> (B : U) -> (P : Coprod A B -> U) -> (f : (x : A) -> P (inl x)) -> (g : (y : B) -> P (inr y)) -> (z : Coprod A B) -> P z
+\ A. \ B. \ P. \ f. \ g. [Split]
+
+Checking Definition: coprod-map
+(A : U) -> (B : U) -> (A' : U) -> (B' : U) -> (f : A -> A') -> (g : B -> B') -> (z : Coprod A B) -> Coprod A' B'
+\ A. \ B. \ A'. \ B'. \ f. \ g. ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
+
+Successfully checked 3 definitions
+Evaluation of \ A. \ B. \ A'. \ B'. \ f. \ g. ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
+Yields \ A. \ B. \ A'. \ B'. \ f. \ g. ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
+#+end_example
