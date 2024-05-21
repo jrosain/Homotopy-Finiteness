@@ -7,3 +7,5 @@ ind-Empty (P : Empty -> U) : (x : Empty) -> P x = split
 ex-falso (A : U) : Empty -> A = ind-Empty (\ _. A)
 
 neg (A : U) : U = A -> Empty
+
+is-empty (A : U) : U = neg A

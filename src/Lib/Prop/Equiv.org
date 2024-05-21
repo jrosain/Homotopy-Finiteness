@@ -15,6 +15,7 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
   import Lib.Prop.Contr
   import Lib.Prop.Sg
   import Lib.Data.Map
+  import Lib.Data.Empty
    #+end_src
 
 ** Accessors
@@ -22,6 +23,19 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
   Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
   Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2    
    #+end_src
+
+** Inverse of an equivalence
+
+TODO: use the property that =is-equiv iff is-bi-inv iff has-inverse= to get the inverse of an equivalence.
+#+begin_src ctt
+  -- is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+  -- Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
+  --  is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)  
+
+  Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
+    Equiv/map B A (path-to-equiv B A (inv U A B (equiv-to-path A B e)))
+#+end_src
+
 ** Equivalence relation properties
 
 =is-equiv= and =Equiv= are equivalence relations, that is, they are:
@@ -29,6 +43,8 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
    * symmetric ;
    * transitive.
 The first property is handled in [[../Stdlib/Prelude.ctt][Prelude.ctt]], but we redefine them here with a name consistent with the others properties: =is-equiv/prop= (resp. =Equiv/prop=). Then, we focus on showing the symmetry and the transitivity of this relation.
+
+TODO: rework proofs of symmetry/transitivity when we have =is-equiv iff is-bi-inv= as they are straightforward using =is-bi-inv-has-inverse=.
 
 *** Reflexivity
 
@@ -94,16 +110,38 @@ Finally, we can show that =is-equiv= is transitive.
 
 **** Transitivity of =Equiv=
  
-There are two ways to show the transitivity of =Equiv=. The first is using univalence, i.e., an equivalence is a path. To do so, we use the following facts:
-   * an equivalence is a path (=equiv-to-path=) ;
-   * a path is an equivalence (=path-to-equiv=) ;
-   * paths can be concatenated (=comp=).
+The fact that =Equiv= is transitive follows immediatly from the fact that =is-equiv= is transitive.
    #+begin_src ctt
   Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
      path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
    #+end_src
 
-The second is to directly use that =is-equiv= is transitive, the equivalence map being the composition between the two equivalences.
+** Some trivial equivalences
+
+*** A map to =Empty= is always an equivalence
+
+First, we show that if =f : is-empty A=, then =is-equiv f=. Hence, we are given an element of =Empty= and thus ex-falso suffices to show that the fibers of =f= are contractible.
+    #+begin_src ctt
+  is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
+    \ x. ind-Empty (\ y. is-contr (Fib A Empty f y)) x
+    #+end_src
+Thus, if =is-empty A=, we have an equivalence between =A= and =Empty=.
 #+begin_src ctt
-  -- Equiv/trans'
+  Empty/equiv (A : U) (f : is-empty A) : Equiv A Empty =
+    (f, is-empty/is-equiv A f)
 #+end_src
+
+** 3-for-2 properties
+
+*** 3-for-2 property of contractibility
+Given =f : A \to B=, the 3-for-2 property of contractibility states that if any two of the three assertions
+  * =A= is contractible
+  * =B= is contractible
+  * =f= is an equivalence
+hold, then so does the third. We start by showing that if one of =A= or =B= is contractible and =f= is an equivalence, then the other is also contractible. It is easy: take the center of the contraction to be =(inv f (center contr))=, and the path is obtained using =ap (inv f)= together with the contractibility of =contr= and the homotopy =(inv f) \circ f ~ id=.
+#+begin_src ctt
+  is-contr/is-contr-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (c : is-contr B) : is-contr A =
+    ?
+#+end_src
+#+RESULTS:
+: Typecheck has succeeded.

@@ -8,3 +8,7 @@ import Lib.Data.Coprod
 Fin : Nat -> U = split
   zero -> Empty
   suc k -> Coprod (Fin k) Unit
+
+zero-Fin : (k : Nat) -> Fin (suc k) = split
+  zero -> inr star
+  suc k' -> inl (zero-Fin k')

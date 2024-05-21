@@ -33,11 +33,14 @@ A type =A= can be counted if there is some =k : Nat= such that =A= is equivalent
 
 *** Properties
 
+**** Canonical count
 It follows from the definition that every standard finite type can be counted in a canonical way.
 #+begin_src ctt
   count/fin-count (k : Nat) : count (Fin k) =
     (k, IdEquiv (Fin k))
 #+end_src
+
+**** Closure under equivalence
 Furthermore, types with counting are closed under equivalence.
 #+begin_src ctt
   count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
@@ -48,5 +51,21 @@ Furthermore, types with counting are closed under equivalence.
     count/closed-equiv B A (Equiv/sym A B e) c
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
+**** Empty means no elements
+If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
+  * [\to] By path induction, =inv e : A \to Empty=.
+#+begin_src ctt
+  -- count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+  --   J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/is-counting A c))
+  --              (number-of-elements A c) p
+#+end_src
+  * [\leftarrow] =f : is-empty A= is an equivalence, thus =Fin k= is equivalent to =Empty= and a quick induction on =k= is enough to conclude.
+  #+begin_src ctt
+  -- count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
+  --   let e : Equiv (Fin (number-of-elements A c)) Empty =
+  --         Equiv/trans (Fin (number-of-elements A c)) A Empty (count/is-counting A c) (Empty/equiv A f) in
+  --   ind-Nat (\ k. Path Nat zero k)
+  --           (refl Nat zero)
+  --           (\ n _. ex-falso ((Equiv/map (Fin (number-of-elements A c)) Empty e) (zero-Fin n)))
+  --           (number-of-elements A c)
+  #+end_src

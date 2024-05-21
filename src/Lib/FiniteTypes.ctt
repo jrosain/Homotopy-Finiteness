@@ -18,3 +18,15 @@ count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
 
 count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
   count/closed-equiv B A (Equiv/sym A B e) c
+
+count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+  J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/is-counting A c))
+             (number-of-elements A c) p
+
+count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
+  let e : Equiv (Fin (number-of-elements A c)) Empty =
+        Equiv/trans (Fin (number-of-elements A c)) A Empty (count/is-counting A c) (Empty/equiv A f) in
+  ind-Nat (\ k. Path Nat zero k)
+          (refl Nat zero)
+          (\ n _. ex-falso ((Equiv/map (Fin (number-of-elements A c)) Empty e) (zero-Fin n)))
+          (number-of-elements A c)

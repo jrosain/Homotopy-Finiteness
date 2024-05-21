@@ -3,9 +3,17 @@ module Lib.Prop.Equiv where
 import Lib.Prop.Contr
 import Lib.Prop.Sg
 import Lib.Data.Map
+import Lib.Data.Empty
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
 Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
+
+-- is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+-- Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
+--  is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)  
+
+Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
+  Equiv/map B A (path-to-equiv B A (inv U A B (equiv-to-path A B e)))
 
 is-equiv/refl (A : U) : is-equiv A A (id A)
   = id/is-equiv A
@@ -37,8 +45,6 @@ is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : 
   let fib' : Fib A B f (f x') = is-equiv/trans/fib A B C f g y H in
   (Sg-path/left A (\ z. Path B (f x') (f z)) c.1 fib' (c.2 fib'))
 
--- (is-equiv/trans/center A B C f e-f g e-g y).1
-
 -- is-equiv/trans (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) :
 --   is-equiv (map/comp g f) =
 --     \ y. (is-equiv/trans/center A B C f e-f g e-g y, is-equiv/trans/contr A B C f e-f g e-g y)
@@ -46,4 +52,11 @@ is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : 
 Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
    path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
 
--- Equiv/trans'
+is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
+  \ x. ind-Empty (\ y. is-contr (Fib A Empty f y)) x
+
+Empty/equiv (A : U) (f : is-empty A) : Equiv A Empty =
+  (f, is-empty/is-equiv A f)
+
+is-contr/is-contr-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (c : is-contr B) : is-contr A =
+  ?

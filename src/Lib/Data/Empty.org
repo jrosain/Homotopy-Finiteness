@@ -33,26 +33,12 @@ The negation on a type =A= is a proof that =A= is not inhabited.
   neg (A : U) : U = A -> Empty
 #+end_src
 
+** Emptiness
+
+A type is empty if it is not inhabited. The function =is-empty= is a semantic shortcut for =neg=.
+#+begin_src ctt
+  is-empty (A : U) : U = neg A
+#+end_src
+
 #+RESULTS:
-#+begin_example
-
-Checking Definition: Empty
-U
-[Sum]
-
-Checking Definition: ind-Empty
-(P : Empty -> U) -> (x : Empty) -> P x
-\ P. [Split]
-
-Checking Definition: ex-falso
-(A : U) -> Empty -> A
-\ A. ind-Empty (\ _. A)
-
-Checking Definition: neg
-(A : U) -> U
-\ A. A -> Empty
-
-Successfully checked 4 definitions
-Evaluation of \ A. A -> Empty
-Yields \ A. A -> Empty
-#+end_example
+: Typecheck has succeeded.
