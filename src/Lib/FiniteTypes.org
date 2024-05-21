@@ -47,3 +47,6 @@ Furthermore, types with counting are closed under equivalence.
   count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
     count/closed-equiv B A (Equiv/sym A B e) c
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

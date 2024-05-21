@@ -18,7 +18,7 @@ This file provides and proves basic facts about maps.
 
 #+RESULTS:
 : 
-: Checking Definition: fun/comp
+: Checking Definition: map/comp
 : (A : U) -> (B : U) -> (C : U) -> (g : B -> C) -> (f : A -> B) -> A -> C
 : \ A. \ B. \ C. \ g. \ f. \ x. g (f x)
 : 

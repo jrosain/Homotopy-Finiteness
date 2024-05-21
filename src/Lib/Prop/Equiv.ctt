@@ -4,8 +4,8 @@ import Lib.Prop.Contr
 import Lib.Prop.Sg
 import Lib.Data.Map
 
-map-equiv (A B : U) (e : Equiv A B) : A -> B = e.1
-Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (map-equiv A B e) = e.2
+Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
+Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
 
 is-equiv/refl (A : U) : is-equiv A A (id A)
   = id/is-equiv A
@@ -26,9 +26,18 @@ is-equiv/trans/center (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> 
    comp C y (g z) (center (Fib B C g y) (e-g y)).2
             (g (f x)) (ap B C g z (f x) (center (Fib A B f z) (e-f z)).2))
 
---is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C) (fib-comp : Fib A C (map/comp A B C g f) y)
---  : Path A (is-equiv/trans/center A B C f e-f g e-g y).1 fib-comp.1 =
-  --(Sg-path/left A (\ x. Path B x (f fib-comp.1)) (center (Fib A B (f fib-comp.1)) e-f) fib-comp (e-f (f fib-comp.1) fib-comp)).1
+is-equiv/trans/fib (A B C : U) (f : A -> B) (g : B -> C) (y : C) (H : Fib A C (map/comp A B C g f) y)
+  : Fib A B f (f H.1) = (H.1, refl B (f H.1))
+
+is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C) (H : Fib A C (map/comp A B C g f) y)
+ : Path A (e-f (f H.1)).1.1 H.1 =
+  let x : A = (is-equiv/trans/center A B C f e-f g e-g y).1 in
+  let x' : A = H.1 in
+  let c : is-contr (Fib A B f (f x')) = e-f (f x') in
+  let fib' : Fib A B f (f x') = is-equiv/trans/fib A B C f g y H in
+  (Sg-path/left A (\ z. Path B (f x') (f z)) c.1 fib' (c.2 fib'))
+
+-- (is-equiv/trans/center A B C f e-f g e-g y).1
 
 -- is-equiv/trans (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) :
 --   is-equiv (map/comp g f) =

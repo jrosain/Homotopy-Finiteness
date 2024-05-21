@@ -79,8 +79,9 @@ This function is called by `org-babel-execute-src-block'"
 		     (concat file ".ctt"))))
     (org-babel-tangle :target-file src-file)
     (load-imports src-file dir)
-    (org-babel-eval
-     (concat org-babel-ctt-interpreter " eval " src-file) "")))
+    (progn (org-babel-eval
+            (concat org-babel-ctt-interpreter " eval " src-file) "")
+           "Typecheck has succeeded.")))
 
 ;; This function should be used to assign any variables in params in
 ;; the context of the session environment.

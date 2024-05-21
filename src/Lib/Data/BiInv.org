@@ -1,0 +1,42 @@
+#+NAME: BiInv
+#+AUTHOR: Johann Rosain
+
+* Bi-invertible maps
+
+  #+begin_src ctt
+  module Lib.Data.BiInv where
+  #+end_src
+
+This file defines accessors and some properties of bi-invertible maps.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Data.Map  
+   #+end_src
+
+** Accessors
+
+*** Of the left & right inverses
+
+   #+begin_src ctt
+  BiInv/right-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
+    b.1.1
+
+  BiInv/left-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
+    b.2.1  
+   #+end_src
+
+*** Of the left & right homotopies
+
+    #+begin_src ctt
+  BiInv/right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _. B) (map/comp B A B f (BiInv/right-inv A B f b)) (id B) =
+    b.1.2
+
+  BiInv/left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (BiInv/left-inv A B f b) f) (id A) =
+    b.2.2
+    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
