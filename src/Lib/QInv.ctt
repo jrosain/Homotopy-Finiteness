@@ -21,10 +21,10 @@ has-inverse-is-bi-inv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-bi-inv
     (g, QInv/left-htpy A B f i))
 
 is-bi-inv-has-inverse (A B : U) (f : A -> B) (b : is-bi-inv A B f) : has-inverse A B f =
-  let g : B -> A = BiInv/right-inv A B f b in
-  let h : B -> A = BiInv/left-inv A B f b in
-  let G : Htpy B (\ _. B) (map/comp B A B f g) (id B) = BiInv/right-htpy A B f b in
-  let H : Htpy A (\ _. A) (map/comp A B A h f) (id A) = BiInv/left-htpy A B f b in
+  let g : B -> A = is-bi-inv/right-inv A B f b in
+  let h : B -> A = is-bi-inv/left-inv A B f b in
+  let G : Htpy B (\ _. B) (map/comp B A B f g) (id B) = is-bi-inv/right-htpy A B f b in
+  let H : Htpy A (\ _. A) (map/comp A B A h f) (id A) = is-bi-inv/left-htpy A B f b in
   let K : Htpy B (\ _. A) g h = \ y. comp A (g y) (h (f (g y)))
                                           (inv A (h (f (g y))) (g y) (H (g y)))
                                           (h y)
@@ -34,11 +34,11 @@ is-bi-inv-has-inverse (A B : U) (f : A -> B) (b : is-bi-inv A B f) : has-inverse
               (K (f x))
               x (H x))
 
-BiInv/inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
+is-bi-inv/inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
   QInv/map A B f (is-bi-inv-has-inverse A B f b)
 
-BiInv/inv-is-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-bi-inv B A (BiInv/inv-map A B f b) =
-  let g : B -> A = BiInv/inv-map A B f b in
+is-bi-inv/inv-is-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-bi-inv B A (is-bi-inv/inv-map A B f b) =
+  let g : B -> A = is-bi-inv/inv-map A B f b in
   let left-htpy : Htpy A (\ _. A) (map/comp A B A g f) (id A) = QInv/left-htpy A B f (is-bi-inv-has-inverse A B f b) in
   has-inverse-is-bi-inv B A g
-    (f, (left-htpy, BiInv/right-htpy A B f b))
+    (f, (left-htpy, is-bi-inv/right-htpy A B f b))

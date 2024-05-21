@@ -9,6 +9,8 @@
 
 This file regroups the properties of =Equiv= and =is-equiv= that are not provided by the standard library.
 
+TODO: when the property =is-equiv iff is-bi-inv= is available, implement the equivalence relation of =Equiv= and =is-equiv= as well as the 3-for-2 property (contractibility).
+
 ** Packages imports
 
    #+begin_src ctt
@@ -16,6 +18,7 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
   import Lib.Prop.Sg
   import Lib.Data.Map
   import Lib.Data.Empty
+  import Lib.QInv  
    #+end_src
 
 ** Accessors
@@ -140,8 +143,12 @@ Given =f : A \to B=, the 3-for-2 property of contractibility states that if any 
   * =f= is an equivalence
 hold, then so does the third. We start by showing that if one of =A= or =B= is contractible and =f= is an equivalence, then the other is also contractible. It is easy: take the center of the contraction to be =(inv f (center contr))=, and the path is obtained using =ap (inv f)= together with the contractibility of =contr= and the homotopy =(inv f) \circ f ~ id=.
 #+begin_src ctt
-  is-contr/is-contr-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (c : is-contr B) : is-contr A =
-    ?
+  -- is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
+  --   let f = Equiv/map A B e in
+  --   let i = Equiv/sym A B e in
+  --   let g = Equiv/map B A i in
+  --   (g (center B c),
+  --    \ x. 
 #+end_src
 #+RESULTS:
 : Typecheck has succeeded.

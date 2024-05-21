@@ -3,14 +3,14 @@ module Lib.Data.BiInv where
 import Stdlib.Prelude
 import Lib.Data.Map
 
-BiInv/right-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
+is-bi-inv/right-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
   b.1.1
 
-BiInv/left-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
+is-bi-inv/left-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
   b.2.1
 
-BiInv/right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _. B) (map/comp B A B f (BiInv/right-inv A B f b)) (id B) =
+is-bi-inv/right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _. B) (map/comp B A B f (is-bi-inv/right-inv A B f b)) (id B) =
   b.1.2
 
-BiInv/left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (BiInv/left-inv A B f b) f) (id A) =
+is-bi-inv/left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (is-bi-inv/left-inv A B f b) f) (id A) =
   b.2.2
