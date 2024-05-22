@@ -27,7 +27,7 @@ This file defines the coproduct of two types =A= and =B=, usually denoted =A + B
 
 If =A=, =A'=, =B=, =B'= are types, then there is a map =h : A + B -> A' + B'=.
 #+begin_src ctt
-  coprod-map (A B A' B' : U) (f : A -> A') (g : B -> B') : (z : Coprod A B) -> (Coprod A' B') =
+  Coprod/map (A B A' B' : U) (f : A -> A') (g : B -> B') : (z : Coprod A B) -> (Coprod A' B') =
     ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))
 #+end_src
 

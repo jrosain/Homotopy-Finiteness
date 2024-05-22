@@ -1,0 +1,55 @@
+#+NAME: Unit
+#+AUTHOR: Johann Rosain
+
+* Unit properties
+
+  #+begin_src ctt
+  module Lib.Prop.Unit where
+  #+end_src
+
+This file defines some useful results of the =Unit= datatype.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Unit
+  import Stdlib.Prelude  
+   #+end_src
+
+** Unicity of unit
+By =Unit=-induction, it suffices to show that =Path Unit star star= is inhabited. The constant path suffices.
+   #+begin_src ctt
+  Unit/uniqueness (x : Unit) : Path Unit star x =
+    ind-Unit (\ x'. Path Unit star x')
+             (refl Unit star) x
+
+  Unit/uniqueness' (x : Unit) : Path Unit x star =
+    inv Unit star x (Unit/uniqueness x)
+   #+end_src
+
+** =Unit= is a proposition
+Any =x, y : Unit= are thus equal.
+#+begin_src ctt
+  Unit/all-elements-equal (x : Unit) (y : Unit) : Path Unit x y =
+    comp Unit x star
+      (Unit/uniqueness' x)
+      y
+      (Unit/uniqueness y)
+#+end_src
+That is, =Unit= is a proposition.
+   #+begin_src ctt
+  Unit/is-prop : is-prop Unit =
+    Unit/all-elements-equal
+   #+end_src
+
+
+** =Unit= is contractible
+This also shows that =Unit= is contractible.
+#+begin_src ctt
+  Unit/is-contr : is-contr Unit =
+    (star, Unit/uniqueness)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+

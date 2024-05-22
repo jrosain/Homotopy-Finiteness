@@ -6,5 +6,5 @@ ind-Coprod (A B : U) (P : Coprod A B -> U) (f : (x : A) -> P (inl x)) (g : (y : 
   inl x -> f x
   inr y -> g y
 
-coprod-map (A B A' B' : U) (f : A -> A') (g : B -> B') : (z : Coprod A B) -> (Coprod A' B') =
+Coprod/map (A B A' B' : U) (f : A -> A') (g : B -> B') : (z : Coprod A B) -> (Coprod A' B') =
   ind-Coprod A B (\ _. Coprod A' B') (\ x. inl (f x)) (\ y. inr (g y))

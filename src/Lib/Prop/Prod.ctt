@@ -1,0 +1,6 @@
+module Lib.Prop.Prod where
+
+import Stdlib.Prelude
+
+ind-Prod (A B : U) (P : (A * B) -> U) (f : (x : A) (y : B) -> P (x, y)) (z : A * B) : P z =
+  f z.1 z.2

@@ -2,6 +2,7 @@ module Lib.Data.Fin where
 
 import Lib.Data.Nat
 import Lib.Data.Decidability
+import Lib.Prop.Unit
 
 Fin : Nat -> U = split
   zero -> Empty
@@ -26,7 +27,7 @@ Fin/Eq (k : Nat) (x : Fin k) (y : Fin k) : U =
                      (\ _. ind-Coprod (Fin k') (Unit) (\ _. U) (\ _. Empty) (\ _. Unit)))
           k x y
 
-Fin/Eq/is-path (k : Nat) (x y : Fin k) (e : Fin/Eq k x y) : Path (Fin k) x y =
+Fin/Eq/is-eq (k : Nat) (x y : Fin k) (e : Fin/Eq k x y) : Path (Fin k) x y =
   ind-Nat (\ k'. (x' : Fin k') -> (y' : Fin k') -> Fin/Eq k' x' y' -> Path (Fin k') x' y')
           (\ x' y' _. ex-falso (Path Empty x' y') x')
           (\ k' r. ind-Coprod (Fin k') (Unit)
@@ -36,13 +37,37 @@ Fin/Eq/is-path (k : Nat) (x y : Fin k) (e : Fin/Eq k x y) : Path (Fin k) x y =
                                               (\ y' e'. ex-falso (Path (Fin (suc k')) (inl x') (inr y')) e'))
                              (\ x'. ind-Coprod (Fin k') (Unit) (\ y'. Fin/Eq (suc k') (inr x') y' -> Path (Fin (suc k')) (inr x') y')
                                               (\ y' e'. ex-falso (Path (Fin (suc k')) (inr x') (inl y')) e')
-                                              (\ y' _. ap Unit (Fin (suc k')) (Fin/i/right k') x' y' (refl Unit star))))
+                                              (\ y' _. ap Unit (Fin (suc k')) (Fin/i/right k') x' y' (Unit/all-elements-equal x' y'))))
           k x y e
 
--- Fin/Eq/refl (k : Nat) (x : Fin k) : Fin/Eq k x x =
---   ind-Nat (\ k'. (x' : Fin k') -> Fin/Eq k' x' x')
---           (\ x'. ex-falso (ex-falso U x') x')
---           (\ k' r x'. ind-Coprod (Fin k') (Unit)
---                       (\ _. Fin/Eq (suc k') x' x')
---                       (\ l. r l)
---                       (\ _. star) x') k x
+Fin/Eq/refl (k : Nat) (x : Fin k) : Fin/Eq k x x =
+  ind-Nat (\ k'. (x' : Fin k') -> Fin/Eq k' x' x')
+          (\ x'. ex-falso (ex-falso U x') x')
+          (\ k' r x'. ind-Coprod (Fin k') (Unit)
+                      (\ x''. Fin/Eq (suc k') x'' x'')
+                      (\ l. r l)
+                      (\ _. star) x') k x
+
+Fin/is-path-is-Eq (k : Nat) (x y : Fin k) (p : Path (Fin k) x y) : Fin/Eq k x y =
+  J (Fin k) x (\ y' _. Fin/Eq k x y')
+    (Fin/Eq/refl k x) y p
+
+Fin/Eq-decidable (k : Nat) (x y : Fin k) : is-decidable (Fin/Eq k x y) =
+  ind-Nat (\ k'. (x' : Fin k') -> (y' : Fin k') -> is-decidable (Fin/Eq k' x' y'))
+          (\ x' y'. ex-falso (is-decidable (Fin/Eq zero x' y')) x')
+          (\ k' r. ind-Coprod (Fin k') (Unit)
+                             (\ x'. (y' : Fin (suc k')) -> is-decidable (Fin/Eq (suc k') x' y'))
+                             (\ x'. ind-Coprod (Fin k') (Unit)
+                                              (\ y'. is-decidable (Fin/Eq (suc k') (inl x') y'))
+                                              (\ y'. r x' y')
+                                              (\ y'. is-decidable/Empty))
+                             (\ x'. ind-Coprod (Fin k') (Unit)
+                                              (\ y'. is-decidable (Fin/Eq (suc k') (inr x') y'))
+                                              (\ y'. is-decidable/Empty)
+                                              (\ y'. is-decidable/Unit))) k x y
+
+Fin/decidable-eq (k : Nat) : has-decidable-equality (Fin k) =
+  \ x y. Coprod/map (Fin/Eq k x y) (neg (Fin/Eq k x y)) (Path (Fin k) x y) (neg (Path (Fin k) x y))
+          (Fin/Eq/is-eq k x y)
+          (\ f p. f (Fin/is-path-is-Eq k x y p))
+          (Fin/Eq-decidable k x y)

@@ -1,0 +1,23 @@
+module Lib.Prop.Unit where
+
+import Lib.Data.Unit
+import Stdlib.Prelude
+
+Unit/uniqueness (x : Unit) : Path Unit star x =
+  ind-Unit (\ x'. Path Unit star x')
+           (refl Unit star) x
+
+Unit/uniqueness' (x : Unit) : Path Unit x star =
+  inv Unit star x (Unit/uniqueness x)
+
+Unit/all-elements-equal (x : Unit) (y : Unit) : Path Unit x y =
+  comp Unit x star
+    (Unit/uniqueness' x)
+    y
+    (Unit/uniqueness y)
+
+Unit/is-prop : is-prop Unit =
+  Unit/all-elements-equal
+
+Unit/is-contr : is-contr Unit =
+  (star, Unit/uniqueness)

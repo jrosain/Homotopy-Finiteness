@@ -1,0 +1,26 @@
+#+NAME: Prod
+#+AUTHOR: Johann Rosain
+
+* Properties on product
+
+  #+begin_src ctt
+  module Lib.Prop.Prod where
+  #+end_src
+
+This file shows some properties of product-types.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+   #+end_src
+
+** Induction principle
+
+   #+begin_src ctt
+  ind-Prod (A B : U) (P : (A * B) -> U) (f : (x : A) (y : B) -> P (x, y)) (z : A * B) : P z =
+    f z.1 z.2
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

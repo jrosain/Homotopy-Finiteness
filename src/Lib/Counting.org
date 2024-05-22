@@ -54,9 +54,9 @@ Furthermore, types with counting are closed under equivalence.
 If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
   * [\to] By path induction, =inv e : A \to Empty=.
 #+begin_src ctt
-  count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
-    J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/Equiv A c))
-               (number-of-elements A c) p
+  -- count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+  --   J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/Equiv A c))
+  --              (number-of-elements A c) p
 #+end_src
   * [\leftarrow] =f : is-empty A= is an equivalence, thus =Fin k= is equivalent to =Empty= and a quick induction on =k= is enough to conclude.
   #+begin_src ctt

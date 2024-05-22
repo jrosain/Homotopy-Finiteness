@@ -4,6 +4,7 @@ import Lib.Prop.Contr
 import Lib.Prop.Sg
 import Lib.Data.Map
 import Lib.Data.Empty
+import Lib.Data.Decidability  
 import Lib.QInv
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
@@ -58,6 +59,14 @@ is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
 
 Empty/equiv (A : U) (f : is-empty A) : Equiv A Empty =
   (f, is-empty/is-equiv A f)
+
+is-decidable/Equiv (A B : U) (e : Equiv A B) (dB : is-decidable B) : is-decidable A =
+  Coprod/map B (neg B) A (neg A)
+             (Equiv/inv-map A B e)
+             (\ f a. f ((Equiv/map A B e) a)) dB
+
+is-decidable/Equiv' (A B : U) (e : Equiv A B) (dA : is-decidable A) : is-decidable B =
+  is-decidable/Equiv B A (Equiv/sym A B e) dA
 
 -- is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
 --   let f = Equiv/map A B e in

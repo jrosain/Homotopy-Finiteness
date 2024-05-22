@@ -15,6 +15,7 @@ This file defines some notions of /decidability/ for types, and proves some deci
   import Lib.Data.Empty
   import Lib.Data.Coprod
   import Lib.Data.Unit  
+  import Lib.Prop.Prod
   import Stdlib.Prelude
    #+end_src
 
@@ -52,6 +53,43 @@ Indeed, =star= inhabits =Unit=.
   is-decidable/inhabited-type (A : U) (a : A) : is-decidable A =
     inl a
     #+end_src
+*** Closure properties 
+Decidability is closed under product and coproduct. Moreover, we also have a result on maps.
+
+**** On coproduct
+It suffices to proceed by coprod-induction on the decidability of =A= and =B=. Coproducts behave as an "or", thus it is almost always =inl= except when we have both =neg A= and =neg B=.
+     #+begin_src ctt
+  is-decidable/Coprod (A B : U) (dA : is-decidable A) (dB : is-decidable B) : is-decidable (Coprod A B) =
+    ind-Coprod A (neg A) (\ _. is-decidable (Coprod A B))
+              (\ a. inl (inl a))
+              (\ f. ind-Coprod B (neg B) (\ _. is-decidable (Coprod A B))
+                              (\ b. inl (inr b))
+                              (\ g. inr (ind-Coprod A B (\ _. Empty) f g)) dB) dA
+     #+end_src
+**** On products
+It suffices to proceed by coprod-induction on the decidability of =A= and =B=. Products behave as an "and", thus, as we expect, we find =inl= only once and =inr= otherwise.
+     #+begin_src ctt
+  is-decidable/Prod (A B : U) (dA : is-decidable A) (dB : is-decidable B) : is-decidable (A * B) =
+    ind-Coprod A (neg A) (\ _. is-decidable (A * B))
+               (\ a. ind-Coprod B (neg B) (\ _. is-decidable (A * B))
+                               (\ b. inl (a, b))
+                               (\ g. inr (ind-Prod A B (\ _. Empty) (\ _. g))) dB)
+               (\ f. inr (ind-Prod A B (\ _. Empty) (\ x y. f x))) dA
+     #+end_src
+**** On maps
+#+begin_src ctt
+  is-decidable/map (A B : U) (dA : is-decidable A) (dB : is-decidable B) : is-decidable (A -> B) =
+    ind-Coprod A (neg A) (\ _. is-decidable (A -> B))
+                 (\ a. ind-Coprod B (neg B) (\ _. is-decidable (A -> B))
+                                 (\ b. inl (\ x. b))
+                                 (\ g. inr (\ h. g (h a))) dB)
+                 (\ f. inl (\ a. ex-falso B (f a))) dA
+#+end_src
+An immediate consequence is that if =A= is decidable, then =neg A= is also decidable.
+#+begin_src ctt
+  is-decidable/neg (A : U) (d : is-decidable A) : is-decidable (neg A) =
+    is-decidable/map A Empty d is-decidable/Empty
+#+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.

@@ -23,17 +23,4 @@ This file defines the unit type, i.e., the type that is inhabited by a unique el
    #+end_src
 
 #+RESULTS:
-#+begin_example
-
-Checking Definition: Unit
-U
-[Sum]
-
-Checking Definition: ind-Unit
-(P : Unit -> U) -> (p : P star) -> (x : Unit) -> P x
-\ P. \ p. [Split]
-
-Successfully checked 2 definitions
-Evaluation of \ P. \ p. [Split]
-Yields \ P. \ p. ind-Unit P p
-#+end_example
+: Typecheck has succeeded.
