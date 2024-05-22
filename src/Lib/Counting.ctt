@@ -12,6 +12,12 @@ count/Equiv (A : U) (c : count A) : Equiv (Fin (number-of-elements A c)) A = c.2
 count/fin-count (k : Nat) : count (Fin k) =
   (k, IdEquiv (Fin k))
 
+count/zero-count : count (Fin zero) =
+  count/fin-count zero
+
+count/one-count : count (Fin one-Nat) =
+  count/fin-count one-Nat
+
 count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
   (number-of-elements B c,
    Equiv/trans (Fin (number-of-elements B c)) B A (count/Equiv B c) (Equiv/sym A B e))
@@ -19,14 +25,23 @@ count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
 count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
   count/closed-equiv B A (Equiv/sym A B e) c
 
-count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
-  J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/Equiv A c))
-             (number-of-elements A c) p
+count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
+  let e : Equiv (Fin (number-of-elements A c)) Empty =
+        Equiv/trans (Fin (number-of-elements A c)) A Empty (count/Equiv A c) (Empty/equiv A f) in
+  ind-Nat (\ k. (Equiv (Fin k) Empty) -> Path Nat zero k)
+          (\ _. refl Nat zero)
+          (\ n _ e'. ex-falso (Path Nat zero (suc n)) ((Equiv/map (Fin (suc n)) Empty e') (zero-Fin n)))
+          (number-of-elements A c) e
 
--- count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
---   let e : Equiv (Fin (number-of-elements A c)) Empty =
---         Equiv/trans (Fin (number-of-elements A c)) A Empty (count/is-counting A c) (Empty/equiv A f) in
---   ind-Nat (\ k. Path Nat zero k)
---           (refl Nat zero)
---           (\ n _. ex-falso ((Equiv/map (Fin (number-of-elements A c)) Empty e) (zero-Fin n)))
---           (number-of-elements A c)
+count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+   ind-Sg Nat (\ k. Equiv (Fin k) A)
+              (\ z. (Path Nat zero z.1) -> is-empty A)
+              (\ k e p'. J Nat zero (\ k' _. Equiv (Fin k') A -> is-empty A) (\ e'. Equiv/inv-map Empty A e') k p' e)
+              c p
+
+count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
+  ind-Sg Nat (\ k. Equiv (Fin k) X)
+             (\ _. is-decidable X)
+             (ind-Nat (\ k'. Equiv (Fin k') X -> is-decidable X)
+                      (\ e'. is-decidable/Equiv' Empty X e' is-decidable/Empty)
+                      (\ k' _ e'. inl ((Equiv/map (Fin (suc k')) X e') (inr star)))) c

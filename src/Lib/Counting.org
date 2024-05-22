@@ -38,6 +38,15 @@ It follows from the definition that every standard finite type can be counted in
   count/fin-count (k : Nat) : count (Fin k) =
     (k, IdEquiv (Fin k))
 #+end_src
+*** Zero and one-counts
+For instance, we can give the canonical version of counts for zero and one.
+#+begin_src ctt
+  count/zero-count : count (Fin zero) =
+    count/fin-count zero
+
+  count/one-count : count (Fin one-Nat) =
+    count/fin-count one-Nat  
+#+end_src
 
 *** Closure under equivalence
 Furthermore, types with counting are closed under equivalence.
@@ -52,26 +61,44 @@ Furthermore, types with counting are closed under equivalence.
 
 *** Empty means no elements
 If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
-  * [\to] By path induction, =inv e : A \to Empty=.
-#+begin_src ctt
-  -- count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
-  --   J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/Equiv A c))
-  --              (number-of-elements A c) p
-#+end_src
   * [\leftarrow] =f : is-empty A= is an equivalence, thus =Fin k= is equivalent to =Empty= and a quick induction on =k= is enough to conclude.
   #+begin_src ctt
-  -- count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
-  --   let e : Equiv (Fin (number-of-elements A c)) Empty =
-  --         Equiv/trans (Fin (number-of-elements A c)) A Empty (count/is-counting A c) (Empty/equiv A f) in
-  --   ind-Nat (\ k. Path Nat zero k)
-  --           (refl Nat zero)
-  --           (\ n _. ex-falso ((Equiv/map (Fin (number-of-elements A c)) Empty e) (zero-Fin n)))
-  --           (number-of-elements A c)
+  count/empty-has-zero-count (A : U) (c : count A) (f : is-empty A) : Path Nat zero (number-of-elements A c) =
+    let e : Equiv (Fin (number-of-elements A c)) Empty =
+          Equiv/trans (Fin (number-of-elements A c)) A Empty (count/Equiv A c) (Empty/equiv A f) in
+    ind-Nat (\ k. (Equiv (Fin k) Empty) -> Path Nat zero k)
+            (\ _. refl Nat zero)
+            (\ n _ e'. ex-falso (Path Nat zero (suc n)) ((Equiv/map (Fin (suc n)) Empty e') (zero-Fin n)))
+            (number-of-elements A c) e
   #+end_src
+TODO: the code above produces an error when it is evaluated last ; try to have a minimal example and post the issue on git.
+  * [\to] By sigma-induction on the counting, yielding =(k, e)= then by path induction as =inv e : A \to Empty=.
+#+begin_src ctt
+  count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+     ind-Sg Nat (\ k. Equiv (Fin k) A)
+                (\ z. (Path Nat zero z.1) -> is-empty A)
+                (\ k e p'. J Nat zero (\ k' _. Equiv (Fin k') A -> is-empty A) (\ e'. Equiv/inv-map Empty A e') k p' e)
+                c p
+#+end_src
+
 *** Contractible iff one elements
 This needs the 3-for-2 property of contractibility (that will soon be proved in the [[src/Lib/Prop/Equiv.org][Equiv]] file).
 *** A proposition is countable iff it is decidable
-This needs the property that =(k, e) : count A= has =k = 0= iff =A= is empty.
+First, if a type =X= is countable, then it is decidable as can be shown by a quick induction on the number of elements of =X=.
+#+begin_src ctt
+  count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
+    ind-Sg Nat (\ k. Equiv (Fin k) X)
+               (\ _. is-decidable X)
+               (ind-Nat (\ k'. Equiv (Fin k') X -> is-decidable X)
+                        (\ e'. is-decidable/Equiv' Empty X e' is-decidable/Empty)
+                        (\ k' _ e'. inl ((Equiv/map (Fin (suc k')) X e') (inr star)))) c 
+#+end_src
+Conversely, if =X= is a decidable proposition, then =X= is countable. Indeed, by case analysis, it yields either the zero-count or the one-count.
+#+begin_src ctt
+  -- count/is-decidable-is-countable (X : U) (H : is-prop X) (dX : is-decidable X) : is-countable X =
+  -- needs that if P is an inhabited proposition, then Equiv P Unit
+  -- otherwise, the equivalence is trivial as the map to empty is always an equivalence.
+#+end_src
 *** A countable type is a set
 Actually, a type =A= equipped with a counting has decidable equality as =Fin k= has decidable equality.
 #+begin_src 

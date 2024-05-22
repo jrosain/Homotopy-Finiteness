@@ -15,6 +15,13 @@ This file proves some useful basic facts on \Sigma-types.
   import Stdlib.Prelude
    #+end_src
 
+** Induction principle
+
+   #+begin_src ctt
+  ind-Sg (A : U) (B : A -> U) (P : Sg A B -> U) (g : (x : A) (y : B x) -> P(x, y)) : (z : Sg A B) -> P z =
+    \ z. g z.1 z.2
+   #+end_src
+
 ** Paths properties
 
 *** \Sigma-Path implies subpaths

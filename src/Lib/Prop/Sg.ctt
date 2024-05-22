@@ -2,6 +2,9 @@ module Lib.Prop.Sg where
 
 import Stdlib.Prelude
 
+ind-Sg (A : U) (B : A -> U) (P : Sg A B -> U) (g : (x : A) (y : B x) -> P(x, y)) : (z : Sg A B) -> P z =
+  \ z. g z.1 z.2
+
 Sg-path/left (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v) : Path A u.1 v.1 =
   J (Sg A B) u (\ w _. Path A u.1 w.1) (refl A u.1) v p
 
