@@ -1,13 +1,13 @@
-#+NAME: Finite Types
+#+NAME: Counting
 #+AUTHOR: Johann Rosain
 
-* Finite Types
+* Counting
 
   #+begin_src ctt
-  module Lib.FiniteTypes where
+  module Lib.Counting where
   #+end_src
 
-Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[Lib/Data/][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
+This file defines the notion of /counting/ in HoTT, and basic counting properties.
 
 ** Packages imports
 
@@ -16,9 +16,8 @@ Finite types are types that can be counted. However, when defining finite types,
   import Lib.Data.Fin  
    #+end_src
 
-** Counting
 
-*** Definition
+** Definition
 
 A type =A= can be counted if there is some =k : Nat= such that =A= is equivalent to =Fin k=.
     #+begin_src ctt
@@ -28,36 +27,36 @@ A type =A= can be counted if there is some =k : Nat= such that =A= is equivalent
 =k= is also called the /number of elements/ of =A=.
 #+begin_src ctt
   number-of-elements (A : U) (c : count A) : Nat = c.1
-  count/is-counting (A : U) (c : count A) : Equiv (Fin (number-of-elements A c)) A = c.2
+  count/Equiv (A : U) (c : count A) : Equiv (Fin (number-of-elements A c)) A = c.2
 #+end_src
 
-*** Properties
+** Properties
 
-**** Canonical count
+*** Canonical count
 It follows from the definition that every standard finite type can be counted in a canonical way.
 #+begin_src ctt
   count/fin-count (k : Nat) : count (Fin k) =
     (k, IdEquiv (Fin k))
 #+end_src
 
-**** Closure under equivalence
+*** Closure under equivalence
 Furthermore, types with counting are closed under equivalence.
 #+begin_src ctt
   count/closed-equiv (A B : U) (e : Equiv A B) (c : count B) : count A =
     (number-of-elements B c,
-     Equiv/trans (Fin (number-of-elements B c)) B A (count/is-counting B c) (Equiv/sym A B e))
+     Equiv/trans (Fin (number-of-elements B c)) B A (count/Equiv B c) (Equiv/sym A B e))
 
   count/closed-equiv' (A B : U) (e : Equiv A B) (c : count A) : count B =
     count/closed-equiv B A (Equiv/sym A B e) c
 #+end_src
 
-**** Empty means no elements
+*** Empty means no elements
 If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
   * [\to] By path induction, =inv e : A \to Empty=.
 #+begin_src ctt
-  -- count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
-  --   J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/is-counting A c))
-  --              (number-of-elements A c) p
+  count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =
+    J Nat zero (\ _ _. is-empty A) (Equiv/inv-map (Fin zero) A (count/Equiv A c))
+               (number-of-elements A c) p
 #+end_src
   * [\leftarrow] =f : is-empty A= is an equivalence, thus =Fin k= is equivalent to =Empty= and a quick induction on =k= is enough to conclude.
   #+begin_src ctt
@@ -69,3 +68,13 @@ If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
   --           (\ n _. ex-falso ((Equiv/map (Fin (number-of-elements A c)) Empty e) (zero-Fin n)))
   --           (number-of-elements A c)
   #+end_src
+*** Contractible iff one elements
+This needs the 3-for-2 property of contractibility (that will soon be proved in the [[src/Lib/Prop/Equiv.org][Equiv]] file).
+*** A proposition is countable iff it is decidable
+This needs the property that =(k, e) : count A= has =k = 0= iff =A= is empty.
+*** A countable type is a set
+Actually, a type =A= equipped with a counting has decidable equality as =Fin k= has decidable equality.
+#+begin_src 
+
+#+end_src
+Then, Hedberg's theorem allows us to conclude that if =A= has a counting, then =A= is a set.

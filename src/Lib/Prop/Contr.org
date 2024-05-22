@@ -25,5 +25,8 @@ This file regroups properties of contractible types and maps not provided by the
     c.2  
    #+end_src
 
+** Properties
+
+
 #+RESULTS:
 : Typecheck has succeeded.

@@ -9,7 +9,7 @@
 
 Whiskering operations are operations that allow the composition of homotopies with functions. There are two situations where such a thing is useful:
   * when there are three functions =f, g : A -> B=, =h : B -> C= and a homotopy =f ~ g= ;
-  * when there are three functions =f : A -> B=, =g, h : B -> C= and a homotopy =g ~ h=.
+  * when there are three functions =f : A -> B=, =g=,  =h : B -> C= and a homotopy =g ~ h=.
 These are called the /left-whisker/ and /right-whisker/, and this file provides their definition.
 
 ** Packages imports

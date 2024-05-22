@@ -1,0 +1,58 @@
+#+NAME: Decidability
+#+AUTHOR: Johann Rosain
+
+* Decidability
+
+#+begin_src ctt
+  module Lib.Data.Decidability where
+#+end_src
+
+This file defines some notions of /decidability/ for types, and proves some decidability results.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Empty
+  import Lib.Data.Coprod
+  import Lib.Data.Unit  
+  import Stdlib.Prelude
+   #+end_src
+
+** Definition
+
+A type =A= is said /decidable/ if =A + (neg A)=.
+   #+begin_src ctt
+  is-decidable (A : U) : U = Coprod A (neg A)
+   #+end_src
+
+A type =A= has a /decidable equality/ if for all =x, y : A=, =x = y= is decidable.
+#+begin_src ctt
+  has-decidable-equality (A : U) : U =
+    (x y : A) -> is-decidable (Path A x y)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+** Some results about decidability
+*** Empty is decidable
+Indeed, =(neg Empty)= is =Empty \to Empty= hence it is populated by the identity.
+    #+begin_src ctt
+  is-decidable/Empty : is-decidable Empty =
+    inr (id Empty)
+    #+end_src
+*** Unit is decidable
+Indeed, =star= inhabits =Unit=.
+#+begin_src ctt
+  is-decidable/Unit : is-decidable Unit =
+    inl star
+#+end_src
+*** Any inhabited type is decidable
+    #+begin_src ctt
+  is-decidable/inhabited-type (A : U) (a : A) : is-decidable A =
+    inl a
+    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+

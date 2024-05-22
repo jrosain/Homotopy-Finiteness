@@ -1,0 +1,20 @@
+module Lib.Data.Decidability where
+
+import Lib.Data.Empty
+import Lib.Data.Coprod
+import Lib.Data.Unit  
+import Stdlib.Prelude
+
+is-decidable (A : U) : U = Coprod A (neg A)
+
+has-decidable-equality (A : U) : U =
+  (x y : A) -> is-decidable (Path A x y)
+
+is-decidable/Empty : is-decidable Empty =
+  inr (id Empty)
+
+is-decidable/Unit : is-decidable Unit =
+  inl star
+
+is-decidable/inhabited-type (A : U) (a : A) : is-decidable A =
+  inl a

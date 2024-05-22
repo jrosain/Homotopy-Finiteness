@@ -9,11 +9,11 @@
 
 This file defines the standard finite types as done in [[https://arxiv.org/pdf/2212.11082][[1, Def. 7.3.2]​]] by recursion over the natural numbers.
 
+** Packages imports
+
 #+begin_src ctt
   import Lib.Data.Nat
-  import Lib.Data.Empty
-  import Lib.Data.Unit
-  import Lib.Data.Coprod  
+  import Lib.Data.Decidability
 #+end_src
 
 ** Definition
@@ -31,6 +31,71 @@ This file defines the standard finite types as done in [[https://arxiv.org/pdf/2
     zero -> inr star
     suc k' -> inl (zero-Fin k')
    #+end_src
+Left and right inclusion functions.
+#+begin_src ctt
+  Fin/i/left (k : Nat) (x : Fin k) : Fin (suc k) =
+    inl x
+
+  Fin/i/right (k : Nat) (x : Unit) : Fin (suc k) =
+    inr x
+#+end_src
+
+
+** Properties
+
+*** Observational equality
+We build an observational equality =Fin/Eq= for the type =Fin k= such that there is a path between =x, y : Fin k= iff =Fin/Eq x y=. 
+
+**** Definition
+We proceed by induction on =k=.
+  * If =k= is =0=, we have nothing to do as =Fin 0= is =Empty=.
+  * If =k= is =suc k'=, then there are 4 cases.
+    + if =x, y= are =star=, then =Fin/Eq x y= is =Unit= ;
+    + if =x= is star and =y= is =inl y'= or =x= is =inl x'= and =y= is star, then =Fin/Eq x y= is Empty ;
+    + if =x= and =y= are both =inl x'= and =inl y'=, then =Fin/Eq x y= is =Fin/Eq x' y'=.
+#+begin_src ctt
+  Fin/Eq (k : Nat) (x : Fin k) (y : Fin k) : U =
+    ind-Nat (\ k'. Fin k' -> Fin k' -> U)
+            (\ x' _. ex-falso U x')
+            (\ k' r. ind-Coprod (Fin k') (Unit)
+                       (\ _. Coprod (Fin k') (Unit) -> U)
+                       (\ x'. ind-Coprod (Fin k') (Unit) (\ _. U) (\ y'. r x' y') (\ _. Empty))
+                       (\ _. ind-Coprod (Fin k') (Unit) (\ _. U) (\ _. Empty) (\ _. Unit)))
+            k x y
+#+end_src
+
+**** Correspondance with =Path=
+We show that, for =x, y : Fin k=, =Fin/Eq x y= iff =Path (Fin k) x y=. First, we show the "if" side. We only need to consider the cases where =x, y= are either both =inl _= or both =inr _= as otherwise, =Fin/Eq x y= is an element from =Empty=. If both are =inl=, the induction hypothesis on =k= suffices to conclude. Otherwise, both elements are =star= ; that is, =x, y= can be identified by reflexivity.
+#+begin_src ctt
+  Fin/Eq/is-path (k : Nat) (x y : Fin k) (e : Fin/Eq k x y) : Path (Fin k) x y =
+    ind-Nat (\ k'. (x' : Fin k') -> (y' : Fin k') -> Fin/Eq k' x' y' -> Path (Fin k') x' y')
+            (\ x' y' _. ex-falso (Path Empty x' y') x')
+            (\ k' r. ind-Coprod (Fin k') (Unit)
+                               (\ x'. (y' : Fin (suc k')) -> Fin/Eq (suc k') x' y' -> Path (Fin (suc k')) x' y')
+                               (\ x'. ind-Coprod (Fin k') (Unit) (\ y'. Fin/Eq (suc k') (inl x') y' -> Path (Fin (suc k')) (inl x') y')
+                                                (\ y' e'. ap (Fin k') (Fin (suc k')) (Fin/i/left k') x' y' (r x' y' e'))
+                                                (\ y' e'. ex-falso (Path (Fin (suc k')) (inl x') (inr y')) e'))
+                               (\ x'. ind-Coprod (Fin k') (Unit) (\ y'. Fin/Eq (suc k') (inr x') y' -> Path (Fin (suc k')) (inr x') y')
+                                                (\ y' e'. ex-falso (Path (Fin (suc k')) (inr x') (inl y')) e')
+                                                (\ y' _. ap Unit (Fin (suc k')) (Fin/i/right k') x' y' (refl Unit star))))
+            k x y e
+#+end_src
+TODO so that the thing above compiles: show \forall x y : Unit, Id x y.
+
+Conversely, we start by showing that =Fin/Eq= is reflexive by induction on =k=. If =k= is =0=, there is nothing to do. Otherwise, there are two cases. Either =x= is =inl x'= and the induction hypothesis is enough to conclude, either =x= is =inr star= and we need to return something of type =Unit=, that is, we return =star=.
+#+begin_src ctt
+  -- Fin/Eq/refl (k : Nat) (x : Fin k) : Fin/Eq k x x =
+  --   ind-Nat (\ k'. (x' : Fin k') -> Fin/Eq k' x' x')
+  --           (\ x'. ex-falso (ex-falso U x') x')
+  --           (\ k' r x'. ind-Coprod (Fin k') (Unit)
+  --                       (\ _. Fin/Eq (suc k') x' x')
+  --                       (\ l. r l)
+  --                       (\ _. star) x') k x
+#+end_src
+
+
+*** Decidable equality
+=Fin k= has a decidable equality.
 
 #+RESULTS:
 : Typecheck has succeeded.

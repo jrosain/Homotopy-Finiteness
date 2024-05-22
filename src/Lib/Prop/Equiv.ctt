@@ -4,6 +4,7 @@ import Lib.Prop.Contr
 import Lib.Prop.Sg
 import Lib.Data.Map
 import Lib.Data.Empty
+import Lib.QInv
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
 Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
@@ -58,5 +59,9 @@ is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
 Empty/equiv (A : U) (f : is-empty A) : Equiv A Empty =
   (f, is-empty/is-equiv A f)
 
-is-contr/is-contr-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (c : is-contr B) : is-contr A =
-  ?
+-- is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
+--   let f = Equiv/map A B e in
+--   let i = Equiv/sym A B e in
+--   let g = Equiv/map B A i in
+--   (g (center B c),
+--    \ x.

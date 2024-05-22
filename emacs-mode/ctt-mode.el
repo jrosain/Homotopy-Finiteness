@@ -92,9 +92,19 @@
   ;; Clear memory
   (setq ctt-keywords-regexp nil)
   (setq ctt-operators-regexp nil)
-  (setq ctt-special-regexp nil))
+  (setq ctt-special-regexp nil)
+
+  (run-hooks 'ctt-mode-hook))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.ctt\\'" . ctt-mode))
+
+(add-hook 'ctt-mode-hook 
+          (lambda ()
+            "Beautify Org Checkbox Symbol"
+            (push '("->" . "→") prettify-symbols-alist)
+            (push '("\\ " . "λ") prettify-symbols-alist)
+            (push '("Sg" . "Σ") prettify-symbols-alist)
+            (prettify-symbols-mode)))
 
 (provide 'ctt-mode)

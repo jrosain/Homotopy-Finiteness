@@ -1,9 +1,7 @@
 module Lib.Data.Fin where
 
 import Lib.Data.Nat
-import Lib.Data.Empty
-import Lib.Data.Unit
-import Lib.Data.Coprod
+import Lib.Data.Decidability
 
 Fin : Nat -> U = split
   zero -> Empty
@@ -12,3 +10,39 @@ Fin : Nat -> U = split
 zero-Fin : (k : Nat) -> Fin (suc k) = split
   zero -> inr star
   suc k' -> inl (zero-Fin k')
+
+Fin/i/left (k : Nat) (x : Fin k) : Fin (suc k) =
+  inl x
+
+Fin/i/right (k : Nat) (x : Unit) : Fin (suc k) =
+  inr x
+
+Fin/Eq (k : Nat) (x : Fin k) (y : Fin k) : U =
+  ind-Nat (\ k'. Fin k' -> Fin k' -> U)
+          (\ x' _. ex-falso U x')
+          (\ k' r. ind-Coprod (Fin k') (Unit)
+                     (\ _. Coprod (Fin k') (Unit) -> U)
+                     (\ x'. ind-Coprod (Fin k') (Unit) (\ _. U) (\ y'. r x' y') (\ _. Empty))
+                     (\ _. ind-Coprod (Fin k') (Unit) (\ _. U) (\ _. Empty) (\ _. Unit)))
+          k x y
+
+Fin/Eq/is-path (k : Nat) (x y : Fin k) (e : Fin/Eq k x y) : Path (Fin k) x y =
+  ind-Nat (\ k'. (x' : Fin k') -> (y' : Fin k') -> Fin/Eq k' x' y' -> Path (Fin k') x' y')
+          (\ x' y' _. ex-falso (Path Empty x' y') x')
+          (\ k' r. ind-Coprod (Fin k') (Unit)
+                             (\ x'. (y' : Fin (suc k')) -> Fin/Eq (suc k') x' y' -> Path (Fin (suc k')) x' y')
+                             (\ x'. ind-Coprod (Fin k') (Unit) (\ y'. Fin/Eq (suc k') (inl x') y' -> Path (Fin (suc k')) (inl x') y')
+                                              (\ y' e'. ap (Fin k') (Fin (suc k')) (Fin/i/left k') x' y' (r x' y' e'))
+                                              (\ y' e'. ex-falso (Path (Fin (suc k')) (inl x') (inr y')) e'))
+                             (\ x'. ind-Coprod (Fin k') (Unit) (\ y'. Fin/Eq (suc k') (inr x') y' -> Path (Fin (suc k')) (inr x') y')
+                                              (\ y' e'. ex-falso (Path (Fin (suc k')) (inr x') (inl y')) e')
+                                              (\ y' _. ap Unit (Fin (suc k')) (Fin/i/right k') x' y' (refl Unit star))))
+          k x y e
+
+-- Fin/Eq/refl (k : Nat) (x : Fin k) : Fin/Eq k x x =
+--   ind-Nat (\ k'. (x' : Fin k') -> Fin/Eq k' x' x')
+--           (\ x'. ex-falso (ex-falso U x') x')
+--           (\ k' r x'. ind-Coprod (Fin k') (Unit)
+--                       (\ _. Fin/Eq (suc k') x' x')
+--                       (\ l. r l)
+--                       (\ _. star) x') k x
