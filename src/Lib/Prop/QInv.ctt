@@ -1,0 +1,50 @@
+module Lib.Prop.QInv where
+
+import Lib.Data.QInv
+import Lib.Data.Nat
+
+has-inverse/comp-has-inverse (A B C : U) (f : A -> B) (g : B -> C) (i : has-inverse A B f) (i' : has-inverse B C g) : has-inverse A C (map/comp A B C g f) =
+  let h : C -> A = map/comp C B A (QInv/map A B f i) (QInv/map B C g i')
+      H : Htpy C (\ _. C) (map/comp C A C (map/comp A B C g f) h) (id C) =
+          \ x. comp C (g (f (h x))) (g (QInv/map B C g i' x))
+                   (ap B C g (f (h x)) (QInv/map B C g i' x) (QInv/right-htpy A B f i (QInv/map B C g i' x))) 
+                   x
+                   (QInv/right-htpy B C g i' x)
+      K : Htpy A (\ _. A) (map/comp A C A h (map/comp A B C g f)) (id A) =
+          \ x. comp A (h (g (f x))) ((QInv/map A B f i) (f x))
+                     (ap B A (QInv/map A B f i) ((QInv/map B C g i') (g (f x))) (f x) (QInv/left-htpy B C g i' (f x)))
+                     x
+                     (QInv/left-htpy A B f i x)                   
+  in
+  (h, (H, K))
+
+has-inverse/has-inverse-comp-left (A B C : U) (f : A -> B) (g : B -> C) (i : has-inverse B C g)
+                                                                      (i' : has-inverse A C (map/comp A B C g f)) : has-inverse A B f =
+  let ig : C -> B = QInv/map B C g i
+      h : B -> A = map/comp B C A (QInv/map A C (map/comp A B C g f) i') g
+      H : Htpy B (\ _. B) (map/comp B A B f h) (id B) =
+          \ x. comp-n B three-Nat
+                (f (h x)) (ig (g (f (h x)))) (inv B (ig (g (f (h x)))) (f (h x)) (QInv/left-htpy B C g i (f (h x))))
+                (ig (g x)) (ap C B ig (g (f (h x))) (g x)
+                              (QInv/right-htpy A C (map/comp A B C g f) i' (g x)))
+                x (QInv/left-htpy B C g i x)
+      K : Htpy A (\ _. A) (map/comp A B A h f) (id A) = QInv/left-htpy A C (map/comp A B C g f) i'
+  in
+  (h, (H, K))
+
+has-inverse/has-inverse-comp-right (A B C : U) (f : A -> B) (g : B -> C) (i : has-inverse A B f)
+                                   (i' : has-inverse A C (map/comp A B C g f)) : has-inverse B C g =
+  let if : B -> A = QInv/map A B f i
+      igf : C -> A = (QInv/map A C (map/comp A B C g f) i')
+      h : C -> B  = map/comp C A B f igf
+      H : Htpy C (\ _. C) (map/comp C B C g h) (id C) = QInv/right-htpy A C (map/comp A B C g f) i'
+      K : Htpy B (\ _. B) (map/comp B C B h g) (id B) =
+          \ x. comp-n B three-Nat
+                        (h (g x)) (h (g (f (if x))))
+                        (ap B B (map/comp B C B h g) x (f (if x)) (inv B (f (if x)) x
+                                                       (QInv/right-htpy A B f i x)))
+                        (f (if x)) (ap A B f (igf (g (f (if x)))) (if x)
+                                             (QInv/left-htpy A C (map/comp A B C g f) i' (if x)))
+                        x (QInv/right-htpy A B f i x)                    
+  in
+  (h, (H, K))

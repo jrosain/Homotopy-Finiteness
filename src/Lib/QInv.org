@@ -1,40 +1,19 @@
 #+NAME: QInv
 #+AUTHOR: Johann Rosain
 
-* Quasi-inverses
+* Logical equivalence between quasi-inverses and bi-invertible maps
 
   #+begin_src ctt
   module Lib.QInv where
   #+end_src
 
-In univalent mathematics, a map =f= is an equivalence (=is-equiv f=) if it has a left and right inverse (or, equivalently, if its fibers are contractible). This definition makes sense as in this case, =is-equiv f= is a proposition, that is, being an equivalence is a property of a map rather than a structure on the map. However, in practice, it is easier to use the /natural/ notion of equivalence: bijection. In HoTT, bijections are called *quasi-inverses*. This file defines this notion, and proves that a map is a quasi-inverse iff it is bi-invertible.
+In univalent mathematics, a map =f= is an equivalence (=is-equiv f=) if it has a left and right inverse (or, equivalently, if its fibers are contractible). This definition makes sense as in this case, =is-equiv f= is a proposition, that is, being an equivalence is a property of a map rather than a structure on the map. However, in practice, it is easier to use the /natural/ notion of equivalence: bijection. In HoTT, bijections are called *quasi-inverses*. This file proves that a map is a quasi-inverse iff it is bi-invertible.
 
 ** Packages imports
 
    #+begin_src ctt
-  import Lib.Data.BiInv  
-   #+end_src
-
-** Definition
-
-A map =f : A -> B= /has an inverse/ if there exists =g : B -> A= such that =f \circ g ~ id B= and =g \circ f ~ id A=. As such, the type of a *quasi-inverse* is a triple =(g, \alpha, \beta)= where =\alpha= and =\beta= are the two homotopies verifying that =g= is indeed an inverse of =f=.
-   #+begin_src ctt
-  has-inverse (A B : U) (f : A -> B) : U =
-    Sg (B -> A) (\ g. (Htpy B (\ _. B) (map/comp B A B f g) (id B)) *
-                      (Htpy A (\ _. A) (map/comp A B A g f) (id A)))
-   #+end_src
-
-** Accessors
-
-   #+begin_src ctt
-  QInv/map (A B : U) (f : A -> B) (i : has-inverse A B f) : B -> A =
-    i.1
-
-  QInv/right-htpy (A B : U) (f : A -> B) (i : has-inverse A B f) : Htpy B (\ _. B) (map/comp B A B f (QInv/map A B f i)) (id B) =
-    i.2.1
-
-  QInv/left-htpy (A B : U) (f : A -> B) (i : has-inverse A B f) : Htpy A (\ _. A) (map/comp A B A (QInv/map A B f i) f) (id A) =
-    i.2.2
+  import Lib.Data.BiInv
+  import Lib.Data.QInv  
    #+end_src
 
 ** Logical equivalence between quasi-inverses and bi-invertible maps
@@ -89,6 +68,15 @@ This result allows us to give (i) an inverse to a bi-invertible map that is (ii)
     #+begin_src ctt
   is-bi-inv/inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
     QInv/map A B f (is-bi-inv-has-inverse A B f b)
+    #+end_src
+
+*** Homotopies of inverse map
+    #+begin_src ctt
+  is-bi-inv/inv-right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _. B) (map/comp B A B f (is-bi-inv/inv-map A B f b)) (id B) =
+    QInv/right-htpy A B f (is-bi-inv-has-inverse A B f b)
+
+  is-bi-inv/inv-left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (is-bi-inv/inv-map A B f b) f) (id A) =
+    QInv/left-htpy A B f (is-bi-inv-has-inverse A B f b)
     #+end_src
 
 *** Bi-invertibility of inverse map

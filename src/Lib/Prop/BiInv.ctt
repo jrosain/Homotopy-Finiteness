@@ -1,0 +1,56 @@
+module Lib.Prop.BiInv where
+
+import Lib.QInv
+import Lib.Prop.QInv
+import Lib.Data.Nat
+
+is-bi-inv/comp-is-bi-inv (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv A B f) (b' : is-bi-inv B C g) : is-bi-inv A C (map/comp A B C g f) =
+  has-inverse-is-bi-inv A C (map/comp A B C g f)
+    (has-inverse/comp-has-inverse A B C f g
+      (is-bi-inv-has-inverse A B f b)
+      (is-bi-inv-has-inverse B C g b'))
+
+is-bi-inv/is-bi-inv-comp-left (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv B C g) (b' : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv A B f =
+  has-inverse-is-bi-inv A B f
+    (has-inverse/has-inverse-comp-left A B C f g
+      (is-bi-inv-has-inverse B C g b)
+      (is-bi-inv-has-inverse A C (map/comp A B C g f) b'))
+
+is-bi-inv/is-bi-inv-comp-right (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv A B f)
+                               (b' : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv B C g =
+  has-inverse-is-bi-inv B C g
+    (has-inverse/has-inverse-comp-right A B C f g
+      (is-bi-inv-has-inverse A B f b)
+      (is-bi-inv-has-inverse A C (map/comp A B C g f) b'))
+
+is-bi-inv-comp/injective (B C D : U) (g : B -> C) (h : C -> D) (K : is-bi-inv B D (map/comp B C D h g))
+                         : is-injective B C g = \ x y p.
+  let i : D -> B = is-bi-inv/inv-map B D (map/comp B C D h g) K
+      q : Path D (h (g x)) (h (g y)) = ap C D h (g x) (g y) p
+      r : Path B (i (h (g x))) (i (h (g y))) = ap D B i (h (g x)) (h (g y)) q
+      H : Htpy B (\ _. B) (\ z. i (h (g z))) (id B) = is-bi-inv/inv-left-htpy B D (map/comp B C D h g) K
+  in
+  comp-n B three-Nat x (i (h (g x))) (inv B (i (h (g x))) x (H x))
+                       (i (h (g y))) r
+                       y (H y)
+
+is-bi-inv-comp/is-inj-is-bi-inv-left-map (A B C : U) (f : A -> B) (g : B -> C) (inj : is-injective B C g) (H : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv A B f =
+  let i : C -> A = is-bi-inv/inv-map A C (map/comp A B C g f) H
+      h : B -> A = map/comp B C A i g
+      K : Htpy B (\ _. B) (map/comp B A B f h) (id B) =
+          \ x. inj (f (h x)) x (is-bi-inv/inv-right-htpy A C (map/comp A B C g f) H (g x))
+  in
+  has-inverse-is-bi-inv A B f
+                        (h, (K, is-bi-inv/inv-left-htpy A C (map/comp A B C g f) H))
+
+is-bi-inv-comp/is-bi-inv-left-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                  (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv A B f =
+  is-bi-inv-comp/is-inj-is-bi-inv-left-map A B C f g (is-bi-inv-comp/injective B C D g h K) H
+
+is-bi-inv-comp/is-bi-inv-middle-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                   (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv B C g =
+  is-bi-inv/is-bi-inv-comp-right A B C f g (is-bi-inv-comp/is-bi-inv-left-map A B C D f g h H K) H
+
+is-bi-inv-comp/is-bi-inv-right-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                   (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv C D h =
+  is-bi-inv/is-bi-inv-comp-right B C D g h (is-bi-inv-comp/is-bi-inv-middle-map A B C D f g h H K) K

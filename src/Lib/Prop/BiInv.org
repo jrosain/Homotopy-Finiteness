@@ -13,18 +13,94 @@ This file states and shows useful properties of bi-invertible maps.
 
    #+begin_src ctt
   import Lib.QInv
+  import Lib.Prop.QInv
+  import Lib.Data.Nat  
    #+end_src
 
 ** 3-for-2 property of composition
+An important property of bi-invertible maps is that, for two maps =f : A \to B= and =g : B \to C=, then if any two of
+   * =f= is bi-invertible ;
+   * =g= is bi-invertible ;
+   * =g \circ f= is bi-invertible
+hold, then the third also hold. In fact, we use the fact that it is the case for quasi-inverses. As bi-invertible maps have quasi-inverses, it also hold for bi-invertible maps.
+
+*** Composition
+#+begin_src ctt
+  is-bi-inv/comp-is-bi-inv (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv A B f) (b' : is-bi-inv B C g) : is-bi-inv A C (map/comp A B C g f) =
+    has-inverse-is-bi-inv A C (map/comp A B C g f)
+      (has-inverse/comp-has-inverse A B C f g
+        (is-bi-inv-has-inverse A B f b)
+        (is-bi-inv-has-inverse B C g b'))
+#+end_src
+
+*** Left map
+    #+begin_src ctt
+  is-bi-inv/is-bi-inv-comp-left (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv B C g) (b' : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv A B f =
+    has-inverse-is-bi-inv A B f
+      (has-inverse/has-inverse-comp-left A B C f g
+        (is-bi-inv-has-inverse B C g b)
+        (is-bi-inv-has-inverse A C (map/comp A B C g f) b'))
+    #+end_src
+
+*** Right map
+    #+begin_src ctt
+  is-bi-inv/is-bi-inv-comp-right (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv A B f)
+                                 (b' : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv B C g =
+    has-inverse-is-bi-inv B C g
+      (has-inverse/has-inverse-comp-right A B C f g
+        (is-bi-inv-has-inverse A B f b)
+        (is-bi-inv-has-inverse A C (map/comp A B C g f) b'))
+    #+end_src
 
 ** Double-composition property
 Assume that there are maps =f : A \to B=, =g : B \to C= and =h : C \to D= such that =g \circ f= and =h \circ g= are bi-invertible. We show that =f=, =g= and =h= are all bi-invertible.
 
-*** =f= and =h= are bi-invertible
-We show a more general lemma -- that is, for any =f : A \to B= and =g : B \to C= such that =g \circ f= is bi-invertible, then =f= is bi-invertible. Indeed, let =i= be the inverse of =g \circ f=. Then, =i \circ g= is the inverse of =f=: =i \circ g \circ f= is obviously the identity, and =g \circ f \circ i \circ g ~ g= hence the result.
-     #+begin_src ctt
-     
-     #+end_src
+*** =g= is injective
+In this setting, we can show that =g= is injective. Indeed, if =g x= is equal to =g y= then =h (g x)= must also be equal to =h (g y)=. By bi-invertibility of =h \circ g=, =x= is thus equal to =y=.
+#+begin_src ctt
+  is-bi-inv-comp/injective (B C D : U) (g : B -> C) (h : C -> D) (K : is-bi-inv B D (map/comp B C D h g))
+                           : is-injective B C g = \ x y p.
+    let i : D -> B = is-bi-inv/inv-map B D (map/comp B C D h g) K
+        q : Path D (h (g x)) (h (g y)) = ap C D h (g x) (g y) p
+        r : Path B (i (h (g x))) (i (h (g y))) = ap D B i (h (g x)) (h (g y)) q
+        H : Htpy B (\ _. B) (\ z. i (h (g z))) (id B) = is-bi-inv/inv-left-htpy B D (map/comp B C D h g) K
+    in
+    comp-n B three-Nat x (i (h (g x))) (inv B (i (h (g x))) x (H x))
+                         (i (h (g y))) r
+                         y (H y)
+#+end_src
 
-*** =g= is also bi-invertible
-It directly follows from the 3-for-2 property of composition for bi-inverses.
+*** =f= is bi-invertible
+We show a more general lemma -- that is, for any =f : A \to B= and =g : B \to C= such that =g \circ f= is bi-invertible, then =f= is bi-invertible whenever =g= is injective. Indeed, let =i= be the inverse of =g \circ f=. Then, =i \circ g= is the inverse of =f=: =i \circ g \circ f= is obviously the identity, and =g \circ f \circ i \circ g ~ g= hence the result.
+     #+begin_src ctt
+  is-bi-inv-comp/is-inj-is-bi-inv-left-map (A B C : U) (f : A -> B) (g : B -> C) (inj : is-injective B C g) (H : is-bi-inv A C (map/comp A B C g f)) : is-bi-inv A B f =
+    let i : C -> A = is-bi-inv/inv-map A C (map/comp A B C g f) H
+        h : B -> A = map/comp B C A i g
+        K : Htpy B (\ _. B) (map/comp B A B f h) (id B) =
+            \ x. inj (f (h x)) x (is-bi-inv/inv-right-htpy A C (map/comp A B C g f) H (g x))
+    in
+    has-inverse-is-bi-inv A B f
+                          (h, (K, is-bi-inv/inv-left-htpy A C (map/comp A B C g f) H)) 
+     #+end_src
+We can directly conclude that =f= is bi-invertible.
+#+begin_src ctt
+  is-bi-inv-comp/is-bi-inv-left-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                    (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv A B f =
+    is-bi-inv-comp/is-inj-is-bi-inv-left-map A B C f g (is-bi-inv-comp/injective B C D g h K) H
+#+end_src
+
+*** =g= and =h= are bi-invertible
+Using the 3-for-2 property of composition, as =g \circ f= and =f= are both bi-invertible, =g= is also bi-invertible.
+#+begin_src ctt
+  is-bi-inv-comp/is-bi-inv-middle-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                     (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv B C g =
+    is-bi-inv/is-bi-inv-comp-right A B C f g (is-bi-inv-comp/is-bi-inv-left-map A B C D f g h H K) H
+#+end_src
+
+Now that we have shown that =g= is bi-invertible, we can use the 3-for-2 property of composition on =h \circ g= and =g=, to conclude that =h= is also bi-invertible.
+#+begin_src ctt
+  is-bi-inv-comp/is-bi-inv-right-map (A B C D : U) (f : A -> B) (g : B -> C) (h : C -> D) (H : is-bi-inv A C (map/comp A B C g f))
+                                     (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv C D h =
+    is-bi-inv/is-bi-inv-comp-right B C D g h (is-bi-inv-comp/is-bi-inv-middle-map A B C D f g h H K) K
+#+end_src
+

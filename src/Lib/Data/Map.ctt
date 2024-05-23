@@ -1,4 +1,15 @@
 module Lib.Data.Map where
 
+import Lib.Data.Empty
+
 map/comp (A B C : U) (g : B -> C) (f : A -> B) : A -> C =
   \ x. g (f x)
+
+is-injective (A B : U) (f : A -> B) : U =
+  (x y : A) -> Path B (f x) (f y) -> Path A x y
+
+is-injective' (A B : U) (f : A -> B) : U =
+  (x y : A) -> neg (Path A x y) -> neg (Path B (f x) (f y))
+
+is-injective/is-injective' (A B : U) (f : A -> B) (i : is-injective A B f) : is-injective' A B f =
+  \ x y np p. np (i x y p)

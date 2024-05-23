@@ -9,6 +9,12 @@
 
 This file provides and proves basic facts about maps.
 
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Empty
+   #+end_src
+
 ** Composition
 
    #+begin_src ctt
@@ -16,5 +22,21 @@ This file provides and proves basic facts about maps.
     \ x. g (f x)
    #+end_src
 
+** Injection
+
+A map =f : A \to B= is said /injective/ when =x = y= whenever =f x = f y=. By contraposition, it also means that if =f x \neq f y=, then =x \neq y=.
+   #+begin_src ctt
+  is-injective (A B : U) (f : A -> B) : U =
+    (x y : A) -> Path B (f x) (f y) -> Path A x y
+
+  is-injective' (A B : U) (f : A -> B) : U =
+    (x y : A) -> neg (Path A x y) -> neg (Path B (f x) (f y))
+   #+end_src
+
+We show that these two versions are actually equivalent.
+#+begin_src ctt
+  is-injective/is-injective' (A B : U) (f : A -> B) (i : is-injective A B f) : is-injective' A B f =
+    \ x y np p. np (i x y p)
+#+end_src
 #+RESULTS:
 : Typecheck has succeeded.

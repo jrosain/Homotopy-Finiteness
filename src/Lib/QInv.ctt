@@ -1,19 +1,7 @@
 module Lib.QInv where
 
 import Lib.Data.BiInv
-
-has-inverse (A B : U) (f : A -> B) : U =
-  Sg (B -> A) (\ g. (Htpy B (\ _. B) (map/comp B A B f g) (id B)) *
-                    (Htpy A (\ _. A) (map/comp A B A g f) (id A)))
-
-QInv/map (A B : U) (f : A -> B) (i : has-inverse A B f) : B -> A =
-  i.1
-
-QInv/right-htpy (A B : U) (f : A -> B) (i : has-inverse A B f) : Htpy B (\ _. B) (map/comp B A B f (QInv/map A B f i)) (id B) =
-  i.2.1
-
-QInv/left-htpy (A B : U) (f : A -> B) (i : has-inverse A B f) : Htpy A (\ _. A) (map/comp A B A (QInv/map A B f i) f) (id A) =
-  i.2.2
+import Lib.Data.QInv
 
 has-inverse-is-bi-inv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-bi-inv A B f =
   let g : B -> A = QInv/map A B f i in
@@ -36,6 +24,12 @@ is-bi-inv-has-inverse (A B : U) (f : A -> B) (b : is-bi-inv A B f) : has-inverse
 
 is-bi-inv/inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) : B -> A =
   QInv/map A B f (is-bi-inv-has-inverse A B f b)
+
+is-bi-inv/inv-right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _. B) (map/comp B A B f (is-bi-inv/inv-map A B f b)) (id B) =
+  QInv/right-htpy A B f (is-bi-inv-has-inverse A B f b)
+
+is-bi-inv/inv-left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (is-bi-inv/inv-map A B f b) f) (id A) =
+  QInv/left-htpy A B f (is-bi-inv-has-inverse A B f b)
 
 is-bi-inv/inv-is-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-bi-inv B A (is-bi-inv/inv-map A B f b) =
   let g : B -> A = is-bi-inv/inv-map A B f b in
