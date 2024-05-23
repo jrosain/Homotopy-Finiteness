@@ -1,0 +1,99 @@
+#+NAME: Proposition
+#+AUTHOR: Johann Rosain
+
+* Propositions properties
+
+  #+begin_src ctt
+  module Lib.Prop.Proposition where
+  #+end_src
+
+This file shows some properties related to the fact that a type =A= is a proposition. For instance, it states the 4 equivalent ways of stating that a type is a proposition, and gives maps for each situation.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Data.Map
+  import Lib.Data.Unit
+  import Lib.Prop.Contr
+  import Lib.Prop.Unit
+   #+end_src
+
+** Equivalent statements for =is-prop=
+
+In our formalisation, a type =A= has a witness =is-prop A= whenever all its elements are equal. However, there are 3 other ways to state this:
+   * whenever =A= is inhabited, it is contractible ;
+   * the identity elements of =A= are contractible ;
+   * the map =A= is equivalent to =Unit=.
+Note that the second point is also part of a more general theorem -- if =A= is =k=-truncated, then the identity on =A= is also =k=-truncated.
+
+*** Definitions of conditions
+
+    #+begin_src ctt
+  is-proof-irrelevant (A : U) : U =
+    A -> is-contr A
+
+  has-contr-eq (A : U) : U =
+    (x y : A) -> is-contr (Path A x y)
+
+  is-subterminal (A : U) : U =
+    Equiv A Unit
+    #+end_src
+
+*** Maps between conditions
+
+**** A proposition is proof irrelevant
+    #+begin_src ctt
+  is-prop/is-proof-irrelevant (A : U) (p : is-prop A) : is-proof-irrelevant A =
+    \ x. (x, p x)
+#+end_src
+**** A type is subterminal whenever its proofs are irrelevant
+First, we define the function that erases every =a : A= to =star=.
+    #+begin_src ctt
+  const-star (A : U) : A -> Unit = \ _. star
+#+end_src
+The center of contraction of the fibration is given by the center of contraction of =A=, and the fact that =Unit= is a proposition (that is, all its elements are equal).
+#+begin_src ctt
+  is-proof-irrelevant/contr-center (A : U) (x : A) (f : is-proof-irrelevant A) (y : Unit) : Fib A Unit (const-star A) y =
+    ((f x).1, Unit/is-prop y (const-star A (f x).1))
+#+end_src
+Using the fact that there is a path between a dependent pair whenever there are two paths =p= and =q= between both its elements, we exhibit =p= using the contraction of =A= (as the center's fibration first element is defined as the center of the contraction of =A=, it is easy) and =q= using the fact that =Unit= is a set, that is, its identity types are a proposition -- i.e., they are all equal.
+#+begin_src ctt
+  is-proof-irrelevant/contr-contr (A : U) (x : A) (f : is-proof-irrelevant A) (y : Unit) (v : Fib A Unit (const-star A) y)
+    : Path (Fib A Unit (const-star A) y) (is-proof-irrelevant/contr-center A x f y) v =
+        let u : Fib A Unit (const-star A) y = (is-proof-irrelevant/contr-center A x f y)
+            p : Path A u.1 v.1 = (f x).2 v.1
+            r : (Path Unit y (const-star A v.1)) = (tr A u.1 v.1 p (\ z. Path Unit y (const-star A z)) u.2)
+            q : Path (Path Unit y (const-star A v.1)) r v.2 =
+                      Unit/is-set y (const-star A v.1) r v.2
+        in
+        SgPathO->PathSg A (\ z. Path Unit y (const-star A z)) u v (p, q)
+#+end_src
+Finally, we use these two lemmas to build a contraction between the fibers of =const-star=, i.e., to show that =const-star= is an equivalence whenever =A= is an inhabited proposition.
+#+begin_src ctt
+  is-proof-irrelevant/is-equiv-const-star (A : U) (x : A) (f : is-proof-irrelevant A) : is-equiv A Unit (const-star A) =
+    \ y.
+      let c : Fib A Unit (const-star A) y = is-proof-irrelevant/contr-center A x f y
+          contr : (H : Fib A Unit (const-star A) y) -> Path (Fib A Unit (const-star A) y) c H =
+                      is-proof-irrelevant/contr-contr A x f y
+      in (c, contr)
+
+  is-proof-irrelevant/is-subterminal (A : U) (x : A) (f : is-proof-irrelevant A) : is-subterminal A =
+    (const-star A, is-proof-irrelevant/is-equiv-const-star A x f)
+#+end_src
+
+**** A subterminal type has a contractible identity
+If =A= is subterminal, then the identity types of =A= are equivalent to contractible types, hence, by the 3-for-2 property of contraction, the identity types of =A= are contractible.
+     #+begin_src ctt
+  -- is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
+  -- needs the 3-for-2 property of contraction
+     #+end_src
+**** All the elements of a type are equal whenever it has a contractible equality
+To complete the equivalence proofs, we use the center of contraction of the equality to show that any two elements are equal.
+     #+begin_src ctt
+  has-contr-eq/is-prop (A : U) (c : has-contr-eq A) : is-prop A =
+    \ x y. (center (Path A x y) (c x y))
+     #+end_src
+
+**** Equivalences
+Thus, we can define back-and-forth maps between all the conditions (TODO, once all the proofs can be completed).

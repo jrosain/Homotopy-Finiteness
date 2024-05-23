@@ -14,3 +14,21 @@ is-bi-inv/right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy B (\ _.
 
 is-bi-inv/left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (is-bi-inv/left-inv A B f b) f) (id A) =
   b.2.2
+
+BiInv/map (A B : U) (b : BiInv A B) : A -> B =
+  b.1
+
+BiInv/is-bi-inv (A B : U) (b : BiInv A B) : is-bi-inv A B (BiInv/map A B b) =
+  b.2
+
+BiInv/right-inv (A B : U) (b : BiInv A B) : B -> A =
+  is-bi-inv/right-inv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
+BiInv/left-inv (A B : U) (b : BiInv A B) : B -> A =
+  is-bi-inv/left-inv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
+BiInv/right-htpy (A B : U) (b : BiInv A B) : Htpy B (\ _. B) (map/comp B A B (BiInv/map A B b) (BiInv/right-inv A B b)) (id B) =
+  is-bi-inv/right-htpy A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
+BiInv/left-htpy (A B : U) (b : BiInv A B) : Htpy A (\ _. A) (map/comp A B A (BiInv/left-inv A B b) (BiInv/map A B b)) (id A) =
+  is-bi-inv/left-htpy A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)

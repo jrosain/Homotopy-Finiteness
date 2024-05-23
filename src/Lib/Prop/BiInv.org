@@ -1,0 +1,30 @@
+#+NAME: BiInv
+#+AUTHOR: Johann Rosain
+
+* Bi-invertible maps properties
+
+  #+begin_src ctt
+  module Lib.Prop.BiInv where
+  #+end_src
+
+This file states and shows useful properties of bi-invertible maps.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.QInv
+   #+end_src
+
+** 3-for-2 property of composition
+
+** Double-composition property
+Assume that there are maps =f : A \to B=, =g : B \to C= and =h : C \to D= such that =g \circ f= and =h \circ g= are bi-invertible. We show that =f=, =g= and =h= are all bi-invertible.
+
+*** =f= and =h= are bi-invertible
+We show a more general lemma -- that is, for any =f : A \to B= and =g : B \to C= such that =g \circ f= is bi-invertible, then =f= is bi-invertible. Indeed, let =i= be the inverse of =g \circ f=. Then, =i \circ g= is the inverse of =f=: =i \circ g \circ f= is obviously the identity, and =g \circ f \circ i \circ g ~ g= hence the result.
+     #+begin_src ctt
+     
+     #+end_src
+
+*** =g= is also bi-invertible
+It directly follows from the 3-for-2 property of composition for bi-inverses.

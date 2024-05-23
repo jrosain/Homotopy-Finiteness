@@ -21,3 +21,6 @@ Unit/is-prop : is-prop Unit =
 
 Unit/is-contr : is-contr Unit =
   (star, Unit/uniqueness)
+
+Unit/is-set : is-set Unit =
+  is-contr->is-set Unit Unit/is-contr

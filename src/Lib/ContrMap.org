@@ -1,0 +1,17 @@
+#+NAME: ContrMap
+#+AUTHOR: Johann Rosain
+
+* Contractible maps are bi-invertible
+
+  #+begin_src ctt
+  module Lib.ContrMap where
+  #+end_src
+
+This file shows that maps are contractible iff they are bi-invertible. The proof is not the usual one found in the HoTT book or Rijke's introduction to HoTT, but is the one found by Christian Sattler and David Wärn ([[https://github.com/sattlerc/hott-reading-course/blob/master/exams/practice/exam.pdf][source]]).
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.QInv
+   #+end_src
+

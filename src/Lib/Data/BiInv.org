@@ -7,7 +7,7 @@
   module Lib.Data.BiInv where
   #+end_src
 
-This file defines accessors and some properties of bi-invertible maps.
+This file defines accessors of bi-invertible maps.
 
 ** Packages imports
 
@@ -16,8 +16,7 @@ This file defines accessors and some properties of bi-invertible maps.
   import Lib.Data.Map  
    #+end_src
 
-** Accessors
-
+** =is-bi-inv= accessors
 *** Of the left & right inverses
 
    #+begin_src ctt
@@ -36,6 +35,35 @@ This file defines accessors and some properties of bi-invertible maps.
 
   is-bi-inv/left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Htpy A (\ _. A) (map/comp A B A (is-bi-inv/left-inv A B f b) f) (id A) =
     b.2.2
+    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+** =BiInv= accessors
+*** Of the underlying constructions
+    #+begin_src ctt
+  BiInv/map (A B : U) (b : BiInv A B) : A -> B =
+    b.1
+
+  BiInv/is-bi-inv (A B : U) (b : BiInv A B) : is-bi-inv A B (BiInv/map A B b) =
+    b.2
+    #+end_src
+*** Of the left & right inverses
+    #+begin_src ctt
+  BiInv/right-inv (A B : U) (b : BiInv A B) : B -> A =
+    is-bi-inv/right-inv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
+  BiInv/left-inv (A B : U) (b : BiInv A B) : B -> A =
+    is-bi-inv/left-inv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+    #+end_src
+*** Of the left & right homotopies
+    #+begin_src ctt
+  BiInv/right-htpy (A B : U) (b : BiInv A B) : Htpy B (\ _. B) (map/comp B A B (BiInv/map A B b) (BiInv/right-inv A B b)) (id B) =
+    is-bi-inv/right-htpy A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
+  BiInv/left-htpy (A B : U) (b : BiInv A B) : Htpy A (\ _. A) (map/comp A B A (BiInv/left-inv A B b) (BiInv/map A B b)) (id A) =
+    is-bi-inv/left-htpy A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
     #+end_src
 
 #+RESULTS:

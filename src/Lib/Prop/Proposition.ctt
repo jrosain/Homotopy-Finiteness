@@ -1,0 +1,50 @@
+module Lib.Prop.Proposition where
+
+import Stdlib.Prelude
+import Lib.Data.Map
+import Lib.Data.Unit
+import Lib.Prop.Contr
+import Lib.Prop.Unit
+
+is-proof-irrelevant (A : U) : U =
+  A -> is-contr A
+
+has-contr-eq (A : U) : U =
+  (x y : A) -> is-contr (Path A x y)
+
+is-subterminal (A : U) : U =
+  Equiv A Unit
+
+is-prop/is-proof-irrelevant (A : U) (p : is-prop A) : is-proof-irrelevant A =
+  \ x. (x, p x)
+
+const-star (A : U) : A -> Unit = \ _. star
+
+is-proof-irrelevant/contr-center (A : U) (x : A) (f : is-proof-irrelevant A) (y : Unit) : Fib A Unit (const-star A) y =
+  ((f x).1, Unit/is-prop y (const-star A (f x).1))
+
+is-proof-irrelevant/contr-contr (A : U) (x : A) (f : is-proof-irrelevant A) (y : Unit) (v : Fib A Unit (const-star A) y)
+  : Path (Fib A Unit (const-star A) y) (is-proof-irrelevant/contr-center A x f y) v =
+      let u : Fib A Unit (const-star A) y = (is-proof-irrelevant/contr-center A x f y)
+          p : Path A u.1 v.1 = (f x).2 v.1
+          r : (Path Unit y (const-star A v.1)) = (tr A u.1 v.1 p (\ z. Path Unit y (const-star A z)) u.2)
+          q : Path (Path Unit y (const-star A v.1)) r v.2 =
+                    Unit/is-set y (const-star A v.1) r v.2
+      in
+      SgPathO->PathSg A (\ z. Path Unit y (const-star A z)) u v (p, q)
+
+is-proof-irrelevant/is-equiv-const-star (A : U) (x : A) (f : is-proof-irrelevant A) : is-equiv A Unit (const-star A) =
+  \ y.
+    let c : Fib A Unit (const-star A) y = is-proof-irrelevant/contr-center A x f y
+        contr : (H : Fib A Unit (const-star A) y) -> Path (Fib A Unit (const-star A) y) c H =
+                    is-proof-irrelevant/contr-contr A x f y
+    in (c, contr)
+
+is-proof-irrelevant/is-subterminal (A : U) (x : A) (f : is-proof-irrelevant A) : is-subterminal A =
+  (const-star A, is-proof-irrelevant/is-equiv-const-star A x f)
+
+-- is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
+-- needs the 3-for-2 property of contraction
+
+has-contr-eq/is-prop (A : U) (c : has-contr-eq A) : is-prop A =
+  \ x y. (center (Path A x y) (c x y))

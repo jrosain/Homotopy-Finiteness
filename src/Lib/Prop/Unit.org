@@ -42,12 +42,18 @@ That is, =Unit= is a proposition.
     Unit/all-elements-equal
    #+end_src
 
-
 ** =Unit= is contractible
 This also shows that =Unit= is contractible.
 #+begin_src ctt
   Unit/is-contr : is-contr Unit =
     (star, Unit/uniqueness)
+#+end_src
+
+** =Unit= is set
+And that it is a set.
+#+begin_src ctt
+  Unit/is-set : is-set Unit =
+    is-contr->is-set Unit Unit/is-contr
 #+end_src
 
 #+RESULTS:
