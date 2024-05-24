@@ -22,6 +22,13 @@ This file proves some useful basic facts on \Sigma-types.
     \ z. g z.1 z.2
    #+end_src
 
+** Accessors
+
+   #+begin_src ctt
+  pr1 (A : U) (B : A -> U) (u : Sg A B) : A = u.1
+  pr2 (A : U) (B : A -> U) (u : Sg A B) : B (pr1 A B u) = u.2
+   #+end_src
+
 ** Paths properties
 
 *** \Sigma-Path implies subpaths

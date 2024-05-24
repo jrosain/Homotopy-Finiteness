@@ -1,0 +1,61 @@
+module Lib.ContrMap where
+
+import Lib.QInv
+import Lib.Prop.BiInv
+import Lib.Prop.Sg  
+import Lib.Prop.ActionPaths
+
+is-equiv/is-bi-inv-inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+  \ y. let c : Fib A B f y = (e y).1 in c.1
+
+is-equiv/is-bi-inv-inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (y : B)
+                                       : Path B (f (is-equiv/is-bi-inv-inv-map A B f e y)) y =
+  let c : Fib A B f y = (e y).1
+      gx : A = (is-equiv/is-bi-inv-inv-map A B f e y)
+  in (inv B y (f (gx)) c.2)
+
+is-equiv/is-bi-inv-inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (x : A)
+                                      : Path A ((is-equiv/is-bi-inv-inv-map A B f e) (f x)) x =
+  let c : is-contr (Fib A B f (f x)) = (e (f x))
+      g : B -> A = is-equiv/is-bi-inv-inv-map A B f e
+      P : A -> U = \ x'. Path B (f (g (f x'))) (f x')
+      p : Path B (f x) (f (g (f x))) = inv B (f (g (f x))) (f x) (is-equiv/is-bi-inv-inv-right-htpy A B f e (f x))
+      fib : Fib A B f (f x) = (g (f x), p)
+      fib' : Fib A B f (f x) = (x, refl B (f x))
+      r : Path (Fib A B f (f x)) fib c.1 = (inv (Fib A B f (f x)) c.1 fib (c.2 fib))
+      s : Path (Fib A B f (f x)) c.1 fib' = c.2 fib'
+      q : Path (Fib A B f (f x)) fib fib' = (comp (Fib A B f (f x)) fib c.1 r fib' s)
+  in ap (Fib A B f (f x)) A (\ u. u.1) fib fib' q
+
+is-equiv/is-bi-inv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-bi-inv A B f =
+  has-inverse-is-bi-inv A B f
+    (is-equiv/is-bi-inv-inv-map A B f e,
+      (is-equiv/is-bi-inv-inv-right-htpy A B f e,
+       is-equiv/is-bi-inv-inv-left-htpy A B f e))
+
+is-bi-inv/is-equiv-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g)
+                                             : is-bi-inv A A (map/comp A B A g (is-bi-inv/right-inv B A g b)) =
+  let f : A -> B = is-bi-inv/right-inv B A g b
+      H : Htpy A (\ _. A) (map/comp A A A (map/comp A B A g f) (id A)) (id A) =
+          is-bi-inv/right-htpy B A g b
+      K : Htpy A (\ _. A) (map/comp A A A (id A) (map/comp A B A g f)) (id A) =
+          is-bi-inv/right-htpy B A g b
+  in ((id A, H), (id A, K))
+
+is-bi-inv/is-equiv-comp-left-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g)
+                                            : is-bi-inv B B (map/comp B A B (is-bi-inv/left-inv B A g b) g) =
+  let h : A -> B = is-bi-inv/left-inv B A g b
+      H : Htpy B (\ _. B) (map/comp B B B (map/comp B A B h g) (id B)) (id B) =
+          is-bi-inv/left-htpy B A g b
+      K : Htpy B (\ _. B) (map/comp B B B (id B) (map/comp B A B h g)) (id B) =
+          is-bi-inv/left-htpy B A g b
+  in ((id B, H), (id B, K))
+
+is-bi-inv/is-equiv-is-bi-inv-map-left (A B : U) (g : B -> A) (b : is-bi-inv B A g) : is-bi-inv A B (is-bi-inv/right-inv B A g b) =
+  let f : A -> B = is-bi-inv/right-inv B A g b
+      h : A -> B = is-bi-inv/left-inv  B A g b
+  in is-bi-inv-comp/is-bi-inv-left-map A B A B f g h
+        (is-bi-inv/is-equiv-comp-right-is-bi-inv A B g b)
+        (is-bi-inv/is-equiv-comp-left-is-bi-inv A B g b)
+
+

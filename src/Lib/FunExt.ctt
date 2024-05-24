@@ -1,0 +1,10 @@
+module Lib.FunExt where
+
+import Stdlib.Prelude
+
+eq-htpy (A B : U) (f g : A -> B) (H : Htpy' A B f g) : Path (A -> B) f g =
+  \ i a. H a i
+
+htpy-eq (A B : U) (f g : A -> B) (p : Path (A -> B) f g) : Htpy' A B f g =
+  J (A -> B) f (\ h _. Htpy' A B f h)
+              (\ x. refl B (f x)) g p

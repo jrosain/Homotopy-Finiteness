@@ -1,0 +1,84 @@
+module Lib.Prop.ActionPaths where
+
+import Stdlib.Prelude
+import Lib.Data.BiInv
+import Lib.Data.Map  
+import Lib.Data.Nat
+import Lib.FunExt  
+import Lib.QInv
+
+ap/id (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (ap A A (id A) x y p) =
+  J A x (\ y' q. Path (Path A x y') q (ap A A (id A) x y' q))
+        (refl (Path A x x) (refl A x)) y p
+
+ap/comp (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
+               : Path (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) =
+  J A x (\ z q. Path (Path C (g (f x)) (g (f z))) (ap B C g (f x) (f z) (ap A B f x z q)) (ap A C (map/comp A B C g f) x z q))
+        (refl (Path C (g (f x)) (g (f x))) (refl C (g (f x)))) y p
+
+refl/sym (A : U) (x : A) : Path (Path A x x) (refl A x) (inv A x x (refl A x)) =
+  (inv (Path A x x) (inv A x x (refl A x)) (refl A x) (inv/refl A x))
+
+ap/refl/refl (A B : U) (f : A -> B) (x : A) : Path (Path B (f x) (f x)) (ap A B f x x (inv A x x (refl A x)))
+                                                                       (ap A B f x x (refl A x)) =
+  ap (Path A x x) (Path B (f x) (f x)) (ap A B f x x) (inv A x x (refl A x)) (refl A x) (inv/refl A x)
+
+ap/inv (A B : U) (f : A -> B) (x y : A) (p : Path A x y)
+            : Path (Path B (f y) (f x)) (ap A B f y x (inv A x y p)) (inv B (f x) (f y) (ap A B f x y p)) =
+  J A x (\ z q. Path (Path B (f z) (f x)) (ap A B f z x (inv A x z q)) (inv B (f x) (f z) (ap A B f x z q)))
+        (comp (Path B (f x) (f x)) (ap A B f x x (inv A x x (refl A x)))
+                                   (ap A B f x x (refl A x)) (ap/refl/refl A B f x)
+                                   (inv B (f x) (f x) (refl B (f x))) (refl/sym B (f x))) y p
+
+refl/comp-r (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (comp A x y p y (refl A y)) =
+  inv (Path A x y) (comp A x y p y (refl A y)) p (comp/ident-r A x y p)
+
+ap/concat (A B : U) (f : A -> B) (x y z : A) (p : Path A x y) (q : Path A y z)
+               : Path (Path B (f x) (f z)) (ap A B f x z (comp A x y p z q))
+                                         (comp B (f x) (f y) (ap A B f x y p) (f z) (ap A B f y z q)) =
+  J A y (\ t r. Path (Path B (f x) (f t)) (ap A B f x t (comp A x y p t r))
+                                          (comp B (f x) (f y) (ap A B f x y p) (f t) (ap A B f y t r)))
+            (comp (Path B (f x) (f y)) (ap A B f x y (comp A x y p y (refl A y)))
+                                       (ap A B f x y p) (ap (Path A x y) (Path B (f x) (f y)) (ap A B f x y) (comp A x y p y (refl A y)) p (comp/ident-r A x y p))
+                                       (comp B (f x) (f y) (ap A B f x y p) (f y) (refl B (f y))) (refl/comp-r B (f x) (f y) (ap A B f x y p)))
+    z q
+
+naturality (A B : U) (f g : A -> B) (H : Htpy' A B f g) (x y : A) (p : Path A x y)
+                : Path (Path B (f x) (g y)) (comp B (f x) (g x) (H x) (g y) (ap A B g x y p))
+                                            (comp B (f x) (f y) (ap A B f x y p) (g y) (H y)) =
+  J A x (\ z q. Path (Path B (f x) (g z)) (comp B (f x) (g x) (H x) (g z) (ap A B g x z q))
+                                         (comp B (f x) (f z) (ap A B f x z q) (g z) (H z)))
+        (comp (Path B (f x) (g x)) (comp B (f x) (g x) (H x) (g x) (refl B (g x))) (H x)
+                                   (comp/ident-r B (f x) (g x) (H x)) (comp B (f x) (f x) (refl B (f x)) (g x) (H x))
+                                   (comp/ident-l' B (f x) (g x) (H x))) y p
+
+ap/closure-bi-inv-inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) (p : Path B (f x) (f y)) : Path A x y =
+  let g : B -> A = is-bi-inv/inv-map A B f b
+      H : Htpy' A A (\ z. g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
+  in
+  comp-n A three-Nat x (g (f x)) (inv A (g (f x)) x (H x))
+                   (g (f y)) (ap B A g (f x) (f y) p)
+                   y (H y)
+
+-- ap/closure-bi-inv-right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A)
+--                                   : Htpy' (Path B (f x) (f y)) (Path B (f x) (f y))
+--                                          (\ p. (ap A B f x y) (ap/closure-bi-inv-inv-map A B f b x y p)) (id (Path B (f x) (f y))) =
+--   \ p.
+
+ap/closure-bi-inv-left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A)
+                                 : Htpy' (Path A x y) (Path A x y) (\ p. (ap/closure-bi-inv-inv-map A B f b x y) ((ap A B f x y p))) (id (Path A x y)) =
+  \ p.
+    let g : B -> A = is-bi-inv/inv-map A B f b
+        H : Htpy' A A (\ z . g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
+        h : Path A (g (f x)) (g (f y)) -> Path A x y = \ q. (comp-n A three-Nat x (g (f x)) (inv A (g (f x)) x (H x))
+                                                                                (g (f y)) q
+                                                                                 y (H y))
+        q1 : Path (Path A x y) ((ap/closure-bi-inv-inv-map A B f b x y) (ap A B f x y p)) (h (ap A A (\ z. (g (f z))) x y p))
+                                = ap (Path A (g (f x)) (g (f y))) (Path A x y) h (ap B A g (f x) (f y) (ap A B f x y p)) (ap A A (\ z. g (f z)) x y p) (ap/comp A B A f g x y p)
+    in refl (Path A x y) (refl A x)
+
+-- comp-n (Path A x y) four-Nat (\ p. (ap/closure-bi-inv-inv-map A B f b x y p) ((ap A B f x y) p))
+--                                    (h (ap B A (\ z. (g (f z))) p)) q1
+--                                    ? ? ? ? ? ? ? ? ? ? ?
+
+-- ap/closure-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : is-bi-inv (ap A B f x y) =

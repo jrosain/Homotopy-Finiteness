@@ -13,5 +13,104 @@ This file shows that maps are contractible iff they are bi-invertible. The proof
 
    #+begin_src ctt
   import Lib.QInv
+  import Lib.Prop.BiInv
+  import Lib.Prop.Sg  
+  import Lib.Prop.ActionPaths
    #+end_src
 
+** Any equivalence is bi-invertible
+
+*** Technical details
+Let f : A \to B an equivalence -- that is -- a contractible map. As for all =y : B=, =fib f y= is contractible, it has a center of contraction =(x, y = f x)=. We build g : B \to A as follows: for y \in B, g(x) is the first element of the center of =fib f y=. With the second element of the center, we get a homotopy \alpha : y = f (g y) for all y \in B: g is a section of f. In fact, we will see that g is an inverse of f.
+#+begin_src ctt
+  is-equiv/is-bi-inv-inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+    \ y. let c : Fib A B f y = (e y).1 in c.1
+
+  is-equiv/is-bi-inv-inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (y : B)
+                                         : Path B (f (is-equiv/is-bi-inv-inv-map A B f e y)) y =
+    let c : Fib A B f y = (e y).1
+        gx : A = (is-equiv/is-bi-inv-inv-map A B f e y)
+    in (inv B y (f (gx)) c.2)
+#+end_src
+
+We now have to show that g is also a retraction of f, that is, there is a homotopy (g (f x)) = x. Note that we have p : (f (g (f x))) = (f x) by the previous lemma, therefore (g (f x), p) : fib f (f x). Since it is contractible by assumption, we get q : (g (f x), p) = (x, refl), that is, ap pr1 q is of type g (f x) = x.
+#+begin_src ctt
+  is-equiv/is-bi-inv-inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (x : A)
+                                        : Path A ((is-equiv/is-bi-inv-inv-map A B f e) (f x)) x =
+    let c : is-contr (Fib A B f (f x)) = (e (f x))
+        g : B -> A = is-equiv/is-bi-inv-inv-map A B f e
+        P : A -> U = \ x'. Path B (f (g (f x'))) (f x')
+        p : Path B (f x) (f (g (f x))) = inv B (f (g (f x))) (f x) (is-equiv/is-bi-inv-inv-right-htpy A B f e (f x))
+        fib : Fib A B f (f x) = (g (f x), p)
+        fib' : Fib A B f (f x) = (x, refl B (f x))
+        r : Path (Fib A B f (f x)) fib c.1 = (inv (Fib A B f (f x)) c.1 fib (c.2 fib))
+        s : Path (Fib A B f (f x)) c.1 fib' = c.2 fib'
+        q : Path (Fib A B f (f x)) fib fib' = (comp (Fib A B f (f x)) fib c.1 r fib' s)
+    in ap (Fib A B f (f x)) A (\ u. u.1) fib fib' q
+#+end_src
+
+*** Result
+Thus, an equivalence is bi-invertible.
+#+begin_src ctt
+  is-equiv/is-bi-inv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-bi-inv A B f =
+    has-inverse-is-bi-inv A B f
+      (is-equiv/is-bi-inv-inv-map A B f e,
+        (is-equiv/is-bi-inv-inv-right-htpy A B f e,
+         is-equiv/is-bi-inv-inv-left-htpy A B f e))
+#+end_src
+
+** Any bi-invertible map is an equivalence
+
+Let g : B \to A be a bi-invertible map, that is, it is equipped with f, h : A \to B and homotopies p : g \circ f \sim id, q : h \circ g \sim id.
+
+*** Technical details
+
+**** Bi-invertibility of composites
+We start by showing that g \circ f and h \circ g are bi-invertible. Indeed, as they can be identified with the identity, it means that the identity is also an inverse to both of those maps.
+
+g \circ f is bi-invertible:
+#+begin_src ctt
+  is-bi-inv/is-equiv-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g)
+                                               : is-bi-inv A A (map/comp A B A g (is-bi-inv/right-inv B A g b)) =
+    let f : A -> B = is-bi-inv/right-inv B A g b
+        H : Htpy A (\ _. A) (map/comp A A A (map/comp A B A g f) (id A)) (id A) =
+            is-bi-inv/right-htpy B A g b
+        K : Htpy A (\ _. A) (map/comp A A A (id A) (map/comp A B A g f)) (id A) =
+            is-bi-inv/right-htpy B A g b
+    in ((id A, H), (id A, K))
+#+end_src
+
+h \circ g is bi-invertible:
+#+begin_src ctt
+  is-bi-inv/is-equiv-comp-left-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g)
+                                              : is-bi-inv B B (map/comp B A B (is-bi-inv/left-inv B A g b) g) =
+    let h : A -> B = is-bi-inv/left-inv B A g b
+        H : Htpy B (\ _. B) (map/comp B B B (map/comp B A B h g) (id B)) (id B) =
+            is-bi-inv/left-htpy B A g b
+        K : Htpy B (\ _. B) (map/comp B B B (id B) (map/comp B A B h g)) (id B) =
+            is-bi-inv/left-htpy B A g b
+    in ((id B, H), (id B, K))
+#+end_src
+
+**** f is bi-invertible
+Using the double-composition property, a direct consequence is also that f is bi-invertible.
+#+begin_src ctt
+  is-bi-inv/is-equiv-is-bi-inv-map-left (A B : U) (g : B -> A) (b : is-bi-inv B A g) : is-bi-inv A B (is-bi-inv/right-inv B A g b) =
+    let f : A -> B = is-bi-inv/right-inv B A g b
+        h : A -> B = is-bi-inv/left-inv  B A g b
+    in is-bi-inv-comp/is-bi-inv-left-map A B A B f g h
+          (is-bi-inv/is-equiv-comp-right-is-bi-inv A B g b)
+          (is-bi-inv/is-equiv-comp-left-is-bi-inv A B g b)
+#+end_src
+
+As such, =ap f= is also bi-invertible. 
+#+begin_src ctt
+  
+#+end_src
+
+**** f is contractible
+For any x : A, Sg (y : A) f x = f y is also contractible as the previous lemma showed that this space is a retract of Sg (y : A) x = y that is contractible. As f is bijective, it means that the fibers of f are contractible.
+Use =is-contr/closed-retract=.
+
+*** Result
+It allows us to show that =g= has contractible fibers, i.e., that =g= is an equivalence.

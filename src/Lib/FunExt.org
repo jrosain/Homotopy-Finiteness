@@ -1,0 +1,30 @@
+#+NAME: FunExt
+#+AUTHOR: Johann Rosain
+
+* Function extensionnality
+
+  #+begin_src ctt
+  module Lib.FunExt where
+  #+end_src
+
+This file defines function extensionnality and provides utility functions.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+   #+end_src
+
+** Definitions
+
+First, we define =eq-htpy= and =htpy-eq= that should be inverses.
+   #+begin_src ctt
+  eq-htpy (A B : U) (f g : A -> B) (H : Htpy' A B f g) : Path (A -> B) f g =
+    \ i a. H a i
+
+  htpy-eq (A B : U) (f g : A -> B) (p : Path (A -> B) f g) : Htpy' A B f g =
+    J (A -> B) f (\ h _. Htpy' A B f h)
+                (\ x. refl B (f x)) g p
+   #+end_src
+
+The function extensionnality principle states that =htpy-eq= is a family of equivalences (todo).
