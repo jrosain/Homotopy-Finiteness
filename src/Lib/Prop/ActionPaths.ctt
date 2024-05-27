@@ -19,6 +19,10 @@ ap/comp (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
   J A x (\ z q. Path (Path C (g (f x)) (g (f z))) (ap B C g (f x) (f z) (ap A B f x z q)) (ap A C (map/comp A B C g f) x z q))
         (refl (Path C (g (f x)) (g (f x))) (refl C (g (f x)))) y p
 
+ap/comp' (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
+               : Path (Path C (g (f x)) (g (f y))) (ap A C (map/comp A B C g f) x y p) (ap B C g (f x) (f y) (ap A B f x y p)) =
+  inv (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) (ap/comp A B C f g x y p)
+
 refl/sym (A : U) (x : A) : Path (Path A x x) (refl A x) (inv A x x (refl A x)) =
   (inv (Path A x x) (inv A x x (refl A x)) (refl A x) (inv/refl A x))
 
@@ -108,13 +112,121 @@ ap/closure-bi-inv-left-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : 
                                      (ap A A (id A) x y p) q6
                                      p q7
 
+ap/closure-bi-inv-right-htpy-path1 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                   (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+  (ap A B f x y (comp-n A three-Nat x (g (f x)) (inv A (g (f x)) x (H x))
+                                      (g (f y)) (ap B A g (f x) (f y) q) y (H y)))
+
+ap/closure-bi-inv-right-htpy-path2 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                   (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+  (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x)))
+          (f y) (comp B (f (g (f x))) (f y)
+                        (comp B (f (g (f x))) (f x) (G (f x))
+                                (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                        (f y)
+                        (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y)))
+                                (f y) (G (f y)))))
+
+ap/closure-bi-inv-right-htpy-step1 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                    (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y))
+                                       : Path (Path B (f x) (f y)) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)
+                                                                   (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q) =
+  let invG : (z : A) -> Path B (f z) (f (g (f z))) = \ z. inv B (f (g (f z))) (f z) (G (f z))
+      concat : (z : A) -> Path B (f z) (f z) = \ z. comp B (f z) (f (g (f z))) (invG z) (f z) (G (f z))
+      i1 : Path B (f x) (f y) = comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (refl B (f y))
+      i2 : Path B (f x) (f y) = comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (concat y)
+      i3 : Path B (f x) (f y) = comp B (f x) (f x) (refl B (f x)) (f y) i2
+      i4 : Path B (f x) (f y) = comp B (f x) (f x) (concat x) (f y) i2
+      i5 : Path B (f x) (f y) = comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2)
+  in comp-n (Path B (f x) (f y)) six-Nat
+        (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) i1 (refl/comp-r B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+        i2 (ap (Path B (f y) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) p)
+               (refl B (f y)) (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y))) (f y) (G (f y)))
+               (inv (Path B (f y) (f y)) (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y))) (f y) (G (f y))) (refl B (f y)) (comp/inv-l B (f (g (f y))) (f y) (G (f y)))))
+        i3 (comp/ident-l' B (f x) (f y) i2)
+        i4 (ap (Path B (f x) (f x)) (Path B (f x) (f y)) (\ p. comp B (f x) (f x) p (f y) i2)
+               (refl B (f x)) (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f x) (G (f x))) 
+               (inv (Path B (f x) (f x)) (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f x) (G (f x))) (refl B (f x)) (comp/inv-l B (f (g (f x))) (f x) (G (f x)))))
+        i5 (comp/assoc B (f x) (f (g (f x))) (invG x) (f x) (G (f x)) (f y) i2)
+        (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q)
+              (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) p)
+                  (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2)
+                  (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                                    (f y) (concat y))
+                  (inv (Path B (f (g (f x))) (f y)) (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                                                      (f y) (concat y))
+                                                    (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2) 
+                         (comp/assoc B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (concat y))))
+
+ap/closure-bi-inv-right-htpy-path3 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                   (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+  comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f y)
+                             (comp B (f (g (f x))) (f (g (f y)))
+                                     (ap A B f (g (f x)) (g (f y)) (ap B A g (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+                                     (f y) (G (f y)))
+
+ap/closure-bi-inv-right-htpy-step2 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                   (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y))
+                                       : Path (Path B (f x) (f y)) (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q)
+                                                                   (ap/closure-bi-inv-right-htpy-path3 A B f g H G x y q) =
+  let invG : (z : A) -> Path B (f z) (f (g (f z))) = \ z. inv B (f (g (f z))) (f z) (G (f z))
+      concat : (z : A) -> Path B (f z) (f z) = \ z. comp B (f z) (f (g (f z))) (invG z) (f z) (G (f z))
+      i1 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                        (f y) (comp B (f (g (f x))) (f y)
+                                              (comp B (f (g (f x))) (f x) (G (f x))
+                                                                    (f y) (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+                                              (f y) (concat y)))
+      i2 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                        (f y) (comp B (f (g (f x))) (f y)
+                                                      (comp B (f (g (f x))) (f (g (f y)))
+                                                              (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                              (f y) (G (f y)))
+                                                      (f y) (concat y)))
+      i3 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                        (f y) (comp B (f (g (f x))) (f y)
+                                                      (comp B (f (g (f x))) (f (g (f y)))
+                                                              (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                              (f y) (G (f y)))
+                                                      (f y) (refl B (f y))))
+      i4 : Path B (f x) (f y) = comp B (f x) (f (g (f x))) (invG x) (f y)
+                                       (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+  in comp-n (Path B (f x) (f y)) five-Nat
+        (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q) i1
+        (ap (Path B (f x) (f y)) (Path B (f x) (f y)) (\ p. (comp B (f x) (f (g (f x))) (invG x)
+                                                             (f y) (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) p) (f y) (concat y))))
+            (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+            (ap/id B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+      i2
+        (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. (comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f y) p (f y) (concat y))))
+            (comp B (f (g (f x))) (f x) (G (f x)) (f y)
+                          (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+            (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+            (naturality B B (\ z. f (g z)) (id B) G (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+      i3
+        (ap (Path B (f y) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y)
+                                                              (comp B (f (g (f x))) (f y)
+                                                                (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+                                                                (f y) p))
+            (concat y) (refl B (f y)) (comp/inv-l B (f (g (f y))) (f y) (G (f y))))
+      i4
+        (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) p)
+            (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                (f y) (G (f y))) (f y) (refl B (f y)))
+            (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+            (comp/ident-r B (f (g (f x))) (f y) (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))))
+      (ap/closure-bi-inv-right-htpy-path3 A B f g H G x y q)
+        (ap (Path B (f (g (f x))) (f (g (f y)))) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f (g (f y))) p (f y) (G (f y))))
+            (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+            (ap A B f (g (f x)) (g (f y)) (ap B A g (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+            (ap/comp' B A B g f (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+
 -- ap/closure-bi-inv-right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A)
 --                                   : Htpy' (Path B (f x) (f y)) (Path B (f x) (f y))
---                                          (\ p. (ap A B f x y) (ap/closure-bi-inv-inv-map A B f b x y p)) (id (Path B (f x) (f y))) =
+--                                          (\ q. (ap A B f x y) (ap/closure-bi-inv-inv-map A B f b x y q)) (id (Path B (f x) (f y))) =
 --   \ q.
 --     let g : B -> A = is-bi-inv/inv-map A B f b
 --         H : Htpy' A A (\ z. g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
 --         G : Htpy' B B (\ z. f (g z)) (id B) = is-bi-inv/inv-right-htpy A B f b
---     in refl (Path B (f x) (f y)) (refl B (f x))
+--     in ...
 
 -- ap/closure-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : is-bi-inv (ap A B f x y) =

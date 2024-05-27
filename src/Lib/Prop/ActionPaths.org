@@ -40,6 +40,10 @@ ap g \circ ap f is ap (g \circ f).
                  : Path (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) =
     J A x (\ z q. Path (Path C (g (f x)) (g (f z))) (ap B C g (f x) (f z) (ap A B f x z q)) (ap A C (map/comp A B C g f) x z q))
           (refl (Path C (g (f x)) (g (f x))) (refl C (g (f x)))) y p
+
+  ap/comp' (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
+                 : Path (Path C (g (f x)) (g (f y))) (ap A C (map/comp A B C g f) x y p) (ap B C g (f x) (f y) (ap A B f x y p)) =
+    inv (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) (ap/comp A B C f g x y p)
 #+end_src
 
 *** Inverse
@@ -99,6 +103,7 @@ We show that if f \sim g, then =ap f= and =ap g= can be used in further computat
 *** Closure of bi-invertibility 
 If =f= is bi-invertible, then =ap f= is bi-invertible aswell.
 
+**** Map
 Indeed, if \alpha is the homotopy f^-1 \circ f \sim id, then the inverse of =ap f= is the concatenation of \alpha^-1 x, ap f^-1 q, \alpha y where q : x = y.
 #+begin_src ctt
   ap/closure-bi-inv-inv-map (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) (p : Path B (f x) (f y)) : Path A x y =
@@ -109,6 +114,8 @@ Indeed, if \alpha is the homotopy f^-1 \circ f \sim id, then the inverse of =ap 
                      (g (f y)) (ap B A g (f x) (f y) p)
                      y (H y)
 #+end_src
+
+**** Left inverse
 First, we show that it is the left inverse of =ap f=. To do so, remark that (ap f (ap f^-1 p)) is (ap (f \circ f^-1) p). Then, using the naturality square is enough to conclude. The code is somewhat tedious, but what is happening is clear:
 
   (H x)^-1 \cdot (ap f^-1 (ap f p)) \cdot (H y) --(ap + ap-comp)--> ((H x)^-1 \cdot (ap (f^-1 \circ f) p)) \cdot (H y)
@@ -158,16 +165,140 @@ First, we show that it is the left inverse of =ap f=. To do so, remark that (ap 
                                        (ap A A (id A) x y p) q6
                                        p q7
 #+end_src
-We now show that it is the right inverse of =ap f=. Indeed, remark that =ap f (H x)= is actually =G (f x))=, and thus we have: ap f ((H x)^-1 \cdot ap f^-1 p \cdot (H y)) = (ap f (H x)^-1) \cdot ap (f \circ f^-1) p \cdot (ap f (H y)) = (G (f x))^-1 \cdot ap (f \circ f^-1) p \cdot G (f y). Then, we proceed as above.
+
+**** Right inverse
+We now show that it is the right inverse of =ap f=. We proceed in multiple steps, as the proof is way more involved.
+
+***** 1^st step: concat
+First, we make =G (f x)= and =G (f y)= appear by concatenating left by G (f x)^-1 \cdot G (f x) and right by G (f y)^-1 \cdot G (f y).
+#+begin_src ctt
+  ap/closure-bi-inv-right-htpy-path1 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                     (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+    (ap A B f x y (comp-n A three-Nat x (g (f x)) (inv A (g (f x)) x (H x))
+                                        (g (f y)) (ap B A g (f x) (f y) q) y (H y)))
+
+  ap/closure-bi-inv-right-htpy-path2 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                     (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+    (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x)))
+            (f y) (comp B (f (g (f x))) (f y)
+                          (comp B (f (g (f x))) (f x) (G (f x))
+                                  (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                          (f y)
+                          (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y)))
+                                  (f y) (G (f y)))))
+
+  ap/closure-bi-inv-right-htpy-step1 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                      (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y))
+                                         : Path (Path B (f x) (f y)) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)
+                                                                     (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q) =
+    let invG : (z : A) -> Path B (f z) (f (g (f z))) = \ z. inv B (f (g (f z))) (f z) (G (f z))
+        concat : (z : A) -> Path B (f z) (f z) = \ z. comp B (f z) (f (g (f z))) (invG z) (f z) (G (f z))
+        i1 : Path B (f x) (f y) = comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (refl B (f y))
+        i2 : Path B (f x) (f y) = comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (concat y)
+        i3 : Path B (f x) (f y) = comp B (f x) (f x) (refl B (f x)) (f y) i2
+        i4 : Path B (f x) (f y) = comp B (f x) (f x) (concat x) (f y) i2
+        i5 : Path B (f x) (f y) = comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2)
+    in comp-n (Path B (f x) (f y)) six-Nat
+          (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) i1 (refl/comp-r B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+          i2 (ap (Path B (f y) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) p)
+                 (refl B (f y)) (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y))) (f y) (G (f y)))
+                 (inv (Path B (f y) (f y)) (comp B (f y) (f (g (f y))) (inv B (f (g (f y))) (f y) (G (f y))) (f y) (G (f y))) (refl B (f y)) (comp/inv-l B (f (g (f y))) (f y) (G (f y)))))
+          i3 (comp/ident-l' B (f x) (f y) i2)
+          i4 (ap (Path B (f x) (f x)) (Path B (f x) (f y)) (\ p. comp B (f x) (f x) p (f y) i2)
+                 (refl B (f x)) (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f x) (G (f x))) 
+                 (inv (Path B (f x) (f x)) (comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f x) (G (f x))) (refl B (f x)) (comp/inv-l B (f (g (f x))) (f x) (G (f x)))))
+          i5 (comp/assoc B (f x) (f (g (f x))) (invG x) (f x) (G (f x)) (f y) i2)
+          (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q)
+                (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) p)
+                    (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2)
+                    (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                                      (f y) (concat y))
+                    (inv (Path B (f (g (f x))) (f y)) (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                                                        (f y) (concat y))
+                                                      (comp B (f (g (f x))) (f x) (G (f x)) (f y) i2) 
+                           (comp/assoc B (f (g (f x))) (f x) (G (f x)) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (f y) (concat y))))
+#+end_src
+
+***** 2^nd step: naturality
+We make the inner =G (f x)= and =G (f y)= disappear using naturality + inverses cancel.
+#+begin_src ctt
+  ap/closure-bi-inv-right-htpy-path3 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                     (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y)) : Path B (f x) (f y) =
+    comp B (f x) (f (g (f x))) (inv B (f (g (f x))) (f x) (G (f x))) (f y)
+                               (comp B (f (g (f x))) (f (g (f y)))
+                                       (ap A B f (g (f x)) (g (f y)) (ap B A g (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+                                       (f y) (G (f y)))
+
+  ap/closure-bi-inv-right-htpy-step2 (A B : U) (f : A -> B) (g : B -> A) (H : Htpy' A A (\ z. g (f z)) (id A))
+                                     (G : Htpy' B B (\ z. f (g z)) (id B)) (x y : A) (q : Path B (f x) (f y))
+                                         : Path (Path B (f x) (f y)) (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q)
+                                                                     (ap/closure-bi-inv-right-htpy-path3 A B f g H G x y q) =
+    let invG : (z : A) -> Path B (f z) (f (g (f z))) = \ z. inv B (f (g (f z))) (f z) (G (f z))
+        concat : (z : A) -> Path B (f z) (f z) = \ z. comp B (f z) (f (g (f z))) (invG z) (f z) (G (f z))
+        i1 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                          (f y) (comp B (f (g (f x))) (f y)
+                                                (comp B (f (g (f x))) (f x) (G (f x))
+                                                                      (f y) (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+                                                (f y) (concat y)))
+        i2 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                          (f y) (comp B (f (g (f x))) (f y)
+                                                        (comp B (f (g (f x))) (f (g (f y)))
+                                                                (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                (f y) (G (f y)))
+                                                        (f y) (concat y)))
+        i3 : Path B (f x) (f y) = (comp B (f x) (f (g (f x))) (invG x)
+                                          (f y) (comp B (f (g (f x))) (f y)
+                                                        (comp B (f (g (f x))) (f (g (f y)))
+                                                                (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                                (f y) (G (f y)))
+                                                        (f y) (refl B (f y))))
+        i4 : Path B (f x) (f y) = comp B (f x) (f (g (f x))) (invG x) (f y)
+                                         (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+    in comp-n (Path B (f x) (f y)) five-Nat
+          (ap/closure-bi-inv-right-htpy-path2 A B f g H G x y q) i1
+          (ap (Path B (f x) (f y)) (Path B (f x) (f y)) (\ p. (comp B (f x) (f (g (f x))) (invG x)
+                                                               (f y) (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f x) (G (f x)) (f y) p) (f y) (concat y))))
+              (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q) (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+              (ap/id B (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+        i2
+          (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. (comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f y) p (f y) (concat y))))
+              (comp B (f (g (f x))) (f x) (G (f x)) (f y)
+                            (ap B B (id B) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+              (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+              (naturality B B (\ z. f (g z)) (id B) G (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+        i3
+          (ap (Path B (f y) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y)
+                                                                (comp B (f (g (f x))) (f y)
+                                                                  (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+                                                                  (f y) p))
+              (concat y) (refl B (f y)) (comp/inv-l B (f (g (f y))) (f y) (G (f y))))
+        i4
+          (ap (Path B (f (g (f x))) (f y)) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) p)
+              (comp B (f (g (f x))) (f y) (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+                                                  (f y) (G (f y))) (f y) (refl B (f y)))
+              (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))
+              (comp/ident-r B (f (g (f x))) (f y) (comp B (f (g (f x))) (f (g (f y))) (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)) (f y) (G (f y)))))
+        (ap/closure-bi-inv-right-htpy-path3 A B f g H G x y q)
+          (ap (Path B (f (g (f x))) (f (g (f y)))) (Path B (f x) (f y)) (\ p. comp B (f x) (f (g (f x))) (invG x) (f y) (comp B (f (g (f x))) (f (g (f y))) p (f y) (G (f y))))
+              (ap B B (\ z. f (g z)) (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q))
+              (ap A B f (g (f x)) (g (f y)) (ap B A g (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+              (ap/comp' B A B g f (f x) (f y) (ap/closure-bi-inv-right-htpy-path1 A B f g H G x y q)))
+#+end_src
+
+***** 3^rd step: left inverse
+We use the fact that the map we have defined is the left inverse to remove most things and get something that is close to what we had at the start of the left inverse.
+
+***** Final step: right inverse
+We do the same steps as the left inverse proof to show that we have defined the right inverse.
 #+begin_src ctt
   -- ap/closure-bi-inv-right-htpy (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A)
   --                                   : Htpy' (Path B (f x) (f y)) (Path B (f x) (f y))
-  --                                          (\ p. (ap A B f x y) (ap/closure-bi-inv-inv-map A B f b x y p)) (id (Path B (f x) (f y))) =
+  --                                          (\ q. (ap A B f x y) (ap/closure-bi-inv-inv-map A B f b x y q)) (id (Path B (f x) (f y))) =
   --   \ q.
   --     let g : B -> A = is-bi-inv/inv-map A B f b
   --         H : Htpy' A A (\ z. g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
   --         G : Htpy' B B (\ z. f (g z)) (id B) = is-bi-inv/inv-right-htpy A B f b
-  --     in refl (Path B (f x) (f y)) (refl B (f x))
+  --     in ...
 #+end_src
 
 #+begin_src ctt
