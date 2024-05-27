@@ -86,7 +86,7 @@ Finally, we use these two lemmas to build a contraction between the fibers of =c
 If =A= is subterminal, then the identity types of =A= are equivalent to contractible types, hence, by the 3-for-2 property of contraction, the identity types of =A= are contractible.
      #+begin_src ctt
   -- is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
-  -- needs the 3-for-2 property of contraction
+  -- needs 3-for-2 for contraction + the fact that if f : is-equiv A B then is-equiv Id A Id B
      #+end_src
 **** All the elements of a type are equal whenever it has a contractible equality
 To complete the equivalence proofs, we use the center of contraction of the equality to show that any two elements are equal.

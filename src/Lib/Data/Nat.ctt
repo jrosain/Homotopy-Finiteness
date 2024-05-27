@@ -15,3 +15,13 @@ three-Nat : Nat = suc two-Nat
 four-Nat : Nat = suc three-Nat
 
 five-Nat : Nat = suc four-Nat
+
+six-Nat : Nat = suc five-Nat
+
+seven-Nat : Nat = suc six-Nat
+
+eight-Nat : Nat = suc seven-Nat
+
+nine-Nat : Nat = suc eight-Nat
+
+ten-Nat : Nat = suc nine-Nat

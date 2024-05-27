@@ -68,9 +68,26 @@ is-decidable/Equiv (A B : U) (e : Equiv A B) (dB : is-decidable B) : is-decidabl
 is-decidable/Equiv' (A B : U) (e : Equiv A B) (dA : is-decidable A) : is-decidable B =
   is-decidable/Equiv B A (Equiv/sym A B e) dA
 
--- is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
---   let f = Equiv/map A B e in
---   let i = Equiv/sym A B e in
---   let g = Equiv/map B A i in
---   (g (center B c),
---    \ x.
+-- has-decidable-equality/Equiv (A B : U) (e : Equiv A B) (dB : has-decidable-equality B) : has-decidable-equality A =
+--   \ x y.
+--     let eq-B = (Path B (Map/Equiv x) (Map/Equiv y))
+--         eq-A = (Path A x y) in
+--    Coprod/map eq-B (neg eq-B) eq-A (neg eq-A)
+--               (\ p.
+
+is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
+  let b : B = center B c
+      f : A -> B = Equiv/map A B e
+      fc : Fib A B f b = (center (Fib A B f b) (Equiv/is-equiv A B e b))
+      x : A = fc.1
+      p : (y : A) -> Path A x y = \ y. Sg-path/left A (\ z. Path B b (f z)) fc (y, contraction B c (f y)) ((Equiv/is-equiv A B e b).2 (y, contraction B c (f y)))
+  in (x, p)
+
+is-contr/is-contr-equiv' (A B : U) (e : Equiv A B) (c : is-contr A) : is-contr B =
+  is-contr/is-contr-equiv B A (Equiv/sym A B e) c
+
+is-contr/is-equiv-contr-map (A B : U) (cB : is-contr B) : A -> B =
+  \ _. (center B cB)
+
+is-contr/is-equiv-contr-inv-map (A B : U) (cA : is-contr A) : B -> A =
+  \ _. (center A cA)

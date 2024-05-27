@@ -32,41 +32,18 @@ The standard library provides the usual inductive definition of natural numbers 
 
   four-Nat : Nat = suc three-Nat
 
-  five-Nat : Nat = suc four-Nat    
+  five-Nat : Nat = suc four-Nat
+
+  six-Nat : Nat = suc five-Nat
+
+  seven-Nat : Nat = suc six-Nat
+
+  eight-Nat : Nat = suc seven-Nat
+
+  nine-Nat : Nat = suc eight-Nat
+
+  ten-Nat : Nat = suc nine-Nat          
    #+end_src
 
 #+RESULTS:
-#+begin_example
-
-Checking Definition: Nat
-U
-[Sum]
-
-Checking Definition: ind-Nat
-(P : Nat -> U) -> (pz : P zero) -> (ps : (n : Nat) -> P n -> P (suc n)) -> (n : Nat) -> P n
-\ P. \ pz. \ ps. [Split]
-
-Checking Definition: one-Nat
-Nat
-suc zero
-
-Checking Definition: two-Nat
-Nat
-suc one-Nat
-
-Checking Definition: three-Nat
-Nat
-suc two-Nat
-
-Checking Definition: four-Nat
-Nat
-suc three-Nat
-
-Checking Definition: five-Nat
-Nat
-suc four-Nat
-
-Successfully checked 7 definitions
-Evaluation of suc four-Nat
-Yields suc (suc (suc (suc (suc zero))))
-#+end_example
+: Typecheck has succeeded.

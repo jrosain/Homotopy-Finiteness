@@ -123,5 +123,15 @@ Hence, as =Fin/Eq= is equivalent to the equality on =Fin k=, it is also decidabl
             (Fin/Eq-decidable k x y)
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
+*** =Fin 1= is contractible.
+As =Fin 1= has only one element, it is contractible.
+#+begin_src ctt
+  Fin/fin-one-is-contr-contr : (y : Fin one-Nat) -> Path (Fin one-Nat) (inr star) y = split
+    inl e -> ex-falso (Path (Fin one-Nat) (inr star) (inl e)) e
+    inr s -> ind-Unit (\ z. Path (Fin one-Nat) (inr star) (inr z))
+                     (refl (Fin one-Nat) (inr star)) s
+
+  Fin/fin-one-is-contr : is-contr (Fin one-Nat) =
+    (inr star, Fin/fin-one-is-contr-contr)
+#+end_src
+

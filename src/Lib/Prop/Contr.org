@@ -38,15 +38,15 @@ Indeed, the center of contraction is (a_0, refl).
 #+end_src
 In turn, the contraction is immediate by sigma-induction and path-induction.
 #+begin_src ctt
-  is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
-                            : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
-    let B : A -> U = (\ y. Path A x y)
-        u : Sg A B = (is-contr/Sg-path-center A x)
-    in
-    ind-Sg A B (\ z. Path (Sg A B) u z)
-               (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
-                              (SgPathO->PathSg A B u u (refl A u.1, refl (B u.1) u.2))
-                        y q) v
+  -- is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
+  --                           : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
+  --   let B : A -> U = (\ y. Path A x y)
+  --       u : Sg A B = (is-contr/Sg-path-center A x)
+  --   in
+  --   ind-Sg A B (\ z. Path (Sg A B) u z)
+  --              (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
+  --                             (SgPathO->PathSg A B u u (refl A u.1, refl (B u.1) u.2))
+  --                       y q) v
 #+end_src
 
 #+RESULTS:

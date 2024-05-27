@@ -39,9 +39,20 @@ count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements
               (\ k e p'. J Nat zero (\ k' _. Equiv (Fin k') A -> is-empty A) (\ e'. Equiv/inv-map Empty A e') k p' e)
               c p
 
+-- count/contractible-has-one-element (A : U) (c : count A) (cA : is-contr A) : Path Nat one-Nat (number-of-elements A c) =
+
+count/one-element-is-contr (A : U) (c : count A) (p : Path Nat one-Nat (number-of-elements A c)) : is-contr A =
+  J Nat one-Nat (\ k' _. Equiv (Fin k') A -> is-contr A)
+                (\ e'. is-contr/is-contr-equiv' (Fin one-Nat) A e' Fin/fin-one-is-contr)
+                (number-of-elements A c) p (count/Equiv A c)
+
 count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
   ind-Sg Nat (\ k. Equiv (Fin k) X)
              (\ _. is-decidable X)
              (ind-Nat (\ k'. Equiv (Fin k') X -> is-decidable X)
                       (\ e'. is-decidable/Equiv' Empty X e' is-decidable/Empty)
                       (\ k' _ e'. inl ((Equiv/map (Fin (suc k')) X e') (inr star)))) c
+
+-- count/is-decidable-is-countable (X : U) (H : is-prop X) (dX : is-decidable X) : is-countable X =
+-- needs that if P is an inhabited proposition, then Equiv P Unit
+-- otherwise, the equivalence is trivial as the map to empty is always an equivalence.
