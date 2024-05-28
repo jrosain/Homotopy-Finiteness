@@ -1,0 +1,58 @@
+#+NAME: Comp
+#+AUTHOR: Johann Rosain
+
+* Concatenation properties
+
+  #+begin_src ctt
+  module Lib.Prop.Comp where
+  #+end_src
+
+This file contains some useful properties of concatenation of paths.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Data.Nat  
+   #+end_src
+
+** Properties
+
+*** Inversion of paths
+
+    #+begin_src ctt
+  comp/inv-r/refl (A : U) (x : A) : Path (Path A x x) (comp A x x (refl A x) x (inv A x x (refl A x))) (refl A x)
+    = comp-n (Path A x x) two-Nat
+        (comp A x x (refl A x) x (inv A x x (refl A x)))
+        (comp A x x (refl A x) x (refl A x))             (\i. (comp A x x (refl A x) x ((inv/refl A x) i)))
+        (refl A x)                                       (comp/ident-r A x x (refl A x))
+
+  comp/inv-r (A : U) (x : A) : (y : A) (p : Path A x y) -> Path (Path A x x) (comp A x y p x (inv A x y p)) (refl A x) =
+    J A x (\ y p. Path (Path A x x) (comp A x y p x (inv A x y p)) (refl A x)) (comp/inv-r/refl A x)
+
+  comp/inv-r' (A : U) (x y : A) (p : Path A x y) : Path (Path A x x) (refl A x) (comp A x y p x (inv A x y p)) =
+    inv (Path A x x) (comp A x y p x (inv A x y p)) (refl A x) (comp/inv-r A x y p)
+    #+end_src
+
+*** Identity right
+
+    #+begin_src ctt
+  refl/comp-r (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (comp A x y p y (refl A y)) =
+    inv (Path A x y) (comp A x y p y (refl A y)) p (comp/ident-r A x y p)
+    #+end_src
+
+*** On the inverse of refl
+
+    #+begin_src ctt
+  refl/sym (A : U) (x : A) : Path (Path A x x) (refl A x) (inv A x x (refl A x)) =
+    (inv (Path A x x) (inv A x x (refl A x)) (refl A x) (inv/refl A x))
+    #+end_src
+
+*** Associativity
+
+    #+begin_src ctt
+  comp/assoc' (A : U) (x y : A) (p : Path A x y) (z : A) (q : Path A y z) (w : A) (r : Path A z w)
+                 : Path (Path A x w) (comp A x y p w (comp A y z q w r)) (comp A x z (comp A x y p z q) w r) =
+    inv (Path A x w) (comp A x z (comp A x y p z q) w r) (comp A x y p w (comp A y z q w r)) (comp/assoc A x y p z q w r)
+    #+end_src
+
