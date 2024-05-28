@@ -14,6 +14,7 @@ This file regroups properties of contractible types and maps not provided by the
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Prop.Sg  
+  import Lib.Prop.MiscPaths
    #+end_src
 
 ** Accessors
@@ -28,8 +29,8 @@ This file regroups properties of contractible types and maps not provided by the
 
 ** Properties
 
-*** Contractibility of Sg
-In this section, we show that Sg (a_1 : A) (a_0 = a_1) is contractible.
+*** Contractibility of \Sigma
+In this section, we show that \Sigma (a_1 : A) (a_0 = a_1) is contractible.
 
 Indeed, the center of contraction is (a_0, refl).
 #+begin_src ctt
@@ -38,16 +39,20 @@ Indeed, the center of contraction is (a_0, refl).
 #+end_src
 In turn, the contraction is immediate by sigma-induction and path-induction.
 #+begin_src ctt
-  -- is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
-  --                           : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
-  --   let B : A -> U = (\ y. Path A x y)
-  --       u : Sg A B = (is-contr/Sg-path-center A x)
-  --   in
-  --   ind-Sg A B (\ z. Path (Sg A B) u z)
-  --              (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
-  --                             (SgPathO->PathSg A B u u (refl A u.1, refl (B u.1) u.2))
-  --                       y q) v
+  is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
+                            : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
+    let B : A -> U = (\ y. Path A x y)
+        u : Sg A B = (is-contr/Sg-path-center A x)
+    in
+    ind-Sg A B (\ z. Path (Sg A B) u z)
+               (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
+                              (SgPathO->PathSg A B u u (refl A u.1, PathO/refl A u.1 B u.2 u.2 (refl (B u.1) u.2)))
+                        y q) v
 #+end_src
-
+Thus, this space is contractible.
+#+begin_src ctt
+  is-contr/Sg-path-is-contr (A : U) (x : A) : is-contr (Sg A (\ y. Path A x y)) =
+    (is-contr/Sg-path-center A x, is-contr/Sg-path-contr A x)
+#+end_src
 #+RESULTS:
 : Typecheck has succeeded.

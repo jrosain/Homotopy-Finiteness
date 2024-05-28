@@ -13,6 +13,7 @@ This file proves some useful basic facts on \Sigma-types.
 
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Prop.MiscPaths
    #+end_src
 
 ** Induction principle
@@ -29,7 +30,7 @@ This file proves some useful basic facts on \Sigma-types.
   pr2 (A : U) (B : A -> U) (u : Sg A B) : B (pr1 A B u) = u.2
    #+end_src
 
-** Paths properties
+** Properties
 
 *** \Sigma-Path implies subpaths
 
@@ -41,6 +42,27 @@ Let =u, v= be \Sigma-types such that =u = v=. Then, by path induction, we have =
   -- Sg-path/right (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v)
   --   : PathO A u.1 v.1 (Sg-path/left A B u v p) B u.2 v.2 =
   --   J (Sg A B) u (\ w q. Path (B w.1) (tr A u.1 w.1 (Sg-path/left A B u w q) B u.2) w.2) (refl (tr A u.1 u.1 (refl A u.1) B u.2) u.2) v p
+#+end_src
+
+*** Closure under equivalence
+If =A= is equivalent to =A'= and =B= is equivalent to =B'=, then \Sigma A B is equivalent to \Sigma A' B'.
+#+begin_src ctt
+  -- Sg/closed-snd-Equiv (A : U) (B B' : A -> U) (e : (a : A) -> Equiv (B a) (B' a)) : (Sg A B) -> (Sg A B') =
+  --   \ p. (p.1, (e p.1).1 p.2)
+
+  -- Sg/closed-snd-Equiv-center (A : U) (B B' : A -> U) (e : (a : A) -> Equiv (B a) (B' a)) (y : Sg A B') : Fib (Sg A B) (Sg A B') (Sg/closed-snd-Equiv A B B' e) y =
+  --   let a : A = y.1
+  --       u : B' a = y.2
+  --       v : B a = ((e a).2 u).1.1 -- center of contraction of Fib B B' _ u
+  --       p : Path (B' a) u ((e a).1 v) = ((e a).2 u).1.2
+  --   in ((a, v), SgPathO->PathSg A B' (a, u) (a, (e a).1 v) ((refl A a), PathO/refl A a B' u ((e a).1 v) p))
+
+  -- Sg/closed-snd-Equiv-contr (A : U) (B B' : A -> U) (e : (a : A) -> Equiv (B a) (B' a)) (y : Sg A B') (z : Fib (Sg A B) (Sg A B') (Sg/closed-snd-Equiv A B B' e) y)
+  --                              : Path (Fib (Sg A B) (Sg A B') (Sg/closed-snd-Equiv A B B' e) y) (Sg/closed-snd-Equiv-center A B B' e y) z =
+  --   let a : A = y.1
+  --       u : B' a = y.2
+  --       v : B' a = z.2
+  --   in SgPathO->PathSg A (\ x. Path B 
 #+end_src
 
 #+RESULTS:

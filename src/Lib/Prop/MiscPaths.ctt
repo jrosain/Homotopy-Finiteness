@@ -1,0 +1,9 @@
+module Lib.Prop.MiscPaths where
+
+import Stdlib.Prelude
+
+tr/refl-path (A : U) (x : A) (P : A -> U) (u : P x) : Path (P x) (tr A x x (refl A x) P u) u =
+  \ i. tr/refl A x P i u
+
+PathO/refl (A : U) (x : A) (P : A -> U) (u v : P x) (q : Path (P x) u v) : PathO A x x (refl A x) P u v =
+  comp (P x) (tr A x x (refl A x) P u) u (tr/refl-path A x P u) v q

@@ -4,6 +4,8 @@ import Lib.QInv
 import Lib.Prop.BiInv
 import Lib.Prop.Sg  
 import Lib.Prop.ActionPaths
+import Lib.Prop.MiscPaths
+import Lib.Prop.Contr
 
 is-equiv/is-bi-inv-inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
   \ y. let c : Fib A B f y = (e y).1 in c.1
@@ -58,4 +60,47 @@ is-bi-inv/is-equiv-is-bi-inv-map-left (A B : U) (g : B -> A) (b : is-bi-inv B A 
         (is-bi-inv/is-equiv-comp-right-is-bi-inv A B g b)
         (is-bi-inv/is-equiv-comp-left-is-bi-inv A B g b)
 
+is-bi-inv/is-equiv-has-inverse-ap-map-left (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
+                                              : has-inverse (Path A x y) (Path B ((is-bi-inv/right-inv B A g b) x) ((is-bi-inv/right-inv B A g b) y)) (ap A B (is-bi-inv/right-inv B A g b) x y) =
+  ap/closure-bi-inv-has-inv A B (is-bi-inv/right-inv B A g b) (is-bi-inv/is-equiv-is-bi-inv-map-left A B g b) x y
 
+is-bi-inv/is-equiv-is-bi-inv-ap-map-left (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
+                                              : is-bi-inv (Path A x y) (Path B ((is-bi-inv/right-inv B A g b) x) ((is-bi-inv/right-inv B A g b) y)) (ap A B (is-bi-inv/right-inv B A g b) x y) =
+  ap/closure-bi-inv A B (is-bi-inv/right-inv B A g b) (is-bi-inv/is-equiv-is-bi-inv-map-left A B g b) x y
+
+is-bi-inv/is-equiv-retr-total-space (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x : A)
+                                         : retract-of (Sg A (\ y. Path B (is-bi-inv/right-inv B A g b x) (is-bi-inv/right-inv B A g b y))) (Sg A (\ y. Path A x y)) =
+  let f : A -> B = is-bi-inv/right-inv B A g b
+      h-i : (y : A) -> has-inverse (Path A x y) (Path B (f x) (f y)) (ap A B f x y) = \ y. is-bi-inv/is-equiv-has-inverse-ap-map-left A B g b x y
+      h : (y : A) -> Path B (f x) (f y) -> Path A x y = \ y. QInv/map (Path A x y) (Path B (f x) (f y)) (ap A B f x y) (h-i y)
+      i : (Sg A (\ y. Path B (f x) (f y))) -> Sg A (\ y. Path A x y) = \ p. (p.1, h p.1 p.2)
+      r : (Sg A (\ y. Path A x y)) -> Sg A (\ y. Path B (f x) (f y)) = \ p. (p.1, (ap A B f x p.1 p.2))
+      htpy : (y : A) -> Htpy' (Path B (f x) (f y)) (Path B (f x) (f y)) (\ q. (ap A B f x y (h y q))) (id (Path B (f x) (f y))) =
+                 \ y q. QInv/right-htpy (Path A x y) (Path B (f x) (f y)) (ap A B f x y) (h-i y) q
+  in (i, (r, \ q. SgPathO->PathSg A (\ y. Path B (f x) (f y)) (r (i q)) q
+                                   (refl A q.1, PathO/refl A q.1 (\ y. Path B (f x) (f y)) (r (i q)).2 q.2 (htpy q.1 q.2))))
+
+is-bi-inv/is-equiv-is-contr-total-space (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x : A) : is-contr (Sg A (\ y. Path B (is-bi-inv/right-inv B A g b x) (is-bi-inv/right-inv B A g b y))) =
+  let A' : U = (Sg A (\ y. Path B (is-bi-inv/right-inv B A g b x) (is-bi-inv/right-inv B A g b y)))
+      B' : U = (Sg A (\ y. Path A x y))
+  in
+  is-contr/closed-retract A' B' (is-bi-inv/is-equiv-retr-total-space A B g b x) (is-contr/Sg-path-is-contr A x)
+
+test (A B : U) (g : B -> A) (b : is-bi-inv B A g) (y : B) (x : A)
+          : Path U (Path B (is-bi-inv/right-inv B A g b (g y)) (is-bi-inv/right-inv B A g b x)) (Path B y (is-bi-inv/right-inv B A g b x)) =
+  let f : A -> B = is-bi-inv/right-inv B A g b
+      G : Htpy' B B (\ z. f (g z)) (id B) = QInv/left-htpy B A g (is-bi-inv-has-inverse B A g b)
+  in \ i. (Path B (G y i) (f x))
+
+test' (A B : U) (g : B -> A) (b : is-bi-inv B A g) (y : B)
+          : Path U (Sg A (\ x. Path B (is-bi-inv/right-inv B A g b (g y)) (is-bi-inv/right-inv B A g b x))) (Sg A (\ x. Path B y (is-bi-inv/right-inv B A g b x))) =
+  let f : A -> B = is-bi-inv/right-inv B A g b
+      G : Htpy' B B (\ z. f (g z)) (id B) = QInv/left-htpy B A g (is-bi-inv-has-inverse B A g b)
+  in
+  \ i. (x : A) * (test A B g b y x i)
+
+-- is-bi-inv/is-equiv-equiv-total-spaces (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x : A) (y : B)
+--                                            : Equiv (Sg A (\ y. Path B (is-bi-inv/right-inv B A g b (g y)) (is-bi-inv/right-inv B A g b x))) (Sg A (\ y. Path B y (is-bi-inv/right-inv B A g b x))) =
+
+-- is-bi-inv/is-equiv-is-equiv-left-map (A B : U) (g : B -> A) (b : is-bi-inv B A g) : is-equiv A B (is-bi-inv/right-inv B A g b) =
+--   \ y. is-bi-inv/is-equiv-is-contr-total-space A B g b (g y)

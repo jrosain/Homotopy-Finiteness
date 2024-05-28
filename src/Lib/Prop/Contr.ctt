@@ -1,7 +1,8 @@
 module Lib.Prop.Contr where
 
 import Stdlib.Prelude
-import Lib.Prop.Sg
+import Lib.Prop.Sg  
+import Lib.Prop.MiscPaths
 
 center (A : U) (c : is-contr A) : A =
   c.1
@@ -12,12 +13,15 @@ contraction (A : U) (c : is-contr A) : (x : A) -> Path A (center A c) x =
 is-contr/Sg-path-center (A : U) (x : A) : Sg A (\ y. Path A x y) =
   (x, refl A x)
 
--- is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
---                           : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
---   let B : A -> U = (\ y. Path A x y)
---       u : Sg A B = (is-contr/Sg-path-center A x)
---   in
---   ind-Sg A B (\ z. Path (Sg A B) u z)
---              (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
---                             (SgPathO->PathSg A B u u (refl A u.1, refl (B u.1) u.2))
---                       y q) v
+is-contr/Sg-path-contr (A : U) (x : A) (v : Sg A (\ y. Path A x y))
+                          : Path (Sg A (\ y. Path A x y)) (is-contr/Sg-path-center A x) v =
+  let B : A -> U = (\ y. Path A x y)
+      u : Sg A B = (is-contr/Sg-path-center A x)
+  in
+  ind-Sg A B (\ z. Path (Sg A B) u z)
+             (\ y q. J A u.1 (\ y' r. Path (Sg A B) u (y', r))
+                            (SgPathO->PathSg A B u u (refl A u.1, PathO/refl A u.1 B u.2 u.2 (refl (B u.1) u.2)))
+                      y q) v
+
+is-contr/Sg-path-is-contr (A : U) (x : A) : is-contr (Sg A (\ y. Path A x y)) =
+  (is-contr/Sg-path-center A x, is-contr/Sg-path-contr A x)

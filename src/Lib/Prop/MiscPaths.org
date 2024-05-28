@@ -1,0 +1,30 @@
+#+NAME: MiscPaths
+#+AUTHOR: Johann Rosain
+
+* Miscellanous properties of paths
+
+  #+begin_src ctt
+  module Lib.Prop.MiscPaths where
+  #+end_src
+
+This file contains some miscellanous properties of paths.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+#+end_src
+
+** Transport of refl
+
+#+begin_src ctt
+  tr/refl-path (A : U) (x : A) (P : A -> U) (u : P x) : Path (P x) (tr A x x (refl A x) P u) u =
+    \ i. tr/refl A x P i u
+#+end_src
+
+** Transport of refl with \Sigma
+
+#+begin_src ctt
+  PathO/refl (A : U) (x : A) (P : A -> U) (u v : P x) (q : Path (P x) u v) : PathO A x x (refl A x) P u v =
+    comp (P x) (tr A x x (refl A x) P u) u (tr/refl-path A x P u) v q
+#+end_src

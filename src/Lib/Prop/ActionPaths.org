@@ -439,13 +439,13 @@ We now have: (G (f x))^-1 \cdot ((ap f (ap f^-1 q)) \cdot (G (f y))). It thus su
 **** Result
 
 #+begin_src ctt
+  ap/closure-bi-inv-has-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : has-inverse (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+    (ap/closure-bi-inv-inv-map A B f b x y, (ap/closure-bi-inv-right-htpy A B f b x y, ap/closure-bi-inv-left-htpy A B f b x y))
+
   ap/closure-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
-    has-inverse-is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
-      (ap/closure-bi-inv-inv-map A B f b x y, (ap/closure-bi-inv-right-htpy A B f b x y, ap/closure-bi-inv-left-htpy A B f b x y))
+    has-inverse-is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) (ap/closure-bi-inv-has-inv A B f b x y)
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
 
 
 
