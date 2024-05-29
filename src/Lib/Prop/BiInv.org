@@ -15,6 +15,7 @@ This file states and shows useful properties of bi-invertible maps.
   import Lib.QInv
   import Lib.Prop.QInv
   import Lib.Data.Nat  
+  import Lib.Prop.Contr
    #+end_src
 
 ** 3-for-2 property of composition
@@ -51,6 +52,39 @@ hold, then the third also hold. In fact, we use the fact that it is the case for
         (is-bi-inv-has-inverse A B f b)
         (is-bi-inv-has-inverse A C (map/comp A B C g f) b'))
     #+end_src
+
+** 3-for-2 property of contraction
+If there is a bi-invertible map between =A= and =B=, then one of them is contractible iff the other is also contractible.
+   #+begin_src ctt
+  is-bi-inv/is-contr-is-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (c : is-contr B) : is-contr A =
+    let g : B -> A = is-bi-inv/inv-map A B f b
+        L : Htpy' A A (\ z. g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
+        x : A = g (center B c)
+    in (x, \ y. comp A x (g (f y)) (ap B A g (center B c) (f y) (contraction B c (f y)))
+                      y (L y))
+
+  is-bi-inv/is-contr-is-bi-inv' (A B : U) (f : A -> B) (b : is-bi-inv A B f) (c : is-contr A) : is-contr B =
+    let g : B -> A = is-bi-inv/inv-map A B f b
+        R : Htpy' B B (\ z. f (g z)) (id B) = is-bi-inv/inv-right-htpy A B f b
+        L : Htpy' A A (\ z. g (f z)) (id A) = is-bi-inv/inv-left-htpy A B f b
+    in is-bi-inv/is-contr-is-bi-inv B A g ((f, L), (f, R)) c
+   #+end_src
+
+Moreover, if both =A= and =B= are contractible, then there is a bi-invertible map between =A= and =B=.
+#+begin_src ctt
+  is-bi-inv/is-bi-inv-contr-map (A B : U) (cB : is-contr B) : A -> B =
+    \ _. (center B cB)
+
+  is-bi-inv/is-bi-inv-contr-inv-map (A B : U) (cA : is-contr A) : B -> A =
+    \ _. (center A cA)  
+
+  is-bi-inv/is-bi-inv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : is-bi-inv A B (is-bi-inv/is-bi-inv-contr-map A B cB) =
+    let f : A -> B = is-bi-inv/is-bi-inv-contr-map A B cB
+        g : B -> A = is-bi-inv/is-bi-inv-contr-inv-map A B cA
+        R : Htpy' B B (\ z. f (g z)) (id B) = \ x. (contraction B cB x)
+        L : Htpy' A A (\ z. g (f z)) (id A) = \ x. (contraction A cA x)
+    in ((g, R), (g, L))
+#+end_src
 
 ** Double-composition property
 Assume that there are maps =f : A \to B=, =g : B \to C= and =h : C \to D= such that =g \circ f= and =h \circ g= are bi-invertible. We show that =f=, =g= and =h= are all bi-invertible.

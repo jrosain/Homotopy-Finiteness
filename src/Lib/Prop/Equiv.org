@@ -9,8 +9,6 @@
 
 This file regroups the properties of =Equiv= and =is-equiv= that are not provided by the standard library.
 
-TODO: when the property =is-equiv iff is-bi-inv= is available, implement the equivalence relation of =Equiv= and =is-equiv= as well as the 3-for-2 property (contractibility).
-
 ** Packages imports
 
    #+begin_src ctt
@@ -20,6 +18,7 @@ TODO: when the property =is-equiv iff is-bi-inv= is available, implement the equ
   import Lib.Data.Empty
   import Lib.Data.Decidability  
   import Lib.QInv
+  import Lib.ContrMap
    #+end_src
 
 ** Accessors
@@ -29,15 +28,21 @@ TODO: when the property =is-equiv iff is-bi-inv= is available, implement the equ
    #+end_src
 
 ** Inverse of an equivalence
-
-TODO: use the property that =is-equiv iff is-bi-inv iff has-inverse= to get the inverse of an equivalence.
+We can define the inverse map of an equivalence.
 #+begin_src ctt
-  -- is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
-  -- Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
-  --  is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)  
+  is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+    is-bi-inv/inv-map A B f (is-equiv/is-bi-inv A B f e)
 
   Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
-    Equiv/map B A (path-to-equiv B A (inv U A B (equiv-to-path A B e)))
+    is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)
+#+end_src
+Futhermore, this inverse map is also an equivalence.
+#+begin_src ctt
+  is-equiv/inv-is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-equiv B A (is-equiv/inv-map A B f e) =
+    is-bi-inv/is-equiv-is-equiv-left-map B A f (is-equiv/is-bi-inv A B f e)
+
+  Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
+    (Equiv/inv-map A B e, is-equiv/inv-is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e))
 #+end_src
 
 ** Equivalence relation properties
@@ -47,8 +52,6 @@ TODO: use the property that =is-equiv iff is-bi-inv iff has-inverse= to get the 
    * symmetric ;
    * transitive.
 The first property is handled in [[../Stdlib/Prelude.ctt][Prelude.ctt]], but we redefine them here with a name consistent with the others properties: =is-equiv/prop= (resp. =Equiv/prop=). Then, we focus on showing the symmetry and the transitivity of this relation.
-
-TODO: rework proofs of symmetry/transitivity when we have =is-equiv iff is-bi-inv= as they are straightforward using =is-bi-inv-has-inverse=.
 
 *** Reflexivity
 
@@ -61,64 +64,23 @@ TODO: rework proofs of symmetry/transitivity when we have =is-equiv iff is-bi-in
     #+end_src
 
 *** Symmetry
-**** Symmetry of =is-equiv=
-
-    #+begin_src ctt
-    
-    #+end_src
-
-**** Symmetry of =Equiv=
 
      #+begin_src ctt
-  Equiv/sym (A B : U) (e : Equiv A B) : Equiv B A =
-    path-to-equiv B A (inv U A B (equiv-to-path A B e))
+  is-equiv/sym : (A B : U) -> (f : A -> B) -> (e : is-equiv A B f) -> is-equiv B A (is-equiv/inv-map A B f e) = is-equiv/inv-is-equiv 
+
+  Equiv/sym : (A B : U) -> (e : Equiv A B) -> Equiv B A = Equiv/inv-equiv
     #+end_src
 
 *** Transitivity
-**** Transitivity of =is-equiv=
 
-First, we show that =is-equiv= is transitive. To show that a map is an equivalence, it suffices to prove that its fibers are contractible. 
-
-The center of contraction is the pair =(x, p)= where =x= is the preimage by =f= of =z=, that is the preimage of =y= by =g= and =p= is simply the path concatenation of y \to g z \to g (f x) where the first path is obtained using the center of =is-equiv g= and the second is obtained using =ap= over =is-equiv f=.
     #+begin_src ctt
-    is-equiv/trans/center (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C)
-      : Fib A C (map/comp A B C g f) y =
-      let z : B = (center (Fib B C g y) (e-g y)).1 in
-      let x : A = (center (Fib A B f z) (e-f z)).1 in
-      (x,
-       comp C y (g z) (center (Fib B C g y) (e-g y)).2
-                (g (f x)) (ap B C g z (f x) (center (Fib A B f z) (e-f z)).2))
-#+end_src
-Then, we may obtain a path between dependent pairs =u, v= by giving a path =p= between =u.1, v.1= and showing that =is-contr= is a proposition (that is, we don't need to show that there is a path between =u.2= and =v.2=). First, we show that from a fibration from =A= to =C=, we can obtain a fibration from =A= to =B=.
-#+begin_src ctt
-  is-equiv/trans/fib (A B C : U) (f : A -> B) (g : B -> C) (y : C) (H : Fib A C (map/comp A B C g f) y)
-    : Fib A B f (f H.1) = (H.1, refl B (f H.1))
-#+end_src
-This enables us to show that there is a path between the first element of =is-equiv/trans/center= and the first element of any fibration from =A= to =C= for =g=. Indeed, the first element of =is-equiv/trans/center= is the center of contraction of =is-equiv f=, that is, we have a proof that the first element of any fibration of =f= is equal to it. We use the previous lemma to find a fibration for =f= from a fibration for =g \circ f= and it allows us to conclude.
-    #+begin_src ctt
-  is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C) (H : Fib A C (map/comp A B C g f) y)
-   : Path A (e-f (f H.1)).1.1 H.1 =
-    let x : A = (is-equiv/trans/center A B C f e-f g e-g y).1 in
-    let x' : A = H.1 in
-    let c : is-contr (Fib A B f (f x')) = e-f (f x') in
-    let fib' : Fib A B f (f x') = is-equiv/trans/fib A B C f g y H in
-    (Sg-path/left A (\ z. Path B (f x') (f z)) c.1 fib' (c.2 fib'))
-#+end_src
+  is-equiv/trans (A B C : U) (f : A -> B) (g : B -> C) (eF : is-equiv A B f) (eG : is-equiv B C g) : is-equiv A C (map/comp A B C g f) =
+    is-bi-inv/is-equiv A C (map/comp A B C g f)
+                           (is-bi-inv/comp-is-bi-inv A B C f g (is-equiv/is-bi-inv A B f eF) (is-equiv/is-bi-inv B C g eG))
 
-Finally, we can show that =is-equiv= is transitive.
-#+begin_src ctt
-  -- is-equiv/trans (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) :
-  --   is-equiv (map/comp g f) =
-  --     \ y. (is-equiv/trans/center A B C f e-f g e-g y, is-equiv/trans/contr A B C f e-f g e-g y)
-#+end_src
-
-**** Transitivity of =Equiv=
- 
-The fact that =Equiv= is transitive follows immediatly from the fact that =is-equiv= is transitive.
-   #+begin_src ctt
   Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
-     path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
-   #+end_src
+    (map/comp A B C (Equiv/map B C e-BC) (Equiv/map A B e-AB), is-equiv/trans A B C (Equiv/map A B e-AB) (Equiv/map B C e-BC) (Equiv/is-equiv A B e-AB) (Equiv/is-equiv B C e-BC))
+    #+end_src
 
 ** Some facts on equivalences
 
@@ -186,13 +148,9 @@ The other side is trivial.
 #+end_src
 Now, if two types are contractible, they are obviously equivalent: they both hold only one object, thus there is a trivial bijection between them.
 #+begin_src ctt
-  is-contr/is-equiv-contr-map (A B : U) (cB : is-contr B) : A -> B =
-    \ _. (center B cB)
-
-  is-contr/is-equiv-contr-inv-map (A B : U) (cA : is-contr A) : B -> A =
-    \ _. (center A cA)
+  is-contr/is-equiv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+    is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
 #+end_src
-TODO: prove this result when we have that contr map iff has inverse
 
 #+RESULTS:
 : Typecheck has succeeded.

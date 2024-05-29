@@ -447,7 +447,4 @@ We now have: (G (f x))^-1 \cdot ((ap f (ap f^-1 q)) \cdot (G (f y))). It thus su
 #+end_src
 
 
-
-
-
  

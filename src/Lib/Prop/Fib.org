@@ -1,0 +1,75 @@
+#+NAME: Fib
+#+AUTHOR: Johann Rosain
+
+* Properties on fibrations
+
+  #+begin_src ctt
+  module Lib.Prop.Fib where
+  #+end_src
+
+This file states and proves properties about fibrations.
+ 
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Prop.Sg
+  import Lib.Prop.Comp
+   #+end_src
+
+** Properties
+
+*** Fibration equality
+We define a relation =Eq-fib= and show that it coincides with identity for fibrations.
+    #+begin_src ctt
+  Eq-fib (A B : U) (f : A -> B) (y : B) (a b : Fib A B f y) : U =
+    let x : A = a.1
+        p : Path B y (f x) = a.2
+        x' : A = b.1
+        p' : Path B y (f x') = b.2
+    in Sg (Path A x x') (\ H. Path (Path B y (f x')) (comp B y (f x) p (f x') (ap A B f x x' H)) p')
+    #+end_src
+This relation is obviously reflexive.
+#+begin_src ctt
+  Eq-fib/refl (A B : U) (f : A -> B) (y : B) (a : Fib A B f y) : Eq-fib A B f y a a =
+    let x : A = a.1
+        p : Path B y (f x) = a.2
+    in (refl A x, comp/ident-r B y (f x) p)
+#+end_src
+We can define by path induction the map that goes from the identity of fibrations to =Eq-fib=.
+#+begin_src ctt
+  Eq-fib/eq-map (A B : U) (f : A -> B) (y : B) (a b : Fib A B f y) (p : Path (Fib A B f y) a b) : Eq-fib A B f y a b =
+    J (Fib A B f y) a (\ c _. Eq-fib A B f y a c) (Eq-fib/refl A B f y a) b p
+#+end_src
+Conversely, we define the map that goes from =Eq-fib= to identity by \Sigma-induction and double path induction.
+#+begin_src ctt
+  Eq-fib/map-eq/refl-sg (A B : U) (f : A -> B) (y : B) (a : Fib A B f y) : Path (Fib A B f y) a a =
+    let x : A = a.1
+        p : Path B y (f x) = a.2
+    in
+    SgPathO->PathSg A (\ z. Path B y (f z)) a a (refl A x, PathO/refl A x (\ z. Path B y (f z)) p p (refl (Path B y (f x)) p))
+
+  Eq-fib/map-eq/refl-refl (A B : U) (f : A -> B) (y : B) (a : Fib A B f y) (p : Path B y (f a.1)) (q : Path (Path B y (f a.1)) (comp B y (f a.1) a.2 (f a.1) (refl B (f a.1))) p)
+                               : Path (Fib A B f y) a (a.1, p) =
+    let x : A = a.1
+        r : Path B y (f x) = a.2
+        q' : Path (Path B y (f x)) r p = comp (Path B y (f x)) r (comp B y (f x) r (f x) (refl B (f x))) (refl/comp-r B y (f x) r) p q
+    in
+    J (Path B y (f x)) a.2 (\ s _. Path (Fib A B f y) a (a.1, s))
+                           (Eq-fib/map-eq/refl-sg A B f y a) p q'
+
+  Eq-fib/map-eq/refl (A B : U) (f : A -> B) (y : B) (a b : Fib A B f y) (p : Path A a.1 b.1) (q : Path (Path B y (f b.1)) (comp B y (f a.1) a.2 (f b.1) (ap A B f a.1 b.1 p)) b.2)
+                          : Path (Fib A B f y) a b =
+    let x : A = a.1
+        r : Path B y (f x) = a.2
+    in
+    J A x (\ c t. (s : Path B y (f c)) -> (Path (Path B y (f c)) (comp B y (f x) r (f c) (ap A B f x c t)) s) -> Path (Fib A B f y) (x, r) (c, s))
+          (Eq-fib/map-eq/refl-refl A B f y a) b.1 p b.2 q
+
+  Eq-fib/map-eq (A B : U) (f : A -> B) (y : B) (a b : Fib A B f y) (eq-fib : Eq-fib A B f y a b) : Path (Fib A B f y) a b =
+    Eq-fib/map-eq/refl A B f y a b eq-fib.1 eq-fib.2
+#+end_src
+We can prove that these maps are inverse to each other.
+
+#+RESULTS:
+: Typecheck has succeeded.

@@ -6,16 +6,22 @@ import Lib.Data.Map
 import Lib.Data.Empty
 import Lib.Data.Decidability  
 import Lib.QInv
+import Lib.ContrMap
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
 Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
 
--- is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
--- Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
---  is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)  
+is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
+  is-bi-inv/inv-map A B f (is-equiv/is-bi-inv A B f e)
 
 Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
-  Equiv/map B A (path-to-equiv B A (inv U A B (equiv-to-path A B e)))
+  is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)
+
+is-equiv/inv-is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-equiv B A (is-equiv/inv-map A B f e) =
+  is-bi-inv/is-equiv-is-equiv-left-map B A f (is-equiv/is-bi-inv A B f e)
+
+Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
+  (Equiv/inv-map A B e, is-equiv/inv-is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e))
 
 is-equiv/refl (A : U) : is-equiv A A (id A)
   = id/is-equiv A
@@ -23,10 +29,16 @@ is-equiv/refl (A : U) : is-equiv A A (id A)
 Equiv/refl (A : U) : Equiv A A
   = IdEquiv A
 
+is-equiv/sym : (A B : U) -> (f : A -> B) -> (e : is-equiv A B f) -> is-equiv B A (is-equiv/inv-map A B f e) = is-equiv/inv-is-equiv 
 
+Equiv/sym : (A B : U) -> (e : Equiv A B) -> Equiv B A = Equiv/inv-equiv
 
-Equiv/sym (A B : U) (e : Equiv A B) : Equiv B A =
-  path-to-equiv B A (inv U A B (equiv-to-path A B e))
+is-equiv/trans (A B C : U) (f : A -> B) (g : B -> C) (eF : is-equiv A B f) (eG : is-equiv B C g) : is-equiv A C (map/comp A B C g f) =
+  is-bi-inv/is-equiv A C (map/comp A B C g f)
+                         (is-bi-inv/comp-is-bi-inv A B C f g (is-equiv/is-bi-inv A B f eF) (is-equiv/is-bi-inv B C g eG))
+
+Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
+  (map/comp A B C (Equiv/map B C e-BC) (Equiv/map A B e-AB), is-equiv/trans A B C (Equiv/map A B e-AB) (Equiv/map B C e-BC) (Equiv/is-equiv A B e-AB) (Equiv/is-equiv B C e-BC))
 
 is-equiv/trans/center (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C)
   : Fib A C (map/comp A B C g f) y =
@@ -51,8 +63,8 @@ is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : 
 --   is-equiv (map/comp g f) =
 --     \ y. (is-equiv/trans/center A B C f e-f g e-g y, is-equiv/trans/contr A B C f e-f g e-g y)
 
-Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
-   path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
+-- Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
+--    path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
 
 is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
   \ x. ind-Empty (\ y. is-contr (Fib A Empty f y)) x
@@ -86,8 +98,5 @@ is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A 
 is-contr/is-contr-equiv' (A B : U) (e : Equiv A B) (c : is-contr A) : is-contr B =
   is-contr/is-contr-equiv B A (Equiv/sym A B e) c
 
-is-contr/is-equiv-contr-map (A B : U) (cB : is-contr B) : A -> B =
-  \ _. (center B cB)
-
-is-contr/is-equiv-contr-inv-map (A B : U) (cA : is-contr A) : B -> A =
-  \ _. (center A cA)
+is-contr/is-equiv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+  is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
