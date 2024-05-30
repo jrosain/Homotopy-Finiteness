@@ -1,0 +1,70 @@
+#+NAME: Set
+#+AUTHOR: Johann Rosain
+
+* Sets properties
+
+  #+begin_src ctt
+  module Lib.Prop.Set where
+  #+end_src
+
+This file contains properties of sets. In particular, it shows Hedberg's theorem: a type is a set whenever it has a decidable equality.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Data.Nat
+  import Lib.Prop.Comp
+   #+end_src
+
+** Axiom K
+Axiom K is a notion of proof irrelevance: it states that the only proof of identity for an object is the reflexivity. 
+#+begin_src ctt
+  axiom-K (A : U) : U =
+    (x : A) -> (p : Path A x x) -> Path (Path A x x) (refl A x) p
+#+end_src
+Actually, we show that types are sets iff they satisfy axiom K. A set obviously satisfies axiom K, almost by definition.
+#+begin_src ctt
+  is-set/axiom-K (A : U) (s : is-set A) : axiom-K A =
+    \ x. s x x (refl A x)
+#+end_src
+Conversely, if =A= satisfies axiom K, then for any =p, q : Path A x y=, we have p \cdot q^-1 = refl. So p = q.
+#+begin_src ctt
+  axiom-K/is-set (A : U) (ax : axiom-K A) : is-set A =
+    \ x y p q.
+      let a : Path A x y = comp A x y p y (refl A y)
+          b : Path A x y = comp A x y p y (comp A y x (inv A x y q) y q)
+          c : Path A x y = comp A x x (comp A x y p x (inv A x y q)) y q
+          d : Path A x y = comp A x x (refl A x) y q in
+    comp-n (Path A x y) five-Nat p a (refl/comp-r A x y p)
+                                   b (ap (Path A y y) (Path A x y) (\ r. comp A x y p y r) (refl A y) (comp A y x (inv A x y q) y q)
+                                         (comp/inv-l' A x y q))
+                                   c (comp/assoc' A x y p x (inv A x y q) y q)
+                                   d (ap (Path A x x) (Path A x y) (\ r. comp A x x r y q) (comp A x y p x (inv A x y q)) (refl A x)
+                                         (inv (Path A x x) (refl A x) (comp A x y p x (inv A x y q)) (ax x (comp A x y p x (inv A x y q)))))
+                                   q (comp/ident-l A x y q)
+#+end_src
+
+** On binary relations 
+In this section, we define a binary relation that is logically equivalent to the identity. It characterizes sets in the sense that if a type =A= is equipped with such a binary relation, then it is a set.
+#+begin_src ctt
+  is-bin-rel (A : U) (R : A -> A -> U) : U =
+    (x y : A) -> is-prop (R x y)
+
+  is-bin-rel/is-refl (A : U) (R : A -> A -> U) : U =
+    (x : A) -> R x x
+
+  is-bin-rel/is-identifiable (A : U) (R : A -> A -> U) : U =
+    (x y : A) -> R x y -> Path A x y
+#+end_src
+If a binary relation is reflexive and identifiable, then the canonical family of maps (x y : A) \to x = y \to R x y is a family of equivalences.
+#+begin_src ctt
+  is-bin-rel/is-fam-equiv-map (A : U) (R : A -> A -> U) (r : is-bin-rel/is-refl A R) (x y : A) (p : Path A x y) : R x y =
+    J A x (\ z _. R x z) (r x) y p
+
+  -- is-bin-rel/is-fam-equiv (A : U) (R : A -> A -> U) (b : is-bin-rel A R) (r : is-bin-rel/is-refl A R) (
+#+end_src
+TODO: the theorem above needs the fundamental theorem of identity.
+
+#+RESULTS:
+: Typecheck has succeeded.

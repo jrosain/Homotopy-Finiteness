@@ -33,6 +33,11 @@ This file contains some useful properties of concatenation of paths.
   comp/inv-r' (A : U) (x y : A) (p : Path A x y) : Path (Path A x x) (refl A x) (comp A x y p x (inv A x y p)) =
     inv (Path A x x) (comp A x y p x (inv A x y p)) (refl A x) (comp/inv-r A x y p)
     #+end_src
+=inv-l= is furnished, but we can state =inv-l'=.
+#+begin_src ctt
+  comp/inv-l' (A : U) (x y : A) (p : Path A x y) : Path (Path A y y) (refl A y) (comp A y x (inv A x y p) y p) =
+    inv (Path A y y) (comp A y x (inv A x y p) y p) (refl A y) (comp/inv-l A x y p)
+#+end_src
 
 *** Identity right
 

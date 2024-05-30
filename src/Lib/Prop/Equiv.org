@@ -173,6 +173,9 @@ If =A= and =B= are two equivalent types, then there is also an equivalence betwe
     (ap A B (Equiv/map A B e) x y, is-equiv/is-equiv-id A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
 #+end_src
 
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** 3-for-2 properties
 *** 3-for-2 property of contractibility
 Given =f : A \to B=, the 3-for-2 property of contractibility states that if any two of the three assertions
@@ -199,6 +202,68 @@ Now, if two types are contractible, they are obviously equivalent: they both hol
   is-contr/is-equiv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
     is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+** Equivalences between types
+*** =Coprod Empty A=
+There is a bi-invertible map between =Coprod Empty A= and =A=.
+#+begin_src ctt
+  is-equiv/is-bi-inv-copr-empty-type-map (A : U) : Coprod Empty A -> A = split
+    inl x -> ex-falso A x
+    inr y -> y
+
+  is-equiv/is-bi-inv-copr-empty-type-inv-map (A : U) : A -> Coprod Empty A = \ x. inr x
+
+  is-equiv/is-bi-inv-copr-empty-type-left-htpy (A : U) : Htpy' (Coprod Empty A) (Coprod Empty A)
+                                                               (\ z. (is-equiv/is-bi-inv-copr-empty-type-inv-map A) (is-equiv/is-bi-inv-copr-empty-type-map A z)) (id (Coprod Empty A)) = split
+    inl x -> ex-falso (Path (Coprod Empty A) ((is-equiv/is-bi-inv-copr-empty-type-inv-map A) (is-equiv/is-bi-inv-copr-empty-type-map A (inl x))) (inl x)) x
+    inr y -> refl (Coprod Empty A) (inr y)
+
+  is-equiv/is-bi-inv-copr-empty-type (A : U) : is-bi-inv (Coprod Empty A) A (is-equiv/is-bi-inv-copr-empty-type-map A) =
+    has-inverse-is-bi-inv (Coprod Empty A) A (is-equiv/is-bi-inv-copr-empty-type-map A)
+      (is-equiv/is-bi-inv-copr-empty-type-inv-map A, (\ x. refl A x, is-equiv/is-bi-inv-copr-empty-type-left-htpy A))
+#+end_src
+That is, these types are equivalent.
+#+begin_src ctt
+  is-equiv/is-equiv-copr-empty-type (A : U) : is-equiv (Coprod Empty A) A (is-equiv/is-bi-inv-copr-empty-type-map A) =
+    is-bi-inv/is-equiv (Coprod Empty A) A (is-equiv/is-bi-inv-copr-empty-type-map A) (is-equiv/is-bi-inv-copr-empty-type A)
+
+  Equiv/Equiv-copr-empty-type (A : U) : Equiv (Coprod Empty A) A =
+    (is-equiv/is-bi-inv-copr-empty-type-map A, is-equiv/is-equiv-copr-empty-type A)
+#+end_src
+*** =Coprod= is commutative
+As expected, there is a bi-invertible map between =Coprod A B= and =Coprod B A=.
+    #+begin_src ctt
+  is-equiv/is-bi-inv-comm-copr-map (A B : U) : Coprod A B -> Coprod B A = split
+    inl x -> inr x
+    inr y -> inl y
+
+  is-equiv/is-bi-inv-comm-copr-map-htpy (A B : U) : Htpy' (Coprod B A) (Coprod B A) 
+                                                          (\ z. (is-equiv/is-bi-inv-comm-copr-map A B) (is-equiv/is-bi-inv-comm-copr-map B A z)) (id (Coprod B A)) = split
+    inl x -> refl (Coprod B A) (inl x)
+    inr y -> refl (Coprod B A) (inr y)
+
+  is-equiv/is-bi-inv-comm-copr (A B : U) : is-bi-inv (Coprod A B) (Coprod B A) (is-equiv/is-bi-inv-comm-copr-map A B) =
+    has-inverse-is-bi-inv (Coprod A B) (Coprod B A) (is-equiv/is-bi-inv-comm-copr-map A B)
+      (is-equiv/is-bi-inv-comm-copr-map B A, (is-equiv/is-bi-inv-comm-copr-map-htpy A B, is-equiv/is-bi-inv-comm-copr-map-htpy B A))
+    #+end_src
+That is, =Coprod= is commutative.
+#+begin_src ctt
+  is-equiv/commutative-coprod (A B : U) : is-equiv (Coprod A B) (Coprod B A) (is-equiv/is-bi-inv-comm-copr-map A B) =
+    is-bi-inv/is-equiv (Coprod A B) (Coprod B A) (is-equiv/is-bi-inv-comm-copr-map A B) (is-equiv/is-bi-inv-comm-copr A B)
+
+  Equiv/commutative-coprod (A B : U) : Equiv (Coprod A B) (Coprod B A) =
+    (is-equiv/is-bi-inv-comm-copr-map A B, is-equiv/commutative-coprod A B)  
+#+end_src
+
+*** =Coprod A Empty=
+As such, =Coprod A Empty= is also equivalent to =A=.
+#+begin_src ctt
+  Equiv/Equiv-copr-type-empty (A : U) : Equiv (Coprod A Empty) A =
+    Equiv/trans (Coprod A Empty) (Coprod Empty A) A (Equiv/commutative-coprod A Empty) (Equiv/Equiv-copr-empty-type A)
+#+end_src
+TODO: this loops infinitely (but it typechecks!)?
 
 #+RESULTS:
 : Typecheck has succeeded.

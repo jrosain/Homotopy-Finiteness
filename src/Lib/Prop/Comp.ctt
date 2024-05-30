@@ -15,6 +15,9 @@ comp/inv-r (A : U) (x : A) : (y : A) (p : Path A x y) -> Path (Path A x x) (comp
 comp/inv-r' (A : U) (x y : A) (p : Path A x y) : Path (Path A x x) (refl A x) (comp A x y p x (inv A x y p)) =
   inv (Path A x x) (comp A x y p x (inv A x y p)) (refl A x) (comp/inv-r A x y p)
 
+comp/inv-l' (A : U) (x y : A) (p : Path A x y) : Path (Path A y y) (refl A y) (comp A y x (inv A x y p) y p) =
+  inv (Path A y y) (comp A y x (inv A x y p) y p) (refl A y) (comp/inv-l A x y p)
+
 refl/comp-r (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (comp A x y p y (refl A y)) =
   inv (Path A x y) (comp A x y p y (refl A y)) p (comp/ident-r A x y p)
 

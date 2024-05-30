@@ -1,7 +1,8 @@
 module Lib.Counting where
 
 import Lib.Prop.Equiv
-import Lib.Data.Fin
+import Lib.Data.Fin  
+import Lib.Prop.Proposition
 
 count (A : U) : U =
   Sg Nat (\ k. Equiv (Fin k) A)
@@ -40,11 +41,21 @@ count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements
               c p
 
 -- count/contractible-has-one-element (A : U) (c : count A) (cA : is-contr A) : Path Nat one-Nat (number-of-elements A c) =
+--   ind-Sg A (\ k. Equiv (Fin k) A)
+--            (\ p. Path Nat one-Nat p.1)
+--            (ind-Nat (\ k. Equiv (Fin k) A -> Path Nat one-Nat k)
+--                     (\ e. ex-falso (Path Nat one-Nat zero) (Equiv/inv-map (Fin zero) A e (center A cA)))
+--                     (\ k _ e. ind-Nat (\ k'. Equiv (Fin k') A -> Path Nat one-Nat k')
+--                                      (\ _. refl Nat one-Nat)
+--                                      (\ k' r e'. ex-falso (Path Nat one-Nat k') ?)) k e) c
 
 count/one-element-is-contr (A : U) (c : count A) (p : Path Nat one-Nat (number-of-elements A c)) : is-contr A =
   J Nat one-Nat (\ k' _. Equiv (Fin k') A -> is-contr A)
                 (\ e'. is-contr/is-contr-equiv' (Fin one-Nat) A e' Fin/fin-one-is-contr)
                 (number-of-elements A c) p (count/Equiv A c)
+
+-- count/contr-count (A : U) (c : is-contr A) : count A =
+--   (one-Nat, count/closed-equiv A (Fin one-Nat) () count/one-count)
 
 count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
   ind-Sg Nat (\ k. Equiv (Fin k) X)
@@ -53,6 +64,9 @@ count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
                       (\ e'. is-decidable/Equiv' Empty X e' is-decidable/Empty)
                       (\ k' _ e'. inl ((Equiv/map (Fin (suc k')) X e') (inr star)))) c
 
--- count/is-decidable-is-countable (X : U) (H : is-prop X) (dX : is-decidable X) : is-countable X =
--- needs that if P is an inhabited proposition, then Equiv P Unit
--- otherwise, the equivalence is trivial as the map to empty is always an equivalence.
+count/is-decidable-is-countable (X : U) (p : is-prop X) : is-decidable X -> count X = split
+  inl x -> (one-Nat, Equiv/trans (Fin one-Nat) Unit X (Equiv/Equiv-copr-empty-type Unit) (Equiv/sym X Unit (is-prop/is-subterminal X p x)))
+  inr f -> (zero, Equiv/sym X Empty (Empty/equiv X f))
+
+count/has-decidable-eq (A : U) (c : count A) : has-decidable-equality A =
+  has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))

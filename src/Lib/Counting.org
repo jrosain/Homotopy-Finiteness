@@ -14,8 +14,8 @@ This file defines the notion of /counting/ in HoTT, and basic counting propertie
    #+begin_src ctt
   import Lib.Prop.Equiv
   import Lib.Data.Fin  
+  import Lib.Prop.Proposition
    #+end_src
-
 
 ** Definition
 
@@ -114,13 +114,17 @@ First, if a type =X= is countable, then it is decidable as can be shown by a qui
 #+end_src
 Conversely, if =X= is a decidable proposition, then =X= is countable. Indeed, by case analysis, it yields either the zero-count or the one-count.
 #+begin_src ctt
-  -- count/is-decidable-is-countable (X : U) (H : is-prop X) (dX : is-decidable X) : is-countable X =
-  -- needs that if P is an inhabited proposition, then Equiv P Unit
-  -- otherwise, the equivalence is trivial as the map to empty is always an equivalence.
+  count/is-decidable-is-countable (X : U) (p : is-prop X) : is-decidable X -> count X = split
+    inl x -> (one-Nat, Equiv/trans (Fin one-Nat) Unit X (Equiv/Equiv-copr-empty-type Unit) (Equiv/sym X Unit (is-prop/is-subterminal X p x)))
+    inr f -> (zero, Equiv/sym X Empty (Empty/equiv X f))
 #+end_src
-*** A countable type is a set
-Actually, a type =A= equipped with a counting has decidable equality as =Fin k= has decidable equality.
-#+begin_src 
 
+*** A countable type has a decidable equality
+Actually, a type =A= equipped with a counting has decidable equality as =Fin k= has decidable equality.
+#+begin_src ctt
+  count/has-decidable-eq (A : U) (c : count A) : has-decidable-equality A =
+    has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))
 #+end_src
+
+*** A countable type is a set
 Then, Hedberg's theorem allows us to conclude that if =A= has a counting, then =A= is a set.

@@ -1,0 +1,41 @@
+module Lib.FundamentalTheorem where
+
+import Stdlib.Prelude
+
+tot (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) : Sg A B -> Sg A C =
+  \ xy. (xy.1, f xy.1 xy.2)
+
+tot/fib-equiv-map/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x) : Fib (B x) (C x) (f x) (f x y) =
+  (y, refl (C x) (f x y))
+
+tot/fib-equiv-map/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (t : Sg A B) (p : Path (Sg A C) (tot A B C f t) (x, z)) : Fib (B x) (C x) (f x) z =
+  J (Sg A C) (tot A B C f t) (\ u _. Fib (B u.1) (C u.1) (f u.1) u.2) (tot/fib-equiv-map/refl A B C f t.1 t.2) (x, z) p
+
+tot/fib-equiv-map (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) : (Fib (Sg A B) (Sg A C) (tot A B C f) t) -> Fib (B t.1) (C t.1) (f t.1) t.2 =
+  \ u. tot/fib-equiv-map/sg A B C f t.1 t.2 u.1 (inv (Sg A C) t (tot A B C f u.1) u.2)
+
+tot/fib-equiv-inv-map/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x) : Fib (Sg A B) (Sg A C) (tot A B C f) (x, (f x y)) =
+  ((x, y), refl (Sg A C) (x, f x y))
+
+tot/fib-equiv-inv-map/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (y : B x) (p : Path (C x) (f x y) z) : Fib (Sg A B) (Sg A C) (tot A B C f) (x, z) =
+  J (C x) (f x y) (\ c _. Fib (Sg A B) (Sg A C) (tot A B C f) (x, c))
+    (tot/fib-equiv-inv-map/refl A B C f x y) z p
+
+tot/fib-equiv-inv-map (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) : (Fib (B t.1) (C t.1) (f t.1) t.2) -> Fib (Sg A B) (Sg A C) (tot A B C f) t =
+  \ u. tot/fib-equiv-inv-map/sg A B C f t.1 t.2 u.1 (inv (C t.1) t.2 (f t.1 u.1) u.2)
+
+-- tot/fib-equiv-right-htpy/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x)
+--                                  : Path (Fib (B x) (C x) (f x) (f x y))
+--                                         ((tot/fib-equiv-map A B C f (x, (f x y))) (tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, (refl (C x) (f x y)))))
+--                                         (y, (refl (C x) (f x y))) =
+--   refl (Fib (B x) (C x) (f x) (f x y)) (y, refl (C x) (f x y))
+
+-- tot/fib-equiv-right-htpy/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (y : B x) (p : Path (C x) (f x y) z)
+--                                : Path (Fib (B x) (C x) (f x) z) ((tot/fib-equiv-map A B C f (x, z)) (tot/fib-equiv-inv-map A B C f (x, z) (y, p)))
+--                                                                 (y, p) =
+--   J (C x) (f x y) (\ c _. Path (Fib (B x) (C x) (f x) c) ((tot/fib-equiv-map A B C f (x, c)) (tot/fib-equiv-inv-map A B C f (x, c) (y, p)))
+--                               (id (Fib (B x) (C x) (f x) c))) (tot/fib-equiv-right-htpy/refl A B C f x z y) z p
+
+-- tot/fib-equiv-right-htpy (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) (u : Fib (B t.1) (C t.1) (f t.1) t.2)
+--                             : Path (Fib (B t.1) (C t.1) (f t.1) t.2) ((tot/fib-equiv-map A B C f t) (tot/fib-equiv-inv-map A B C f t u)) u =
+--   tot/fib-equiv-right-htpy/sg A B C f t.1 t.2 u.1 (inv (C t.1) t.2 (f t.1 u.1) u.2)
