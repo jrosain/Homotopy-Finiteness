@@ -6,6 +6,10 @@ import Lib.Data.Map
 import Lib.Data.Nat
 import Lib.FunExt  
 import Lib.QInv
+import Lib.Prop.MiscPaths
+
+apd (A : U) (B : A -> U) (f : (x : A) -> B x) (x y : A) (p : Path A x y) : Path (B y) (tr A x y p B (f x)) (f y) =
+  J A x (\ z q. Path (B z) (tr A x z q B (f x)) (f z)) (tr/refl-path A x B (f x)) y p
 
 ap/id (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (ap A A (id A) x y p) =
   J A x (\ y' q. Path (Path A x y') q (ap A A (id A) x y' q))
@@ -13,6 +17,13 @@ ap/id (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (ap A A (id A) x 
 
 ap/id' (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) (ap A A (id A) x y p) p =
   inv (Path A x y) p (ap A A (id A) x y p) (ap/id A x y p)
+
+is-bi-inv/ap-id-inv-htpy (A : U) (x y : A) : Htpy' (Path A x y) (Path A x y) (\ p. (ap A A (id A) x y) (ap A A (id A) x y p)) (id (Path A x y)) =
+  \ p. comp (Path A x y) ((ap A A (id A) x y) (ap A A (id A) x y p)) (ap A A (id A) x y p)
+                        (ap/id' A x y (ap A A (id A) x y p)) p (ap/id' A x y p)
+
+is-bi-inv/ap-id-is-bi-inv (A : U) (x y : A) : is-bi-inv (Path A x y) (Path A x y) (ap A A (id A) x y) =
+  ((ap A A (id A) x y, is-bi-inv/ap-id-inv-htpy A x y), (ap A A (id A) x y, is-bi-inv/ap-id-inv-htpy A x y))
 
 ap/comp (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
                : Path (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) =
@@ -33,6 +44,10 @@ ap/inv (A B : U) (f : A -> B) (x y : A) (p : Path A x y)
         (comp (Path B (f x) (f x)) (ap A B f x x (inv A x x (refl A x)))
                                    (ap A B f x x (refl A x)) (ap/refl/refl A B f x)
                                    (inv B (f x) (f x) (refl B (f x))) (refl/sym B (f x))) y p
+
+ap/eq (A B : U) (f g : A -> B) (p : Path (A -> B) f g) (x y : A) : Path ((Path A x y) -> Path B (g x) (g y)) (tr (A -> B) f g p (\ h. Path A x y -> Path B (h x) (h y)) (ap A B f x y))
+                                                                      (ap A B g x y) =
+  apd (A -> B) (\ h. Path A x y -> Path B (h x) (h y)) (\ h. ap A B h x y) f g p
 
 ap/concat (A B : U) (f : A -> B) (x y z : A) (p : Path A x y) (q : Path A y z)
                : Path (Path B (f x) (f z)) (ap A B f x z (comp A x y p z q))

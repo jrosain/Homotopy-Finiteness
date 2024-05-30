@@ -71,7 +71,6 @@ If =(k, e)= is a counting of a type =A=, then =k = 0= iff =A= is =Empty=.
             (\ n _ e'. ex-falso (Path Nat zero (suc n)) ((Equiv/map (Fin (suc n)) Empty e') (zero-Fin n)))
             (number-of-elements A c) e
   #+end_src
-TODO: the code above produces an error when it is evaluated last ; try to have a minimal example and post the issue on git.
   * [\to] By sigma-induction on the counting, yielding =(k, e)= then by path induction as =inv e : A \to Empty=.
 #+begin_src ctt
   count/zero-is-empty (A : U) (c : count A) (p : Path Nat zero (number-of-elements A c)) : is-empty A =

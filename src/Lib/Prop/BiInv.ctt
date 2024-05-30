@@ -5,6 +5,33 @@ import Lib.Prop.QInv
 import Lib.Data.Nat  
 import Lib.Prop.Contr
 
+is-bi-inv/id-is-bi-inv (A : U) : is-bi-inv A A (id A) =
+  ((id A, \ x. refl A x), (id A, \ x. refl A x))
+
+-- is-bi-inv/closed-ap-tr-inv-map (A B : U) (f g : A -> B) (p : Path (A -> B) f g) (x y : A) (b : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y))
+--                                     : (Path B (g x) (g y)) -> (Path A x y) =
+--   let i : (Path B (f x) (f y)) -> Path A x y = is-bi-inv/inv-map (Path A x y) (Path B (f x) (f y)) (ap A B f x y) b
+--   in (tr (A -> B) f g p (\ h. Path B (h x) (h y) -> Path A x y) i)
+
+-- is-bi-inv/closed-ap-tr-inv-right-htpy (A B : U) (f g : A -> B) (p : Path (A -> B) f g) (x y : A) (b : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)) (q : Path B (g x) (g y))
+--                                            : Path (Path B (g x) (g y))
+--                                                   ((tr (A -> B) f g p (\ h. Path A x y -> Path B (h x) (h y)) (ap A B f x y))
+--                                                    (tr (A -> B) f g p (\ h. Path B (h x) (h y) -> Path A x y) (is-bi-inv/inv-map (Path A x y) (Path B (f x) (f y)) (ap A B f x y) b) q))
+--                                                   q =
+--   let i : (Path B (f x) (f y)) -> Path A x y = is-bi-inv/inv-map (Path A x y) (Path B (f x) (f y)) (ap A B f x y) b
+--       R : Htpy' (Path B (f x) (f y)) (Path B (f x) (f y)) (\ r. (ap A B f x y) (i r)) (id (Path B (f x) (f y))) = is-bi-inv/inv-right-htpy (Path A x y) (Path B (f x) (f y)) (ap A B f x y) b
+--   in tr (Path B (f x) (f y)) ((ap A B f x y) (i (tr (A -> B) g f (inv (A -> B) f g p) (\ h. Path B (h x) (h y)) q)))
+--                              (tr (A -> B) g f (inv (A -> B) f g p) (\ h. Path B (h x) (h y)) q)
+--                              (R (tr (A -> B) g f (inv (A -> B) f g p) (\ h. Path B (h x) (h y)) q))
+--                              (\ r.
+-- is-bi-inv/closed-tr (A B : U) (f g : A -> B) (p : Path (A -> B) f g) (x y : A) (b : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y))
+--                          : is-bi-inv (Path A x y) (Path B (g x) (g y)) (tr (A -> B) f g p (\ h. Path A x y -> Path B (h x) (h y)) (ap A B f x y)) =
+
+
+-- is-bi-inv/is-equiv-ap-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
+--                                                 : is-bi-inv (Path A x y) (Path A (g (f x)) (g (f y)))
+--                                                             (ap A A (\ z. g (f z)) x y) =
+
 is-bi-inv/comp-is-bi-inv (A B C : U) (f : A -> B) (g : B -> C) (b : is-bi-inv A B f) (b' : is-bi-inv B C g) : is-bi-inv A C (map/comp A B C g f) =
   has-inverse-is-bi-inv A C (map/comp A B C g f)
     (has-inverse/comp-has-inverse A B C f g

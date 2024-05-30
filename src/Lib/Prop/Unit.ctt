@@ -24,3 +24,6 @@ Unit/is-contr : is-contr Unit =
 
 Unit/is-set : is-set Unit =
   is-contr->is-set Unit Unit/is-contr
+
+Unit/id-is-contr (x y : Unit) : is-contr (Path Unit x y) =
+  (Unit/is-prop x y, \ q. Unit/is-set x y (Unit/is-prop x y) q)

@@ -56,6 +56,9 @@ And that it is a set.
     is-contr->is-set Unit Unit/is-contr
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
+** The identity types of =Unit= are contractible
+   #+begin_src ctt
+  Unit/id-is-contr (x y : Unit) : is-contr (Path Unit x y) =
+    (Unit/is-prop x y, \ q. Unit/is-set x y (Unit/is-prop x y) q)
+   #+end_src
 

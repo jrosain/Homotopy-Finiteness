@@ -5,15 +5,16 @@ import Lib.Data.Map
 import Lib.Data.Unit
 import Lib.Prop.Contr
 import Lib.Prop.Unit
+import Lib.Prop.Equiv
 
 is-proof-irrelevant (A : U) : U =
   A -> is-contr A
 
-has-contr-eq (A : U) : U =
-  (x y : A) -> is-contr (Path A x y)
-
 is-subterminal (A : U) : U =
   Equiv A Unit
+
+has-contr-eq (A : U) : U =
+  (x y : A) -> is-contr (Path A x y)
 
 is-prop/is-proof-irrelevant (A : U) (p : is-prop A) : is-proof-irrelevant A =
   \ x. (x, p x)
@@ -43,8 +44,34 @@ is-proof-irrelevant/is-equiv-const-star (A : U) (x : A) (f : is-proof-irrelevant
 is-proof-irrelevant/is-subterminal (A : U) (x : A) (f : is-proof-irrelevant A) : is-subterminal A =
   (const-star A, is-proof-irrelevant/is-equiv-const-star A x f)
 
--- is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
--- needs the 3-for-2 property of contraction
+is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
+  \ x y. is-contr/is-contr-equiv (Path A x y) (Path Unit (Equiv/map A Unit e x) (Equiv/map A Unit e y))
+                                (Equiv/Equiv-id A Unit e x y)
+                                (Unit/id-is-contr (Equiv/map A Unit e x) (Equiv/map A Unit e y))
 
 has-contr-eq/is-prop (A : U) (c : has-contr-eq A) : is-prop A =
   \ x y. (center (Path A x y) (c x y))
+
+is-prop/is-subterminal (A : U) (p : is-prop A) (x : A) : is-subterminal A =
+  is-proof-irrelevant/is-subterminal A x (is-prop/is-proof-irrelevant A p)
+
+is-prop/has-contr-eq (A : U) (p : is-prop A) (x : A) : has-contr-eq A =
+  is-subterminal/has-contr-eq A (is-prop/is-subterminal A p x)
+
+is-proof-irrelevant/has-contr-eq (A : U) (x : A) (f : is-proof-irrelevant A) : has-contr-eq A =
+  is-subterminal/has-contr-eq A (is-proof-irrelevant/is-subterminal A x f)
+
+is-proof-irrelevant/is-prop (A : U) (x : A) (f : is-proof-irrelevant A) : is-prop A =
+  has-contr-eq/is-prop A (is-proof-irrelevant/has-contr-eq A x f)
+
+is-subterminal/is-prop (A : U) (e : is-subterminal A) : is-prop A =
+  has-contr-eq/is-prop A (is-subterminal/has-contr-eq A e)
+
+is-subterminal/is-proof-irrelevant (A : U) (e : is-subterminal A) : is-proof-irrelevant A =
+  is-prop/is-proof-irrelevant A (is-subterminal/is-prop A e)
+
+has-contr-eq/is-proof-irrelevant (A : U) (c : has-contr-eq A) : is-proof-irrelevant A =
+  is-prop/is-proof-irrelevant A (has-contr-eq/is-prop A c)
+
+has-contr-eq/is-subterminal (A : U) (x : A) (c : has-contr-eq A) : is-subterminal A =
+  is-proof-irrelevant/is-subterminal A x (has-contr-eq/is-proof-irrelevant A c)

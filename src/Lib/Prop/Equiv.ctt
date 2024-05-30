@@ -7,6 +7,7 @@ import Lib.Data.Empty
 import Lib.Data.Decidability  
 import Lib.QInv
 import Lib.ContrMap
+import Lib.Prop.ActionPaths
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
 Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
@@ -18,10 +19,27 @@ Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
   is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)
 
 is-equiv/inv-is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-equiv B A (is-equiv/inv-map A B f e) =
-  is-bi-inv/is-equiv-is-equiv-left-map B A f (is-equiv/is-bi-inv A B f e)
+  let b : is-bi-inv A B f = is-equiv/is-bi-inv A B f e
+      g : B -> A = is-bi-inv/inv-map A B f b
+      b' : is-bi-inv B A g = ((f, is-bi-inv/inv-left-htpy A B f b), (f, is-bi-inv/inv-right-htpy A B f b))
+  in is-bi-inv/is-equiv B A g b'
 
 Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
   (Equiv/inv-map A B e, is-equiv/inv-is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e))
+
+is-equiv/inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
+                             :  Htpy' B B (\ z. f (is-equiv/inv-map A B f e z)) (id B) =
+  is-bi-inv/inv-right-htpy A B f (is-equiv/is-bi-inv A B f e)
+
+is-equiv/inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
+                            : Htpy' A A (\ z . (is-equiv/inv-map A B f e) (f z)) (id A) =
+  is-bi-inv/inv-left-htpy A B f (is-equiv/is-bi-inv A B f e)
+
+Equiv/inv-right-htpy (A B : U) (e : Equiv A B) : Htpy' B B (\ z. (Equiv/map A B e) (Equiv/inv-map A B e z)) (id B) =
+  is-equiv/inv-right-htpy A B (Equiv/map A B e) (Equiv/is-equiv A B e)
+
+Equiv/inv-left-htpy (A B : U) (e : Equiv A B) : Htpy' A A (\ z. (Equiv/inv-map A B e) (Equiv/map A B e z)) (id A) =
+  is-equiv/inv-left-htpy A B (Equiv/map A B e) (Equiv/is-equiv A B e)
 
 is-equiv/refl (A : U) : is-equiv A A (id A)
   = id/is-equiv A
@@ -40,37 +58,19 @@ is-equiv/trans (A B C : U) (f : A -> B) (g : B -> C) (eF : is-equiv A B f) (eG :
 Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
   (map/comp A B C (Equiv/map B C e-BC) (Equiv/map A B e-AB), is-equiv/trans A B C (Equiv/map A B e-AB) (Equiv/map B C e-BC) (Equiv/is-equiv A B e-AB) (Equiv/is-equiv B C e-BC))
 
-is-equiv/trans/center (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C)
-  : Fib A C (map/comp A B C g f) y =
-  let z : B = (center (Fib B C g y) (e-g y)).1 in
-  let x : A = (center (Fib A B f z) (e-f z)).1 in
-  (x,
-   comp C y (g z) (center (Fib B C g y) (e-g y)).2
-            (g (f x)) (ap B C g z (f x) (center (Fib A B f z) (e-f z)).2))
-
-is-equiv/trans/fib (A B C : U) (f : A -> B) (g : B -> C) (y : C) (H : Fib A C (map/comp A B C g f) y)
-  : Fib A B f (f H.1) = (H.1, refl B (f H.1))
-
-is-equiv/trans/contr/proj1 (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) (y : C) (H : Fib A C (map/comp A B C g f) y)
- : Path A (e-f (f H.1)).1.1 H.1 =
-  let x : A = (is-equiv/trans/center A B C f e-f g e-g y).1 in
-  let x' : A = H.1 in
-  let c : is-contr (Fib A B f (f x')) = e-f (f x') in
-  let fib' : Fib A B f (f x') = is-equiv/trans/fib A B C f g y H in
-  (Sg-path/left A (\ z. Path B (f x') (f z)) c.1 fib' (c.2 fib'))
-
--- is-equiv/trans (A B C : U) (f : A -> B) (e-f : is-equiv A B f) (g : B -> C) (e-g : is-equiv B C g) :
---   is-equiv (map/comp g f) =
---     \ y. (is-equiv/trans/center A B C f e-f g e-g y, is-equiv/trans/contr A B C f e-f g e-g y)
-
--- Equiv/trans (A B C : U) (e-AB : Equiv A B) (e-BC : Equiv B C) : Equiv A C =
---    path-to-equiv A C (comp U A B (equiv-to-path A B e-AB) C (equiv-to-path B C e-BC))
-
 is-empty/is-equiv (A : U) (f : is-empty A) : is-equiv A Empty f =
   \ x. ind-Empty (\ y. is-contr (Fib A Empty f y)) x
 
 Empty/equiv (A : U) (f : is-empty A) : Equiv A Empty =
   (f, is-empty/is-equiv A f)
+
+is-decidable/is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (dB : is-decidable B) : is-decidable A =
+  Coprod/map B (neg B) A (neg A)
+             (is-equiv/inv-map A B f e)
+             (\ g a. g (f a)) dB
+
+is-decidable-is-equiv' (A B : U) (f : A -> B) (e : is-equiv A B f) (dA : is-decidable A) : is-decidable B =
+  is-decidable/is-equiv B A (is-equiv/inv-map A B f e) (is-equiv/sym A B f e) dA
 
 is-decidable/Equiv (A B : U) (e : Equiv A B) (dB : is-decidable B) : is-decidable A =
   Coprod/map B (neg B) A (neg A)
@@ -80,12 +80,33 @@ is-decidable/Equiv (A B : U) (e : Equiv A B) (dB : is-decidable B) : is-decidabl
 is-decidable/Equiv' (A B : U) (e : Equiv A B) (dA : is-decidable A) : is-decidable B =
   is-decidable/Equiv B A (Equiv/sym A B e) dA
 
--- has-decidable-equality/Equiv (A B : U) (e : Equiv A B) (dB : has-decidable-equality B) : has-decidable-equality A =
---   \ x y.
---     let eq-B = (Path B (Map/Equiv x) (Map/Equiv y))
---         eq-A = (Path A x y) in
---    Coprod/map eq-B (neg eq-B) eq-A (neg eq-A)
---               (\ p.
+has-decidable-equality/is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (dB : has-decidable-equality B) : has-decidable-equality A =
+  \ x y.
+    let eq-A : U = (Path A x y)
+        eq-B : U = (Path B (f x) (f y)) 
+        g : B -> A = is-equiv/inv-map A B f e
+        p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A A (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
+        h : Path B (f x) (f y) -> Path A x y = \ q. (tr (A -> A) (\ z. g (f z)) (id A) p (\ i. Path A (i x) (i y)) (ap B A g (f x) (f y) q))
+    in
+    Coprod/map eq-B (neg eq-B) eq-A (neg eq-A) h
+                    (\ i q. i (ap A B f x y q)) (dB (f x) (f y))
+
+has-decidable-equality/is-equiv' (A B : U) (f : A -> B) (e : is-equiv A B f) (dA : has-decidable-equality A) : has-decidable-equality B =
+  has-decidable-equality/is-equiv B A (is-equiv/inv-map A B f e) (is-equiv/inv-is-equiv A B f e) dA
+
+has-decidable-equality/Equiv (A B : U) (e : Equiv A B) (dB : has-decidable-equality B) : has-decidable-equality A =
+  has-decidable-equality/is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e) dB
+
+has-decidable-equality/Equiv' (A B : U) (e : Equiv A B) (dA : has-decidable-equality A) : has-decidable-equality B =
+  has-decidable-equality/is-equiv' A B (Equiv/map A B e) (Equiv/is-equiv A B e) dA
+
+is-equiv/is-equiv-id (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A)
+                          : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+  is-bi-inv/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
+                     (ap/closure-bi-inv A B f (is-equiv/is-bi-inv A B f e) x y)
+
+Equiv/Equiv-id (A B : U) (e : Equiv A B) (x y : A) : Equiv (Path A x y) (Path B (Equiv/map A B e x) (Equiv/map A B e y)) =
+  (ap A B (Equiv/map A B e) x y, is-equiv/is-equiv-id A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
 
 is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A =
   let b : B = center B c

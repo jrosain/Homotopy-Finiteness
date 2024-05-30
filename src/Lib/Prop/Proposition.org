@@ -17,6 +17,7 @@ This file shows some properties related to the fact that a type =A= is a proposi
   import Lib.Data.Unit
   import Lib.Prop.Contr
   import Lib.Prop.Unit
+  import Lib.Prop.Equiv
    #+end_src
 
 ** Equivalent statements for =is-prop=
@@ -33,11 +34,11 @@ Note that the second point is also part of a more general theorem -- if =A= is =
   is-proof-irrelevant (A : U) : U =
     A -> is-contr A
 
-  has-contr-eq (A : U) : U =
-    (x y : A) -> is-contr (Path A x y)
-
   is-subterminal (A : U) : U =
     Equiv A Unit
+
+  has-contr-eq (A : U) : U =
+    (x y : A) -> is-contr (Path A x y)
     #+end_src
 
 *** Maps between conditions
@@ -85,9 +86,12 @@ Finally, we use these two lemmas to build a contraction between the fibers of =c
 **** A subterminal type has a contractible identity
 If =A= is subterminal, then the identity types of =A= are equivalent to contractible types, hence, by the 3-for-2 property of contraction, the identity types of =A= are contractible.
      #+begin_src ctt
-  -- is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
-  -- needs 3-for-2 for contraction + the fact that if f : is-equiv A B then is-equiv Id A Id B
+  is-subterminal/has-contr-eq (A : U) (e : is-subterminal A) : has-contr-eq A =
+    \ x y. is-contr/is-contr-equiv (Path A x y) (Path Unit (Equiv/map A Unit e x) (Equiv/map A Unit e y))
+                                  (Equiv/Equiv-id A Unit e x y)
+                                  (Unit/id-is-contr (Equiv/map A Unit e x) (Equiv/map A Unit e y))
      #+end_src
+
 **** All the elements of a type are equal whenever it has a contractible equality
 To complete the equivalence proofs, we use the center of contraction of the equality to show that any two elements are equal.
      #+begin_src ctt
@@ -96,4 +100,43 @@ To complete the equivalence proofs, we use the center of contraction of the equa
      #+end_src
 
 **** Equivalences
-Thus, we can define back-and-forth maps between all the conditions (TODO, once all the proofs can be completed).
+Thus, we can define back-and-forth maps between all the conditions.
+
+***** =is-prop=
+#+begin_src ctt
+  is-prop/is-subterminal (A : U) (p : is-prop A) (x : A) : is-subterminal A =
+    is-proof-irrelevant/is-subterminal A x (is-prop/is-proof-irrelevant A p)
+
+  is-prop/has-contr-eq (A : U) (p : is-prop A) (x : A) : has-contr-eq A =
+    is-subterminal/has-contr-eq A (is-prop/is-subterminal A p x)
+#+end_src
+
+***** =is-proof-irrelevant=
+      #+begin_src ctt
+  is-proof-irrelevant/has-contr-eq (A : U) (x : A) (f : is-proof-irrelevant A) : has-contr-eq A =
+    is-subterminal/has-contr-eq A (is-proof-irrelevant/is-subterminal A x f)
+
+  is-proof-irrelevant/is-prop (A : U) (x : A) (f : is-proof-irrelevant A) : is-prop A =
+    has-contr-eq/is-prop A (is-proof-irrelevant/has-contr-eq A x f)  
+      #+end_src
+
+***** =is-subterminal=
+      #+begin_src ctt
+  is-subterminal/is-prop (A : U) (e : is-subterminal A) : is-prop A =
+    has-contr-eq/is-prop A (is-subterminal/has-contr-eq A e)
+
+  is-subterminal/is-proof-irrelevant (A : U) (e : is-subterminal A) : is-proof-irrelevant A =
+    is-prop/is-proof-irrelevant A (is-subterminal/is-prop A e)  
+      #+end_src
+
+***** =has-contr-eq=
+      #+begin_src ctt
+  has-contr-eq/is-proof-irrelevant (A : U) (c : has-contr-eq A) : is-proof-irrelevant A =
+    is-prop/is-proof-irrelevant A (has-contr-eq/is-prop A c)
+
+  has-contr-eq/is-subterminal (A : U) (x : A) (c : has-contr-eq A) : is-subterminal A =
+    is-proof-irrelevant/is-subterminal A x (has-contr-eq/is-proof-irrelevant A c)
+      #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

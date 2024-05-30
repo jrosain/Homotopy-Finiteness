@@ -19,6 +19,7 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
   import Lib.Data.Decidability  
   import Lib.QInv
   import Lib.ContrMap
+  import Lib.Prop.ActionPaths
    #+end_src
 
 ** Accessors
@@ -39,10 +40,29 @@ We can define the inverse map of an equivalence.
 Futhermore, this inverse map is also an equivalence.
 #+begin_src ctt
   is-equiv/inv-is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-equiv B A (is-equiv/inv-map A B f e) =
-    is-bi-inv/is-equiv-is-equiv-left-map B A f (is-equiv/is-bi-inv A B f e)
+    let b : is-bi-inv A B f = is-equiv/is-bi-inv A B f e
+        g : B -> A = is-bi-inv/inv-map A B f b
+        b' : is-bi-inv B A g = ((f, is-bi-inv/inv-left-htpy A B f b), (f, is-bi-inv/inv-right-htpy A B f b))
+    in is-bi-inv/is-equiv B A g b'
 
   Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
     (Equiv/inv-map A B e, is-equiv/inv-is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e))
+#+end_src
+Moreover, we get the nice properties of inverse maps.
+#+begin_src ctt
+  is-equiv/inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
+                               :  Htpy' B B (\ z. f (is-equiv/inv-map A B f e z)) (id B) =
+    is-bi-inv/inv-right-htpy A B f (is-equiv/is-bi-inv A B f e)
+
+  is-equiv/inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
+                              : Htpy' A A (\ z . (is-equiv/inv-map A B f e) (f z)) (id A) =
+    is-bi-inv/inv-left-htpy A B f (is-equiv/is-bi-inv A B f e)
+
+  Equiv/inv-right-htpy (A B : U) (e : Equiv A B) : Htpy' B B (\ z. (Equiv/map A B e) (Equiv/inv-map A B e z)) (id B) =
+    is-equiv/inv-right-htpy A B (Equiv/map A B e) (Equiv/is-equiv A B e)
+
+  Equiv/inv-left-htpy (A B : U) (e : Equiv A B) : Htpy' A A (\ z. (Equiv/inv-map A B e) (Equiv/map A B e z)) (id A) =
+    is-equiv/inv-left-htpy A B (Equiv/map A B e) (Equiv/is-equiv A B e)
 #+end_src
 
 ** Equivalence relation properties
@@ -100,6 +120,14 @@ Thus, if =is-empty A=, we have an equivalence between =A= and =Empty=.
 *** Decidability is closed under equivalences 
 We show that if =A= and =B= are equivalent, then =A= is decidable iff =B= is decidable.
 #+begin_src ctt
+  is-decidable/is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (dB : is-decidable B) : is-decidable A =
+    Coprod/map B (neg B) A (neg A)
+               (is-equiv/inv-map A B f e)
+               (\ g a. g (f a)) dB
+
+  is-decidable-is-equiv' (A B : U) (f : A -> B) (e : is-equiv A B f) (dA : is-decidable A) : is-decidable B =
+    is-decidable/is-equiv B A (is-equiv/inv-map A B f e) (is-equiv/sym A B f e) dA
+
   is-decidable/Equiv (A B : U) (e : Equiv A B) (dB : is-decidable B) : is-decidable A =
     Coprod/map B (neg B) A (neg A)
                (Equiv/inv-map A B e)
@@ -108,22 +136,42 @@ We show that if =A= and =B= are equivalent, then =A= is decidable iff =B= is dec
   is-decidable/Equiv' (A B : U) (e : Equiv A B) (dA : is-decidable A) : is-decidable B =
     is-decidable/Equiv B A (Equiv/sym A B e) dA
 #+end_src
-TODO: show the same thing for =is-equiv= once we can easily get its inverse.
 
 *** Equality decidability is closed under equivalences
 We show that if =A= and =B= are equivalent, then =A= has decidable equality iff =B= has decidable equality.
 #+begin_src ctt
-  -- has-decidable-equality/Equiv (A B : U) (e : Equiv A B) (dB : has-decidable-equality B) : has-decidable-equality A =
-  --   \ x y.
-  --     let eq-B = (Path B (Map/Equiv x) (Map/Equiv y))
-  --         eq-A = (Path A x y) in
-  --    Coprod/map eq-B (neg eq-B) eq-A (neg eq-A)
-  --               (\ p. 
-#+end_src
-TODO: needs that =Map/Equiv e \circ Map/inv-Equiv e ~ id=.
+  has-decidable-equality/is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (dB : has-decidable-equality B) : has-decidable-equality A =
+    \ x y.
+      let eq-A : U = (Path A x y)
+          eq-B : U = (Path B (f x) (f y)) 
+          g : B -> A = is-equiv/inv-map A B f e
+          p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A A (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
+          h : Path B (f x) (f y) -> Path A x y = \ q. (tr (A -> A) (\ z. g (f z)) (id A) p (\ i. Path A (i x) (i y)) (ap B A g (f x) (f y) q))
+      in
+      Coprod/map eq-B (neg eq-B) eq-A (neg eq-A) h
+                      (\ i q. i (ap A B f x y q)) (dB (f x) (f y))
 
-#+RESULTS:
-: Typecheck has succeeded.
+  has-decidable-equality/is-equiv' (A B : U) (f : A -> B) (e : is-equiv A B f) (dA : has-decidable-equality A) : has-decidable-equality B =
+    has-decidable-equality/is-equiv B A (is-equiv/inv-map A B f e) (is-equiv/inv-is-equiv A B f e) dA
+
+  has-decidable-equality/Equiv (A B : U) (e : Equiv A B) (dB : has-decidable-equality B) : has-decidable-equality A =
+    has-decidable-equality/is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e) dB
+
+  has-decidable-equality/Equiv' (A B : U) (e : Equiv A B) (dA : has-decidable-equality A) : has-decidable-equality B =
+    has-decidable-equality/is-equiv' A B (Equiv/map A B e) (Equiv/is-equiv A B e) dA
+#+end_src
+
+*** Equivalent types have equivalent identity types
+If =A= and =B= are two equivalent types, then there is also an equivalence between their identity types.
+#+begin_src ctt
+  is-equiv/is-equiv-id (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A)
+                            : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+    is-bi-inv/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
+                       (ap/closure-bi-inv A B f (is-equiv/is-bi-inv A B f e) x y)
+
+  Equiv/Equiv-id (A B : U) (e : Equiv A B) (x y : A) : Equiv (Path A x y) (Path B (Equiv/map A B e x) (Equiv/map A B e y)) =
+    (ap A B (Equiv/map A B e) x y, is-equiv/is-equiv-id A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
+#+end_src
 
 ** 3-for-2 properties
 *** 3-for-2 property of contractibility
