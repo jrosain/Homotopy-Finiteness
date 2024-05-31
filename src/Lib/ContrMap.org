@@ -222,5 +222,14 @@ Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
     (f, is-bi-inv/is-equiv A B f b)
     #+end_src
 
+*** Inverse implies equivalence
+    #+begin_src ctt
+  has-inverse/is-equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-equiv A B f =
+    is-bi-inv/is-equiv A B f (has-inverse-is-bi-inv A B f i)
+
+  has-inverse/Equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : Equiv A B =
+    is-bi-inv/Equiv A B f (has-inverse-is-bi-inv A B f i)
+    #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

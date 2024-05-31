@@ -1,0 +1,12 @@
+module Lib.Prop.Fin where
+
+import Lib.Data.Fin
+import Lib.Prop.Equiv
+import Lib.Prop.Coprod
+
+Fin/Equiv-add-copr (k : Nat) : (l : Nat) -> (Equiv (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l))) = split
+  zero -> Equiv/sym (Coprod (Fin k) Empty) (Fin k) (Equiv/Equiv-copr-type-empty (Fin k))
+  suc l -> Equiv/trans (Fin (plus-Nat k (suc l))) (Coprod (Coprod (Fin k) (Fin l)) Unit) (Coprod (Fin k) (Fin (suc l)))
+                                                 (Coprod/closed-Equiv (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l)) Unit Unit
+                                                                      (Fin/Equiv-add-copr k l) (Equiv/refl Unit))
+                                                 (Coprod/assoc (Fin k) (Fin l) Unit)

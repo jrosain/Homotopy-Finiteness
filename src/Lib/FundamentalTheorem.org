@@ -13,6 +13,8 @@ This file shows the fundamental theorem of identity.
 
 #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Data.Nat
+  import Lib.Prop.MiscPaths
 #+end_src
 
 ** Families of equivalences
@@ -45,23 +47,63 @@ Indeed, the previous function has an inverse.
   tot/fib-equiv-inv-map (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) : (Fib (B t.1) (C t.1) (f t.1) t.2) -> Fib (Sg A B) (Sg A C) (tot A B C f) t =
     \ u. tot/fib-equiv-inv-map/sg A B C f t.1 t.2 u.1 (inv (C t.1) t.2 (f t.1 u.1) u.2)
 #+end_src
-By pattern-matching and path induction, we trivially remark that these two maps are inverses.
+By pattern-matching and path induction, we can build the right homotopy. We have to be careful as (i) we inverse the paths in the functions definitions and (ii) as we are in a cubical prover, =J= is not the computation rule for =Path=, so we need to use =J/comp= to conclude the proof.
 #+begin_src ctt
-  -- tot/fib-equiv-right-htpy/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x)
-  --                                  : Path (Fib (B x) (C x) (f x) (f x y))
-  --                                         ((tot/fib-equiv-map A B C f (x, (f x y))) (tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, (refl (C x) (f x y)))))
-  --                                         (y, (refl (C x) (f x y))) =
-  --   refl (Fib (B x) (C x) (f x) (f x y)) (y, refl (C x) (f x y))
+  tot/fib-equiv-right-htpy/refl' (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x)
+                                    : Path (Fib (B x) (C x) (f x) (f x y))
+                                           ((tot/fib-equiv-map A B C f (x, (f x y))) (tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, (refl (C x) (f x y)))))
+                                           (y, (refl (C x) (f x y))) =
+    let t : Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y) = tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, (refl (C x) (f x y)))
+        u : Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y) = tot/fib-equiv-inv-map/sg A B C f x (f x y) y (refl (C x) (f x y))
+        g : Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y) -> Fib (B x) (C x) (f x) (f x y) = tot/fib-equiv-map A B C f (x, (f x y))
+        v : Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y) = ((x, y), refl (Sg A C) (x, f x y))
+        p : Path (Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y)) u v = J/comp (C x) (f x y) (\ c _. Fib (Sg A B) (Sg A C) (tot A B C f) (x, c)) v
+    in
+    comp-n (Fib (B x) (C x) (f x) (f x y)) four-Nat
+           (g t) (g u) (ap (Path (C x) (f x y) (f x y)) (Fib (B x) (C x) (f x) (f x y)) (\ q. g (tot/fib-equiv-inv-map/sg A B C f x (f x y) y q))
+                           (inv (C x) (f x y) (f x y) (refl (C x) (f x y))) (refl (C x) (f x y)) (inv/refl (C x) (f x y)))
+                 (g v) (ap (Fib (Sg A B) (Sg A C) (tot A B C f) (x, f x y)) (Fib (B x) (C x) (f x) (f x y)) g u v p)
+                 (tot/fib-equiv-map/sg A B C f x (f x y) (x, y) (refl (Sg A C) (x, f x y)))
+                   (ap (Path (Sg A C) (x, f x y) (x, f x y)) (Fib (B x) (C x) (f x) (f x y)) (tot/fib-equiv-map/sg A B C f x (f x y) (x, y))
+                       (inv (Sg A C) (x, f x y) (x, f x y) (refl (Sg A C) (x, f x y))) (refl (Sg A C) (x, f x y))
+                       (inv/refl (Sg A C) (x, f x y)))
+                 (y, refl (C x) (f x y)) (J/comp (Sg A C) (tot A B C f (x, y)) (\ w _. Fib (B w.1) (C w.1) (f w.1) w.2) (y, refl (C x) (f x y)))
 
-  -- tot/fib-equiv-right-htpy/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (y : B x) (p : Path (C x) (f x y) z)
-  --                                : Path (Fib (B x) (C x) (f x) z) ((tot/fib-equiv-map A B C f (x, z)) (tot/fib-equiv-inv-map A B C f (x, z) (y, p)))
-  --                                                                 (y, p) =
-  --   J (C x) (f x y) (\ c _. Path (Fib (B x) (C x) (f x) c) ((tot/fib-equiv-map A B C f (x, c)) (tot/fib-equiv-inv-map A B C f (x, c) (y, p)))
-  --                               (id (Fib (B x) (C x) (f x) c))) (tot/fib-equiv-right-htpy/refl A B C f x z y) z p
+  tot/fib-equiv-right-htpy/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (y : B x)
+                                   : Path (Fib (B x) (C x) (f x) (f x y))
+                                          ((tot/fib-equiv-map A B C f (x, (f x y))) (tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, (inv (C x) (f x y) (f x y) (refl (C x) (f x y))))))
+                                          (y, (inv (C x) (f x y) (f x y) (refl (C x) (f x y)))) =
+    let g : (Path (C x) (f x y) (f x y)) -> Fib (B x) (C x) (f x) (f x y) = \ p. ((tot/fib-equiv-map A B C f (x, (f x y))) (tot/fib-equiv-inv-map A B C f (x, (f x y)) (y, p))) in
+    comp-n (Fib (B x) (C x) (f x) (f x y)) three-Nat
+      (g (inv (C x) (f x y) (f x y) (refl (C x) (f x y)))) (g (refl (C x) (f x y)))
+      (ap (Path (C x) (f x y) (f x y)) (Fib (B x) (C x) (f x) (f x y)) g (inv (C x) (f x y) (f x y) (refl (C x) (f x y))) (refl (C x) (f x y)) (inv/refl (C x) (f x y)))
+      (y, refl (C x) (f x y)) (tot/fib-equiv-right-htpy/refl' A B C f x y)
+      (y, (inv (C x) (f x y) (f x y) (refl (C x) (f x y))))
+      (ap (Path (C x) (f x y) (f x y)) (Fib (B x) (C x) (f x) (f x y)) (\ p. (y, p)) (refl (C x) (f x y)) (inv (C x) (f x y) (f x y) (refl (C x) (f x y)))
+          (inv (Path (C x) (f x y) (f x y)) (inv (C x) (f x y) (f x y) (refl (C x) (f x y))) (refl (C x) (f x y)) (inv/refl (C x) (f x y))))
 
-  -- tot/fib-equiv-right-htpy (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) (u : Fib (B t.1) (C t.1) (f t.1) t.2)
-  --                             : Path (Fib (B t.1) (C t.1) (f t.1) t.2) ((tot/fib-equiv-map A B C f t) (tot/fib-equiv-inv-map A B C f t u)) u =
-  --   tot/fib-equiv-right-htpy/sg A B C f t.1 t.2 u.1 (inv (C t.1) t.2 (f t.1 u.1) u.2)
+  tot/fib-equiv-right-htpy/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (y : B x) (p : Path (C x) (f x y) z)
+                                 : Path (Fib (B x) (C x) (f x) z) ((tot/fib-equiv-map A B C f (x, z)) (tot/fib-equiv-inv-map A B C f (x, z) (y, (inv (C x) (f x y) z p))))
+                                                                  (y, (inv (C x) (f x y) z p)) =
+    J (C x) (f x y) (\ c q. Path (Fib (B x) (C x) (f x) c) ((tot/fib-equiv-map A B C f (x, c)) (tot/fib-equiv-inv-map A B C f (x, c) (y, (inv (C x) (f x y) c q)))) (y, (inv (C x) (f x y) c q)))
+                                (tot/fib-equiv-right-htpy/refl A B C f x y) z p
+
+  tot/fib-equiv-right-htpy (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) (u : Fib (B t.1) (C t.1) (f t.1) t.2)
+                              : Path (Fib (B t.1) (C t.1) (f t.1) t.2) ((tot/fib-equiv-map A B C f t) (tot/fib-equiv-inv-map A B C f t u)) u =
+    let x : A = t.1
+        y : B x = u.1
+        z : C x = t.2
+        p : Path (C x) z (f x y) = u.2
+        g : (Path (C x) z (f x y)) -> Fib (B x) (C x) (f x) z = \ q. (tot/fib-equiv-map A B C f (x, z)) (tot/fib-equiv-inv-map A B C f (x, z) (y, q))
+    in
+    comp-n (Fib (B x) (C x) (f x) z) three-Nat
+           (g p) (g (inv (C x) (f x y) z (inv (C x) z (f x y) p)))
+           (ap (Path (C x) z (f x y)) (Fib (B x) (C x) (f x) z) g p (inv (C x) (f x y) z (inv (C x) z (f x y) p))
+               (inv/involutive' (C x) z (f x y) p))
+           (y, (inv (C x) (f x y) z (inv (C x) z (f x y) p)))
+           (tot/fib-equiv-right-htpy/sg A B C f x z y (inv (C x) z (f x y) p))
+           (y, p)
+           (ap (Path (C x) z (f x y)) (Fib (B x) (C x) (f x) z) (\ q. (y, q)) (inv (C x) (f x y) z (inv (C x) z (f x y) p)) p (inv/involutive (C x) z (f x y) p))
 #+end_src
 
 #+RESULTS:

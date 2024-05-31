@@ -1,0 +1,13 @@
+module Lib.Prop.Htpy where
+
+import Stdlib.Prelude
+
+Htpy/sym (A : U) (B : A -> U) (f g : (x : A) -> B x) (H : Htpy A B f g) : Htpy A B g f =
+  \ x. inv (B x) (f x) (g x) (H x)
+
+Htpy'/sym (A B : U) : (f : A -> B) -> (g : A -> B) -> Htpy' A B f g -> Htpy' A B g f =
+  Htpy/sym A (\ _. B)
+
+Htpy/inv : (A : U) -> (B : A -> U) -> (f g : (x : A) -> B x) -> (H : Htpy A B f g) -> Htpy A B g f = Htpy/sym
+
+Htpy'/inv : (A B : U) -> (f g : A -> B) -> (H : Htpy' A B f g) -> Htpy' A B g f = Htpy'/sym

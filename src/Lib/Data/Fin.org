@@ -15,6 +15,7 @@ This file defines the standard finite types as done in [[https://arxiv.org/pdf/2
   import Lib.Data.Nat
   import Lib.Data.Decidability
   import Lib.Prop.Unit
+  import Lib.Prop.Coprod
 #+end_src
 
 ** Definition

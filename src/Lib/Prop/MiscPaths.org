@@ -28,3 +28,19 @@ This file contains some miscellanous properties of paths.
   PathO/refl (A : U) (x : A) (P : A -> U) (u v : P x) (q : Path (P x) u v) : PathO A x x (refl A x) P u v =
     comp (P x) (tr A x x (refl A x) P u) u (tr/refl-path A x P u) v q
 #+end_src
+
+** inv is involutive
+
+   #+begin_src ctt
+  inv/involutive (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) (inv A y x (inv A x y p)) p =
+    J A x (\ z q. Path (Path A x z) (inv A z x (inv A x z q)) q)
+          (comp (Path A x x) (inv A x x (inv A x x (refl A x))) (inv A x x (refl A x))
+                (ap (Path A x x) (Path A x x) (\ q. inv A x x q) (inv A x x (refl A x)) (refl A x) (inv/refl A x))
+                (refl A x) (inv/refl A x)) y p
+
+  inv/involutive' (A : U) (x y : A) (p : Path A x y) : Path (Path A x y) p (inv A y x (inv A x y p)) =
+    inv (Path A x y) (inv A y x (inv A x y p)) p (inv/involutive A x y p)
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

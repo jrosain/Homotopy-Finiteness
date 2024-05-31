@@ -45,5 +45,15 @@ The standard library provides the usual inductive definition of natural numbers 
   ten-Nat : Nat = suc nine-Nat          
    #+end_src
 
+** Functions
+
+*** Addition
+The addition is trivially defined by induction.
+    #+begin_src ctt
+  plus-Nat (m : Nat) : Nat -> Nat = split
+    zero -> m
+    suc k -> suc (plus-Nat m k)
+    #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

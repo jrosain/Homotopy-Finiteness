@@ -263,7 +263,97 @@ As such, =Coprod A Empty= is also equivalent to =A=.
   Equiv/Equiv-copr-type-empty (A : U) : Equiv (Coprod A Empty) A =
     Equiv/trans (Coprod A Empty) (Coprod Empty A) A (Equiv/commutative-coprod A Empty) (Equiv/Equiv-copr-empty-type A)
 #+end_src
-TODO: this loops infinitely (but it typechecks!)?
+*** \Sigma Empty A is A
+For any type family =A= over =Empty=, Sg Empty A is empty.
+#+begin_src ctt
+  Equiv/is-equiv-Sg-empty-map (A : Empty -> U) : (Sg Empty A) -> Empty =
+    \ u. u.1
 
+  Equiv/is-equiv-Sg-empty-inv-map (A : Empty -> U) : Empty -> (Sg Empty A) =
+    \ x. (x, ex-falso (A x) x)
+
+  Equiv/is-equiv-Sg-empty-right-htpy (A : Empty -> U) : Htpy' Empty Empty
+                                                             (\ z. (Equiv/is-equiv-Sg-empty-map A) (Equiv/is-equiv-Sg-empty-inv-map A z))
+                                                             (id Empty) = \ x. refl Empty x
+
+  Equiv/is-equiv-Sg-empty-left-htpy (A : Empty -> U) : Htpy' (Sg Empty A) (Sg Empty A)
+                                                            (\ z. (Equiv/is-equiv-Sg-empty-inv-map A) (Equiv/is-equiv-Sg-empty-map A z))
+                                                            (id (Sg Empty A)) =
+    \ u. ex-falso (Path (Sg Empty A) ((Equiv/is-equiv-Sg-empty-inv-map A) (Equiv/is-equiv-Sg-empty-map A u)) u) u.1
+
+  Equiv/is-equiv-Sg-empty (A : Empty -> U) : is-equiv (Sg Empty A) Empty (Equiv/is-equiv-Sg-empty-map A) =
+    has-inverse/is-equiv (Sg Empty A) Empty (Equiv/is-equiv-Sg-empty-map A)
+      (Equiv/is-equiv-Sg-empty-inv-map A, (Equiv/is-equiv-Sg-empty-right-htpy A, Equiv/is-equiv-Sg-empty-left-htpy A))
+
+  Equiv/Equiv-Sg-empty (A : Empty -> U) : Equiv (Sg Empty A) Empty =
+    (Equiv/is-equiv-Sg-empty-map A, Equiv/is-equiv-Sg-empty A)
+#+end_src
+*** \Sigma distributes over coproduct
+    #+begin_src ctt
+  Equiv/Sg-distr-over-coprod-map/sg (A B : U) (C : (Coprod A B) -> U) : (z : Coprod A B) -> (C z) -> (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) = split
+    inl x -> \ c. inl (x, c)
+    inr y -> \ c. inr (y, c)
+
+  Equiv/Sg-distr-over-coprod-map (A B : U) (C : (Coprod A B) -> U) : (Sg (Coprod A B) C) -> (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) =
+    \ u. Equiv/Sg-distr-over-coprod-map/sg A B C u.1 u.2
+
+  Equiv/Sg-distr-over-coprod-inv-map (A B : U) (C : (Coprod A B) -> U) : (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) -> (Sg (Coprod A B) C) = split
+    inl u -> (inl u.1, u.2)
+    inr v -> (inr v.1, v.2)
+
+  Equiv/Sg-distr-over-coprod-right-htpy (A B : U) (C : (Coprod A B) -> U) : Htpy' (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y))))
+                                                                                 (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y))))
+                                                                                 (\ z. (Equiv/Sg-distr-over-coprod-map A B C) (Equiv/Sg-distr-over-coprod-inv-map A B C z))
+                                                                                 (id (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y))))) = split
+    inl u -> refl (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) (inl u)
+    inr v -> refl (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) (inr v)
+
+  Equiv/Sg-distr-over-coprod-left-htpy/sg (A B : U) (C : (Coprod A B) -> U)
+                                               : (z : (Coprod A B)) -> (c : C z) -> Path (Sg (Coprod A B) C)
+                                                                                       ((Equiv/Sg-distr-over-coprod-inv-map A B C) (Equiv/Sg-distr-over-coprod-map A B C (z, c)))
+                                                                                       (z, c) = split
+    inl x -> \ c. refl (Sg (Coprod A B) C) (inl x, c)
+    inr y -> \ c. refl (Sg (Coprod A B) C) (inr y, c)
+
+  Equiv/Sg-distr-over-coprod-left-htpy (A B : U) (C : (Coprod A B) -> U) : Htpy' (Sg (Coprod A B) C) (Sg (Coprod A B) C)
+                                                                                (\ z. (Equiv/Sg-distr-over-coprod-inv-map A B C) (Equiv/Sg-distr-over-coprod-map A B C z))
+                                                                                (id (Sg (Coprod A B) C)) =
+    \ u. Equiv/Sg-distr-over-coprod-left-htpy/sg A B C u.1 u.2
+
+  Equiv/Sg-distr-over-coprod-is-equiv (A B : U) (C : (Coprod A B) -> U) : is-equiv (Sg (Coprod A B) C) (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y))))
+                                                                                  (Equiv/Sg-distr-over-coprod-map A B C) =
+    has-inverse/is-equiv (Sg (Coprod A B) C) (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) (Equiv/Sg-distr-over-coprod-map A B C)
+      (Equiv/Sg-distr-over-coprod-inv-map A B C, (Equiv/Sg-distr-over-coprod-right-htpy A B C, Equiv/Sg-distr-over-coprod-left-htpy A B C))
+
+
+  Equiv/Sg-distr-over-coprod (A B : U) (C : (Coprod A B) -> U) : Equiv (Sg (Coprod A B) C) (Coprod (Sg A (\ x. C (inl x))) (Sg B (\ y. C (inr y)))) =
+    (Equiv/Sg-distr-over-coprod-map A B C, Equiv/Sg-distr-over-coprod-is-equiv A B C)  
+    #+end_src
+*** \Sigma Unit A is (A star)
+    #+begin_src ctt
+  Equiv/Sg-unit-map/sg (A : Unit -> U) : (x : Unit) -> (A x) -> A star = split
+    star -> (id (A star))
+
+  Equiv/Sg-unit-map (A : Unit -> U) : (Sg Unit A) -> (A star) = \ u. Equiv/Sg-unit-map/sg A u.1 u.2
+
+  Equiv/Sg-unit-inv-map (A : Unit -> U) : (A star) -> (Sg Unit A) = \ a. (star, a)
+
+  Equiv/Sg-unit-right-htpy (A : Unit -> U) : Htpy' (A star) (A star) (\ z. (Equiv/Sg-unit-map A) (Equiv/Sg-unit-inv-map A z)) (id (A star)) =
+    \ a. refl (A star) a
+
+  Equiv/Sg-unit-left-htpy/sg (A : Unit -> U) : (x : Unit) -> (a : A x) -> Path (Sg Unit A) ((Equiv/Sg-unit-inv-map A) (Equiv/Sg-unit-map A (x, a))) (x, a) = split
+    star -> \ a. refl (Sg Unit A) (star, a)
+
+  Equiv/Sg-unit-left-htpy (A : Unit -> U) : Htpy' (Sg Unit A) (Sg Unit A) (\ z. (Equiv/Sg-unit-inv-map A) (Equiv/Sg-unit-map A z)) (id (Sg Unit A)) =
+    \ u. Equiv/Sg-unit-left-htpy/sg A u.1 u.2
+
+  Equiv/Sg-unit-is-equiv (A : Unit -> U) : is-equiv (Sg Unit A) (A star) (Equiv/Sg-unit-map A) =
+    has-inverse/is-equiv (Sg Unit A) (A star) (Equiv/Sg-unit-map A)
+      (Equiv/Sg-unit-inv-map A, (Equiv/Sg-unit-right-htpy A, Equiv/Sg-unit-left-htpy A))
+
+  Equiv/Sg-unit (A : Unit -> U) : Equiv (Sg Unit A) (A star) =
+    (Equiv/Sg-unit-map A, Equiv/Sg-unit-is-equiv A)
+    #+end_src
+ 
 #+RESULTS:
 : Typecheck has succeeded.

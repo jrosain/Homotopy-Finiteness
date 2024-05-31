@@ -3,6 +3,7 @@ module Lib.Counting where
 import Lib.Prop.Equiv
 import Lib.Data.Fin  
 import Lib.Prop.Proposition
+import Lib.Prop.Fin
 
 count (A : U) : U =
   Sg Nat (\ k. Equiv (Fin k) A)
@@ -70,3 +71,20 @@ count/is-decidable-is-countable (X : U) (p : is-prop X) : is-decidable X -> coun
 
 count/has-decidable-eq (A : U) (c : count A) : has-decidable-equality A =
   has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))
+
+count/closed-Coprod (A B : U) (cA : count A) (cB : count B) : count (Coprod A B) =
+  let k : Nat = number-of-elements A cA
+      l : Nat = number-of-elements B cB
+  in
+  (plus-Nat k l, (Equiv/trans (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l)) (Coprod A B)
+                 (Fin/Equiv-add-copr k l) (Coprod/closed-Equiv (Fin k) A (Fin l) B (count/Equiv A cA) (count/Equiv B cB))))
+
+count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat) -> (e : Equiv (Fin k) A) -> count (Sg A B) = split
+  zero -> \ _. count/closed-equiv (Sg A B) Empty (Equiv/Equiv-Sg-empty B) (count/zero-count)
+  suc k -> \ e.
+    let f : Fin (suc k) -> A = (Equiv/map (Fin (suc k)) A e) in
+      count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) ? -- Sg A B ~ Sg (Fin k + 1) B o e ~ (Sg (Fin k) B o e o inl) + B(e(inr(star)))
+        (count/closed-Coprod (Sg (Fin k) (\ x. B (f (inl x))))
+                             (B (f (inr star))) (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k))))
+
+-- count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =

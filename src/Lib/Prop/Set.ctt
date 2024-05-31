@@ -36,4 +36,4 @@ is-bin-rel/is-identifiable (A : U) (R : A -> A -> U) : U =
 is-bin-rel/is-fam-equiv-map (A : U) (R : A -> A -> U) (r : is-bin-rel/is-refl A R) (x y : A) (p : Path A x y) : R x y =
   J A x (\ z _. R x z) (r x) y p
 
---is-bin-rel/is-fam-equiv (A : U) (R : A -> A -> U) (b : is-bin-rel A R) (r : is-bin-rel/is-refl A R) (
+-- is-bin-rel/is-fam-equiv (A : U) (R : A -> A -> U) (b : is-bin-rel A R) (r : is-bin-rel/is-refl A R) (

@@ -1,0 +1,150 @@
+#+NAME: Coprod
+#+AUTHOR: Johann Rosain
+
+* Coproduct properties
+
+  #+begin_src ctt
+  module Lib.Prop.Coprod where
+  #+end_src
+
+This file shows additional properties on coproducts.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Coprod
+  import Stdlib.Prelude
+  import Lib.Prop.Htpy
+  import Lib.Prop.Equiv
+   #+end_src
+
+** If A \simeq A' and B \simeq B', then A + B \simeq A' + B'
+
+*** Identity
+    #+begin_src ctt
+  Coprod/id-htpy (A B : U) : Htpy' (Coprod A B) (Coprod A B) (Coprod/map A B A B (id A) (id B)) (id (Coprod A B)) = split
+    inl x -> refl (Coprod A B) (inl x)
+    inr y -> refl (Coprod A B) (inr y)
+    #+end_src
+
+*** Pair of composable functions
+    #+begin_src ctt
+  Coprod/comp-fun-htpy (A A' A'' : U) (B B' B'' : U) (f : A -> A') (f' : A' -> A'') (g : B -> B') (g' : B' -> B'')
+                                 : Htpy' (Coprod A B) (Coprod A'' B'')
+                                         (Coprod/map A B A'' B'' (\ z. f' (f z)) (\ z. g' (g z)))
+                                         (\ z. (Coprod/map A' B' A'' B'' f' g') (Coprod/map A B A' B' f g z)) = split
+    inl x -> refl (Coprod A'' B'') (inl (f' (f x)))
+    inr y -> refl (Coprod A'' B'') (inr (g' (g y)))
+    #+end_src
+
+*** Homotopies
+    #+begin_src ctt
+  Coprod/copr-htpy (A A' : U) (B B' : U) (f f' : A -> A') (g g' : B -> B') (H : Htpy' A A' f f') (K : Htpy' B B' g g')
+                         : Htpy' (Coprod A B) (Coprod A' B') (Coprod/map A B A' B' f g) (Coprod/map A B A' B' f' g') = split
+    inl x -> ap A' (Coprod A' B') (\ z. inl z) (f x) (f' x) (H x)
+    inr y -> ap B' (Coprod A' B') (\ z. inr z) (g y) (g' y) (K y)
+    #+end_src
+
+*** Result
+If =f= and =g= are equivalences, then they have inverses. 
+
+**** Inverse
+Thus, the inverse of f + g is f^-1 + g^-1. Indeed, we have (f + g) \circ (f^-1 + g^-1) \sim (f \circ f^-1) + (g \circ g^-1) \sim (id A') + (id B') \sim id (A' + B'). The other homotopy is symmetric.
+#+begin_src ctt
+  Coprod/closed-is-equiv-map (A A' B B' : U) (f : A -> A') (g : B -> B') : Coprod A B -> Coprod A' B' =
+    Coprod/map A B A' B' f g  
+
+  Coprod/closed-is-equiv-inv-map (A A' B B' : U) (f : A -> A') (g : B -> B') (e : is-equiv A A' f) (e' : is-equiv B B' g)
+                                            : Coprod A' B' -> Coprod A B =
+    let f' : A' -> A = is-equiv/inv-map A A' f e
+        g' : B' -> B = is-equiv/inv-map B B' g e'
+    in Coprod/map A' B' A B f' g'
+
+  Coprod/closed-is-equiv-right-htpy (A A' B B' : U) (f : A -> A') (g : B -> B') (e : is-equiv A A' f) (e' : is-equiv B B' g)
+                                               : Htpy' (Coprod A' B') (Coprod A' B')
+                                                       (\ z. (Coprod/closed-is-equiv-map A A' B B' f g) (Coprod/closed-is-equiv-inv-map A A' B B' f g e e' z))
+                                                       (id (Coprod A' B')) =
+    let f' : A' -> A = is-equiv/inv-map A A' f e
+        g' : B' -> B = is-equiv/inv-map B B' g e'
+        H : Htpy' A' A' (\ z. f (f' z)) (id A') = is-equiv/inv-right-htpy A A' f e
+        H' : Htpy' B' B' (\ z. g (g' z)) (id B') = is-equiv/inv-right-htpy B B' g e'
+    in
+    Htpy'/comp (Coprod A' B') (Coprod A' B') (\ z. (Coprod/closed-is-equiv-map A A' B B' f g) (Coprod/closed-is-equiv-inv-map A A' B B' f g e e' z))
+                                             (Coprod/map A' B' A' B' (\ z. f (f' z)) (\ z. g (g' z))) (id (Coprod A' B'))
+                                             (Htpy'/inv (Coprod A' B') (Coprod A' B') (Coprod/map A' B' A' B' (\ z. f (f' z)) (\ z. g (g' z)))
+                                                        (\ z. (Coprod/closed-is-equiv-map A A' B B' f g) (Coprod/closed-is-equiv-inv-map A A' B B' f g e e' z))
+                                                        (Coprod/comp-fun-htpy A' A A' B' B B' f' f g' g))
+                                             (Htpy'/comp (Coprod A' B') (Coprod A' B')
+                                                         (Coprod/map A' B' A' B' (\ z. f (f' z)) (\ z. g (g' z)))
+                                                         (Coprod/map A' B' A' B' (id A') (id B')) (id (Coprod A' B'))
+                                                         (Coprod/copr-htpy A' A' B' B' (\ z. f (f' z)) (id A') (\ z. g (g' z)) (id B') H H')
+                                                         (Coprod/id-htpy A' B'))
+
+  Coprod/closed-is-equiv-left-htpy (A A' B B' : U) (f : A -> A') (g : B -> B') (e : is-equiv A A' f) (e' : is-equiv B B' g)
+                                              : Htpy' (Coprod A B) (Coprod A B)
+                                                       (\ z. (Coprod/closed-is-equiv-inv-map A A' B B' f g e e') (Coprod/closed-is-equiv-map A A' B B' f g z))
+                                                       (id (Coprod A B)) =
+    let f' : A' -> A = is-equiv/inv-map A A' f e
+        g' : B' -> B = is-equiv/inv-map B B' g e'
+        K : Htpy' A A (\ z. f' (f z)) (id A) = is-equiv/inv-left-htpy A A' f e
+        K' : Htpy' B B (\ z. g' (g z)) (id B) = is-equiv/inv-left-htpy B B' g e'
+    in
+    Htpy'/comp (Coprod A B) (Coprod A B) (\ z. (Coprod/closed-is-equiv-inv-map A A' B B' f g e e') (Coprod/closed-is-equiv-map A A' B B' f g z))
+                                         (Coprod/map A B A B (\ z. f' (f z)) (\ z. g' (g z))) (id (Coprod A B))
+                                             (Htpy'/inv (Coprod A B) (Coprod A B) (Coprod/map A B A B (\ z. f' (f z)) (\ z. g' (g z)))
+                                                        (\ z. (Coprod/closed-is-equiv-inv-map A A' B B' f g e e') (Coprod/closed-is-equiv-map A A' B B' f g z))
+                                                        (Coprod/comp-fun-htpy A A' A B B' B f f' g g'))
+                                             (Htpy'/comp (Coprod A B) (Coprod A B)
+                                                         (Coprod/map A B A B (\ z. f' (f z)) (\ z. g' (g z)))
+                                                         (Coprod/map A B A B (id A) (id B)) (id (Coprod A B))
+                                                         (Coprod/copr-htpy A A B B (\ z. f' (f z)) (id A) (\ z. g' (g z)) (id B) K K')
+                                                         (Coprod/id-htpy A B))
+
+#+end_src
+
+**** Equiv
+     #+begin_src ctt
+  Coprod/closed-is-equiv (A A' B B' : U) (f : A -> A') (g : B -> B') (e : is-equiv A A' f) (e' : is-equiv B B' g)
+                                    : is-equiv (Coprod A B) (Coprod A' B') (Coprod/closed-is-equiv-map A A' B B' f g) =
+    has-inverse/is-equiv (Coprod A B) (Coprod A' B') (Coprod/closed-is-equiv-map A A' B B' f g)
+      (Coprod/closed-is-equiv-inv-map A A' B B' f g e e',
+        (Coprod/closed-is-equiv-right-htpy A A' B B' f g e e',
+         Coprod/closed-is-equiv-left-htpy A A' B B' f g e e'))
+
+  Coprod/closed-Equiv (A A' B B' : U) (e : Equiv A A') (e' : Equiv B B') : Equiv (Coprod A B) (Coprod A' B') =
+    (Coprod/closed-is-equiv-map A A' B B' (Equiv/map A A' e) (Equiv/map B B' e'),
+      Coprod/closed-is-equiv A A' B B' (Equiv/map A A' e) (Equiv/map B B' e') (Equiv/is-equiv A A' e) (Equiv/is-equiv B B' e'))
+     #+end_src
+
+** Coprod is associative, that is, (A + B) + C \simeq A + (B + C)
+
+   #+begin_src ctt
+  Coprod/assoc-map (A B C : U) : (Coprod (Coprod A B) C) -> (Coprod A (Coprod B C)) = split
+    inl c -> ind-Coprod A B (\ _. Coprod A (Coprod B C)) (\ x. inl x) (\ y. inr (inl y)) c
+    inr z -> inr (inr z)
+
+  Coprod/assoc-inv-map (A B C : U) : (Coprod A (Coprod B C)) -> Coprod (Coprod A B) C = split
+    inl x -> inl (inl x)
+    inr a -> ind-Coprod B C (\ _. Coprod (Coprod A B) C) (\ y. inl (inr y)) (\ z. inr z) a
+
+  Coprod/assoc-right-htpy (A B C : U) : Htpy' (Coprod A (Coprod B C)) (Coprod A (Coprod B C))
+                                              (\ z. (Coprod/assoc-map A B C) (Coprod/assoc-inv-map A B C z))
+                                              (id (Coprod A (Coprod B C))) = split
+    inl x -> refl (Coprod A (Coprod B C)) (inl x)
+    inr a -> ind-Coprod B C (\ x. Path (Coprod A (Coprod B C)) ((Coprod/assoc-map A B C) (Coprod/assoc-inv-map A B C (inr x))) (inr x))
+                           (\ y. refl (Coprod A (Coprod B C)) (inr (inl y))) (\ z. refl (Coprod A (Coprod B C)) (inr (inr z))) a
+
+  Coprod/assoc-left-htpy (A B C : U) : Htpy' (Coprod (Coprod A B) C) (Coprod (Coprod A B) C)
+                                             (\ z. (Coprod/assoc-inv-map A B C) (Coprod/assoc-map A B C z))
+                                             (id (Coprod (Coprod A B) C)) = split
+    inl c -> ind-Coprod A B (\ z. Path (Coprod (Coprod A B) C) ((Coprod/assoc-inv-map A B C) (Coprod/assoc-map A B C (inl z))) (inl z))
+                           (\ x. refl (Coprod (Coprod A B) C) (inl (inl x))) (\ y. refl (Coprod (Coprod A B) C) (inl (inr y))) c
+    inr z -> refl (Coprod (Coprod A B) C) (inr z)
+
+  Coprod/assoc-is-equiv (A B C : U) : is-equiv (Coprod (Coprod A B) C) (Coprod A (Coprod B C)) (Coprod/assoc-map A B C) =
+    has-inverse/is-equiv (Coprod (Coprod A B) C) (Coprod A (Coprod B C)) (Coprod/assoc-map A B C)
+      (Coprod/assoc-inv-map A B C, (Coprod/assoc-right-htpy A B C, Coprod/assoc-left-htpy A B C))
+
+  Coprod/assoc (A B C : U) : Equiv (Coprod (Coprod A B) C) (Coprod A (Coprod B C)) =
+    (Coprod/assoc-map A B C, Coprod/assoc-is-equiv A B C)
+   #+end_src

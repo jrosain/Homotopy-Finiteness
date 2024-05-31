@@ -15,6 +15,7 @@ This file defines the notion of /counting/ in HoTT, and basic counting propertie
   import Lib.Prop.Equiv
   import Lib.Data.Fin  
   import Lib.Prop.Proposition
+  import Lib.Prop.Fin
    #+end_src
 
 ** Definition
@@ -126,5 +127,33 @@ Actually, a type =A= equipped with a counting has decidable equality as =Fin k= 
     has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))
 #+end_src
 
-*** A countable type is a set
+*** TODO A countable type is a set
 Then, Hedberg's theorem allows us to conclude that if =A= has a counting, then =A= is a set.
+
+*** Characterization of countings for coproduct and dependent pair
+If =A= and =B= come equipped with a counting, then =Coprod A B= also comes with a counting. Indeed, if A \simeq Fin k and B \simeq Fin \ell, then Coprod A B \simeq Coprod (Fin k) (Fin \ell) \simeq Fin (k + \ell).
+#+begin_src ctt
+  count/closed-Coprod (A B : U) (cA : count A) (cB : count B) : count (Coprod A B) =
+    let k : Nat = number-of-elements A cA
+        l : Nat = number-of-elements B cB
+    in
+    (plus-Nat k l, (Equiv/trans (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l)) (Coprod A B)
+                   (Fin/Equiv-add-copr k l) (Coprod/closed-Equiv (Fin k) A (Fin l) B (count/Equiv A cA) (count/Equiv B cB))))
+#+end_src
+If =A= comes equipped with a counting and =B= is a type family over =A=, then all =B x= come equipped with a counting iff Sg A B comes equipped with a counting.
+#+begin_src ctt
+  count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat) -> (e : Equiv (Fin k) A) -> count (Sg A B) = split
+    zero -> \ _. count/closed-equiv (Sg A B) Empty (Equiv/Equiv-Sg-empty B) (count/zero-count)
+    suc k -> \ e.
+      let f : Fin (suc k) -> A = (Equiv/map (Fin (suc k)) A e) in
+        count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) ? -- Sg A B ~ Sg (Fin k + 1) B o e ~ (Sg (Fin k) B o e o inl) + B(e(inr(star)))
+          (count/closed-Coprod (Sg (Fin k) (\ x. B (f (inl x))))
+                               (B (f (inr star))) (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k))))
+
+  -- count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+*** Characterization of countings for product

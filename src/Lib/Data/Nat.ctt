@@ -25,3 +25,7 @@ eight-Nat : Nat = suc seven-Nat
 nine-Nat : Nat = suc eight-Nat
 
 ten-Nat : Nat = suc nine-Nat
+
+plus-Nat (m : Nat) : Nat -> Nat = split
+  zero -> m
+  suc k -> suc (plus-Nat m k)

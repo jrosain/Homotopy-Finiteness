@@ -1,0 +1,31 @@
+#+NAME: Fin
+#+AUTHOR: Johann Rosain
+
+* =Fin= Properties
+
+  #+begin_src ctt
+  module Lib.Prop.Fin where
+  #+end_src
+
+This file states and shows more properties about finite types.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Fin
+  import Lib.Prop.Equiv
+  import Lib.Prop.Coprod
+   #+end_src
+
+** =Fin k + l= is =Fin k + Fin l=
+
+The proof is easy by induction on =l=.
+   #+begin_src ctt
+  Fin/Equiv-add-copr (k : Nat) : (l : Nat) -> (Equiv (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l))) = split
+    zero -> Equiv/sym (Coprod (Fin k) Empty) (Fin k) (Equiv/Equiv-copr-type-empty (Fin k))
+    suc l -> Equiv/trans (Fin (plus-Nat k (suc l))) (Coprod (Coprod (Fin k) (Fin l)) Unit) (Coprod (Fin k) (Fin (suc l)))
+                                                   (Coprod/closed-Equiv (Fin (plus-Nat k l)) (Coprod (Fin k) (Fin l)) Unit Unit
+                                                                        (Fin/Equiv-add-copr k l) (Equiv/refl Unit))
+                                                   (Coprod/assoc (Fin k) (Fin l) Unit)
+   #+end_src
+
