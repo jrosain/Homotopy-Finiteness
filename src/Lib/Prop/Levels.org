@@ -1,0 +1,35 @@
+#+NAME: Levels
+#+AUTHOR: Johann Rosain
+
+* Truncation levels properties
+
+  #+begin_src ctt
+  module Lib.Prop.Levels where
+  #+end_src
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Prop.Proposition
+   #+end_src
+
+** Closure under equivalence for propositions and sets
+
+   #+begin_src ctt
+  is-prop/closed-equiv (A B : U) (e : Equiv A B) (H : is-prop B) : is-prop A =
+    has-contr-eq/is-prop A (is-of-lvl/closed-equiv A B e one-Nat (is-prop/has-contr-eq B H))
+
+  is-prop/closed-equiv' (A B : U) (e : Equiv A B) (H : is-prop A) : is-prop B =
+    has-contr-eq/is-prop B (is-of-lvl/closed-equiv' A B e one-Nat (is-prop/has-contr-eq A H))
+
+  is-set/closed-equiv (A B : U) (e : Equiv A B) (H : is-set B) : is-set A =
+    let f : A -> B = Equiv/map A B e in
+    \ x y. is-prop/closed-equiv (Path A x y) (Path B (f x) (f y)) (Equiv/Equiv-id A B e x y) (H (f x) (f y))
+
+  is-set/closed-equiv' (A B : U) (e : Equiv A B) (H : is-set A) : is-set B =
+    is-set/closed-equiv B A (Equiv/sym A B e) H    
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

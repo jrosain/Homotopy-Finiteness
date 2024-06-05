@@ -55,8 +55,15 @@ has-contr-eq/is-prop (A : U) (c : has-contr-eq A) : is-prop A =
 is-prop/is-subterminal (A : U) (p : is-prop A) (x : A) : is-subterminal A =
   is-proof-irrelevant/is-subterminal A x (is-prop/is-proof-irrelevant A p)
 
-is-prop/has-contr-eq (A : U) (p : is-prop A) (x : A) : has-contr-eq A =
+is-prop/has-contr-eq' (A : U) (p : is-prop A) (x : A) : has-contr-eq A =
   is-subterminal/has-contr-eq A (is-prop/is-subterminal A p x)
+
+is-prop/has-contr-eq (A : U) (p : is-prop A) : has-contr-eq A =
+  \ x y. (p x y,
+         \ q. 
+          let H : is-contr (Path A x y) = is-prop/has-contr-eq' A p x x y in
+          comp (Path A x y) (p x y) (H.1) (inv (Path A x y) (H.1) (p x y) (H.2 (p x y)))
+                            q (H.2 q))
 
 is-proof-irrelevant/has-contr-eq (A : U) (x : A) (f : is-proof-irrelevant A) : has-contr-eq A =
   is-subterminal/has-contr-eq A (is-proof-irrelevant/is-subterminal A x f)

@@ -249,4 +249,66 @@ Equiv/Sg-unit-is-equiv (A : Unit -> U) : is-equiv (Sg Unit A) (A star) (Equiv/Sg
 Equiv/Sg-unit (A : Unit -> U) : Equiv (Sg Unit A) (A star) =
   (Equiv/Sg-unit-map A, Equiv/Sg-unit-is-equiv A)
 
+Equiv/fib-pr1-space-map (A : U) (B : A -> U) (x : A) (u : Fib (Sg A B) A (\ u. u.1) x) : B x =
+  let x' : A = u.1.1
+      y  : B x' = u.1.2
+      p  : Path A x x' = u.2
+  in tr A x' x (inv A x x' p) B y
+
+Equiv/fib-pr1-space-inv-map (A : U) (B : A -> U) (x : A) (y : B x) : Fib (Sg A B) A (\ u. u.1) x =
+  ((x, y), refl A x)
+
+Equiv/fib-pr1-space-right-htpy (A : U) (B : A -> U) (x : A) : Htpy' (B x) (B x)
+                                                                   (\ z. (Equiv/fib-pr1-space-map A B x) (Equiv/fib-pr1-space-inv-map A B x z))
+                                                                   (id (B x)) =
+  \ y. comp (B x) (tr A x x (inv A x x (refl A x)) B y)
+           (tr A x x (refl A x) B y) (ap (Path A x x) (B x) (\ p. tr A x x p B y) (inv A x x (refl A x)) (refl A x) (inv/refl A x))
+           y (tr/refl-path A x B y)
+
+Equiv/fib-pr1-space-left-htpy/refl (A : U) (B : A -> U) (x : A) (y : B x)
+                                      : Path (Fib (Sg A B) A (\ u. u.1) x)
+                                             ((Equiv/fib-pr1-space-inv-map A B x) (Equiv/fib-pr1-space-map A B x ((x, y), refl A x)))
+                                             ((x, y), refl A x) =
+  comp (Fib (Sg A B) A (\ u. u.1) x) ((x, tr A x x (inv A x x (refl A x)) B y), refl A x)
+                                   ((x, tr A x x (refl A x) B y), refl A x)
+                                   (ap (Path A x x) (Fib (Sg A B) A (\ u. u.1) x) (\ p. ((x, tr A x x p B y), refl A x))
+                                       (inv A x x (refl A x)) (refl A x) (inv/refl A x))
+                                   ((x, y), refl A x)
+                                   (ap (B x) (Fib (Sg A B) A (\ u. u.1) x) (\ y'. ((x, y'), refl A x)) (tr A x x (refl A x) B y) y
+                                       (tr/refl-path A x B y))
+
+Equiv/fib-pr1-space-left-htpy/sg (A : U) (B : A -> U) (x : A) (x' : A) (y : B x') (p : Path A x x')
+                                    : Path (Fib (Sg A B) A (\ u. u.1) x)
+                                           ((Equiv/fib-pr1-space-inv-map A B x) (Equiv/fib-pr1-space-map A B x ((x', y), p)))
+                                           ((x', y), p) =
+  J A x (\ x'' q. (y' : B x'') -> Path (Fib (Sg A B) A (\ u. u.1) x) ((Equiv/fib-pr1-space-inv-map A B x) (Equiv/fib-pr1-space-map A B x ((x'', y'), q))) ((x'', y'), q))
+        (\ y'. Equiv/fib-pr1-space-left-htpy/refl A B x y') x' p y
+
+Equiv/fib-pr1-space-left-htpy (A : U) (B : A -> U) (x : A) : Htpy' (Fib (Sg A B) A (\ u. u.1) x) (Fib (Sg A B) A (\ u. u.1) x)
+                                                                  (\ z. (Equiv/fib-pr1-space-inv-map A B x) (Equiv/fib-pr1-space-map A B x z))
+                                                                  (id (Fib (Sg A B) A (\ u. u.1) x)) =
+  \ u. Equiv/fib-pr1-space-left-htpy/sg A B x u.1.1 u.1.2 u.2
+
+Equiv/fib-space-is-equiv (A : U) (B : A -> U) (x : A) : is-equiv (Fib (Sg A B) A (\ u. u.1) x) (B x) (Equiv/fib-pr1-space-map A B x) =
+  has-inverse/is-equiv (Fib (Sg A B) A (\ u. u.1) x) (B x) (Equiv/fib-pr1-space-map A B x)
+    (Equiv/fib-pr1-space-inv-map A B x, (Equiv/fib-pr1-space-right-htpy A B x, Equiv/fib-pr1-space-left-htpy A B x))
+
+Equiv/fib-space-Equiv (A : U) (B : A -> U) (x : A) : Equiv (Fib (Sg A B) A (\ u. u.1) x) (B x) =
+  (Equiv/fib-pr1-space-map A B x, Equiv/fib-space-is-equiv A B x)
+
+is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k B) -> is-of-lvl k A = split
+  zero -> \ H. is-contr/is-contr-equiv A B e H
+  suc k ->
+    let f : A -> B = Equiv/map A B e in
+    \ H x y. is-of-lvl/closed-equiv (Path A x y) (Path B (f x) (f y)) (Equiv/Equiv-id A B e x y) k (H (f x) (f y))
+
+is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
+  is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
+
+-- is-set/closed-equiv (A B : U) (e : Equiv A B) (H : is-set B) : is-set A =
+--   is-of-lvl/closed-equiv A B e two-Nat H
+
+-- is-set/closed-equiv' (A B : U) (e : Equiv A B) (H : is-set A) : is-set B =
+--   is-of-lvl/closed-equiv' A B e two-Nat H
+
 test : Nat = zero

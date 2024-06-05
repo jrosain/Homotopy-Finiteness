@@ -4,6 +4,7 @@ import Lib.Prop.Equiv
 import Lib.Data.Fin  
 import Lib.Prop.Proposition
 import Lib.Prop.Fin
+import Lib.FundamentalTheorem
 
 count (A : U) : U =
   Sg Nat (\ k. Equiv (Fin k) A)
@@ -72,6 +73,9 @@ count/is-decidable-is-countable (X : U) (p : is-prop X) : is-decidable X -> coun
 count/has-decidable-eq (A : U) (c : count A) : has-decidable-equality A =
   has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))
 
+count/Unit : count Unit =
+  (one-Nat, Equiv/Equiv-copr-empty-type Unit)
+
 count/closed-Coprod (A B : U) (cA : count A) (cB : count B) : count (Coprod A B) =
   let k : Nat = number-of-elements A cA
       l : Nat = number-of-elements B cB
@@ -80,11 +84,30 @@ count/closed-Coprod (A B : U) (cA : count A) (cB : count B) : count (Coprod A B)
                  (Fin/Equiv-add-copr k l) (Coprod/closed-Equiv (Fin k) A (Fin l) B (count/Equiv A cA) (count/Equiv B cB))))
 
 count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat) -> (e : Equiv (Fin k) A) -> count (Sg A B) = split
-  zero -> \ _. count/closed-equiv (Sg A B) Empty (Equiv/Equiv-Sg-empty B) (count/zero-count)
+  zero -> \ e. count/closed-equiv (Sg A B) (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Equiv/sym (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Sg A B) (Sg/equiv-base Empty A B e))
+              (count/closed-equiv (Sg Empty (\ x. B (Equiv/map Empty A e x))) Empty (Equiv/Equiv-Sg-empty (\ x. B (Equiv/map Empty A e x))) (count/zero-count))
   suc k -> \ e.
     let f : Fin (suc k) -> A = (Equiv/map (Fin (suc k)) A e) in
-      count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) ? -- Sg A B ~ Sg (Fin k + 1) B o e ~ (Sg (Fin k) B o e o inl) + B(e(inr(star)))
+      count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+        (Equiv/trans (Sg A B) (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+          (Equiv/sym (Sg (Fin (suc k)) (\ x. B (f x))) (Sg A B) (Sg/equiv-base (Fin (suc k)) A B e)) -- Sg A B ~ Sg (Fin k+1) (B o e)
+          (Equiv/trans (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (Sg Unit (\ x. B (f (inr x)))))
+                       (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) (Equiv/Sg-distr-over-coprod (Fin k) Unit (\ x. B (f x)))
+                                                                                    -- Sg (Fin k + 1) (B o e) ~ (Sg (Fin k) (B o e o inl)) + (Sg Unit (B o e o inr))
+                       (Coprod/closed-Equiv (Sg (Fin k) (\ x. B (f (inl x)))) (Sg (Fin k) (\ x. B (f (inl x))))
+                                            (Sg Unit (\ x. B (f (inr x)))) (B (f (inr star)))
+                                            (Equiv/refl (Sg (Fin k) (\ x. B (f (inl x)))))
+                                            (Equiv/Sg-unit (\ x. B (f (inr x))))))) -- Sg Unit (B o e o inr) ~ B(e(inr(star)))
         (count/closed-Coprod (Sg (Fin k) (\ x. B (f (inl x))))
-                             (B (f (inr star))) (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k))))
+                             (B (f (inr star)))
+                             (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k)))
+                             (H (f (inr star))))
 
--- count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
+count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
+  count/closed-Sg/sg A B H (number-of-elements A cA) (count/Equiv A cA)
+
+count/closed-fam/sg (A : U) (B : A -> U) (k : Nat) (e : Equiv (Fin k) A) (l : Nat) (f : Equiv (Fin l) (Sg A B)) (x : A) : count (B x) =
+  count/zero-count
+
+count/closed-fam (A : U) (B : A -> U) (cA : count A) (cT : count (Sg A B)) : (x : A) -> count (B x) =
+  count/closed-fam/sg A B (number-of-elements A cA) (count/Equiv A cA) (number-of-elements (Sg A B) cT) (count/Equiv (Sg A B) cT)

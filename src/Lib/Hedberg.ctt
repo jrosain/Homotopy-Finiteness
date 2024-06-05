@@ -1,0 +1,21 @@
+module Lib.Hedberg where
+
+import Stdlib.Prelude
+
+fundamental-theorem-id-map (A : U) (R : A -> A -> U) (r : (x : A) -> R x x) (x y : A) (p : Path A x y) : R x y =
+  J A x (\ z _. R x z) (r x) y p
+
+fundamental-theorem-id-isretr (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (rf : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
+                              (x y : A) (p : Path A x y) : retract-of (R x y) (Path A x y) =
+  let s : R x y -> Path A x y = M x y
+      r : Path A x y -> R x y = fundamental-theorem-id-map A R rf x y
+  in
+  (s, (r, \ u. H x y (r (s u)) u))
+
+-- TODO: show that Sg A (R x) is a retract of Sg A x = y (should be easy as R x y is a retract of x = y)
+-- Then, as Sg A x = y is contractible, Sg A (R x) is also contractible (is-contr/closed-retract)
+-- So (fundamental theorem id) the family of maps x = y -> R x y is a family of equivalence
+-- That is, A is a set as its identity types are equivalent to propositions.      
+
+-- fundamental-theorem-id (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (r : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
+--                        (x y : A) (p : Path A x y) : is-equiv (Path A x y) (R x y) (fundamental-theorem-id-map A R r x y) =

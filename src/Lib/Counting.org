@@ -16,6 +16,7 @@ This file defines the notion of /counting/ in HoTT, and basic counting propertie
   import Lib.Data.Fin  
   import Lib.Prop.Proposition
   import Lib.Prop.Fin
+  import Lib.FundamentalTheorem
    #+end_src
 
 ** Definition
@@ -130,6 +131,12 @@ Actually, a type =A= equipped with a counting has decidable equality as =Fin k= 
 *** TODO A countable type is a set
 Then, Hedberg's theorem allows us to conclude that if =A= has a counting, then =A= is a set.
 
+*** Characterization of countings for Unit
+=Unit= has a one count.
+    #+begin_src ctt
+  count/Unit : count Unit =
+    (one-Nat, Equiv/Equiv-copr-empty-type Unit)
+    #+end_src
 *** Characterization of countings for coproduct and dependent pair
 If =A= and =B= come equipped with a counting, then =Coprod A B= also comes with a counting. Indeed, if A \simeq Fin k and B \simeq Fin \ell, then Coprod A B \simeq Coprod (Fin k) (Fin \ell) \simeq Fin (k + \ell).
 #+begin_src ctt
@@ -143,17 +150,35 @@ If =A= and =B= come equipped with a counting, then =Coprod A B= also comes with 
 If =A= comes equipped with a counting and =B= is a type family over =A=, then all =B x= come equipped with a counting iff Sg A B comes equipped with a counting.
 #+begin_src ctt
   count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat) -> (e : Equiv (Fin k) A) -> count (Sg A B) = split
-    zero -> \ _. count/closed-equiv (Sg A B) Empty (Equiv/Equiv-Sg-empty B) (count/zero-count)
+    zero -> \ e. count/closed-equiv (Sg A B) (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Equiv/sym (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Sg A B) (Sg/equiv-base Empty A B e))
+                (count/closed-equiv (Sg Empty (\ x. B (Equiv/map Empty A e x))) Empty (Equiv/Equiv-Sg-empty (\ x. B (Equiv/map Empty A e x))) (count/zero-count))
     suc k -> \ e.
       let f : Fin (suc k) -> A = (Equiv/map (Fin (suc k)) A e) in
-        count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) ? -- Sg A B ~ Sg (Fin k + 1) B o e ~ (Sg (Fin k) B o e o inl) + B(e(inr(star)))
+        count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+          (Equiv/trans (Sg A B) (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+            (Equiv/sym (Sg (Fin (suc k)) (\ x. B (f x))) (Sg A B) (Sg/equiv-base (Fin (suc k)) A B e)) -- Sg A B ~ Sg (Fin k+1) (B o e)
+            (Equiv/trans (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (Sg Unit (\ x. B (f (inr x)))))
+                         (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) (Equiv/Sg-distr-over-coprod (Fin k) Unit (\ x. B (f x)))
+                                                                                      -- Sg (Fin k + 1) (B o e) ~ (Sg (Fin k) (B o e o inl)) + (Sg Unit (B o e o inr))
+                         (Coprod/closed-Equiv (Sg (Fin k) (\ x. B (f (inl x)))) (Sg (Fin k) (\ x. B (f (inl x))))
+                                              (Sg Unit (\ x. B (f (inr x)))) (B (f (inr star)))
+                                              (Equiv/refl (Sg (Fin k) (\ x. B (f (inl x)))))
+                                              (Equiv/Sg-unit (\ x. B (f (inr x))))))) -- Sg Unit (B o e o inr) ~ B(e(inr(star)))
           (count/closed-Coprod (Sg (Fin k) (\ x. B (f (inl x))))
-                               (B (f (inr star))) (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k))))
+                               (B (f (inr star)))
+                               (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k)))
+                               (H (f (inr star))))
 
-  -- count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
+  count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
+    count/closed-Sg/sg A B H (number-of-elements A cA) (count/Equiv A cA)
+#+end_src
+We can show the converse, that is: if =A= comes with a counting and \Sigma A B comes with a counting, then =B x= comes with a counting for all =x=. To do so, remember that (B x) is equiv to (Fib pr1 x). But (Fib pr1 x) is (\Sigma (\Sigma A B) (\ u. x = pr1 u)). By assumption, Sg A B is countable. Moreover, A is countable by assumption thus it has a decidable equality: the equality is also countable.
+#+begin_src ctt
+  count/closed-fam (A : U) (B : A -> U) (cA : count A) (cT : count (Sg A B)) (x : A) : count (B x) =
+    count/closed-equiv' (Fib (Sg A B) A (\ u. u.1) x) (B x) (Equiv/fib-space-Equiv A B x)
+      (count/closed-Sg (Sg A B) (\ y. Path A x y) cT
+        (\ y. ))
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
 
 *** Characterization of countings for product
