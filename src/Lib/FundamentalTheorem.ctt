@@ -86,6 +86,73 @@ tot/fib-equiv-right-htpy (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t :
          (y, p)
          (ap (Path (C x) z (f x y)) (Fib (B x) (C x) (f x) z) (\ q. (y, q)) (inv (C x) (f x y) z (inv (C x) z (f x y) p)) p (inv/involutive (C x) z (f x y) p))
 
+-- J/comp (A : U) (x : A) (M : (y : A) (p : Path A x y) -> U) (m : M x (refl A x)) : Path (M x (refl A x)) (J A x M m x (refl A x)) m
+tot/fib-equiv-left-htpy/refl (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A B)
+                                : Path (Fib (Sg A B) (Sg A C) (tot A B C f) (tot A B C f t))
+                                       ((tot/fib-equiv-inv-map A B C f (tot A B C f t))
+                                        (tot/fib-equiv-map A B C f (tot A B C f t) (t, (inv (Sg A C) (tot A B C f t) (tot A B C f t) (refl (Sg A C) (tot A B C f t))))))
+                                       (t, inv (Sg A C) (tot A B C f t) (tot A B C f t) (refl (Sg A C) (tot A B C f t))) =
+  let u : Sg A C = tot A B C f t
+      T : U = Fib (Sg A B) (Sg A C) (tot A B C f) u
+      v : T = (t, (inv (Sg A C) u u (refl (Sg A C) u)))
+      x : A = t.1
+      y : B x = t.2
+
+      a : T = ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map A B C f u (t, refl (Sg A C) u)))
+      b : T = ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map/sg A B C f u.1 u.2 t (refl (Sg A C) u)))
+      c : T = tot/fib-equiv-inv-map A B C f u (y, refl (C x) (f x y))
+      d : T = tot/fib-equiv-inv-map/sg A B C f u.1 u.2 y (refl (C x) (f x y))
+      e : T = ((x, y), refl (Sg A C) (x, f x y))
+
+  in comp-n T six-Nat ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map A B C f u (t, inv (Sg A C) u u (refl (Sg A C) u)))) a
+      (ap (Path (Sg A C) u u) T (\ p. ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map A B C f u (t, p)))) (inv (Sg A C) u u (refl (Sg A C) u)) (refl (Sg A C) u)
+          (inv/refl (Sg A C) u))
+      b (ap (Path (Sg A C) u u) T (\ p. ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map/sg A B C f u.1 u.2 t p)))
+            (inv (Sg A C) u u (refl (Sg A C) u)) (refl (Sg A C) u) (inv/refl (Sg A C) u))
+      c (ap (Fib (B x) (C x) (f x) u.2) T (\ p. tot/fib-equiv-inv-map A B C f u p) (tot/fib-equiv-map/sg A B C f u.1 u.2 t (refl (Sg A C) u)) (y, refl (C x) (f x y))
+            (J/comp (Sg A C) u (\ u' _. Fib (B u'.1) (C u'.1) (f u'.1) u'.2) (y, refl (C x) (f x y))))
+      d (ap (Path (C x) (f x y) (f x y)) T (\ p. tot/fib-equiv-inv-map/sg A B C f u.1 u.2 y p) (inv (C x) (f x y) (f x y) (refl (C x) (f x y))) (refl (C x) (f x y))
+            (inv/refl (C x) (f x y)))
+      e (J/comp (C x) (f x y) (\ c' _. Fib (Sg A B) (Sg A C) (tot A B C f) (x, c')) ((x, y), refl (Sg A C) (x, f x y)))
+      ((x, y), inv (Sg A C) (x, f x y) (x, f x y) (refl (Sg A C) (x, f x y)))
+      (ap (Path (Sg A C) (x, f x y) (x, f x y)) T (\ p. ((x, y), p)) (refl (Sg A C) (x, f x y)) (inv (Sg A C) (x, f x y) (x, f x y) (refl (Sg A C) (x, f x y)))
+          (refl/sym (Sg A C) (x, f x y)))
+
+tot/fib-equiv-left-htpy/sg (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (x : A) (z : C x) (t : Sg A B) (p : Path (Sg A C) (tot A B C f t) (x, z))
+                              : Path (Fib (Sg A B) (Sg A C) (tot A B C f) (x, z))
+                                     ((tot/fib-equiv-inv-map A B C f (x, z)) (tot/fib-equiv-map A B C f (x, z) (t, (inv (Sg A C) (tot A B C f t) (x, z) p))))
+                                     (t, inv (Sg A C) (tot A B C f t) (x, z) p) =
+  J (Sg A C) (tot A B C f t) (\ u q. Path (Fib (Sg A B) (Sg A C) (tot A B C f) u)
+                                        ((tot/fib-equiv-inv-map A B C f u) (tot/fib-equiv-map A B C f u (t, (inv (Sg A C) (tot A B C f t) u q))))
+                                        (t, inv (Sg A C) (tot A B C f t) u q))
+    (tot/fib-equiv-left-htpy/refl A B C f t) (x, z) p
+
+
+tot/fib-equiv-left-htpy (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) (u : Fib (Sg A B) (Sg A C) (tot A B C f) t)
+                           : Path (Fib (Sg A B) (Sg A C) (tot A B C f) t) ((tot/fib-equiv-inv-map A B C f t) (tot/fib-equiv-map A B C f t u)) u =
+  comp-n (Fib (Sg A B) (Sg A C) (tot A B C f) t) three-Nat ((tot/fib-equiv-inv-map A B C f t) (tot/fib-equiv-map A B C f t u))
+         ((tot/fib-equiv-inv-map A B C f t) (tot/fib-equiv-map A B C f t (u.1, inv (Sg A C) (tot A B C f u.1) t (inv (Sg A C) t (tot A B C f u.1) u.2))))
+         (ap (Path (Sg A C) t (tot A B C f u.1)) (Fib (Sg A B) (Sg A C) (tot A B C f) t)
+             (\ p. (tot/fib-equiv-inv-map A B C f t) (tot/fib-equiv-map A B C f t (u.1, p))) u.2 (inv (Sg A C) (tot A B C f u.1) t (inv (Sg A C) t (tot A B C f u.1) u.2))
+             (inv/involutive' (Sg A C) t (tot A B C f u.1) u.2))
+         (u.1, inv (Sg A C) (tot A B C f u.1) t (inv (Sg A C) t (tot A B C f u.1) u.2))
+         (tot/fib-equiv-left-htpy/sg A B C f t.1 t.2 u.1 (inv (Sg A C) t (tot A B C f u.1) u.2))
+         u (ap (Path (Sg A C) t (tot A B C f u.1)) (Fib (Sg A B) (Sg A C) (tot A B C f) t) (\ p. (u.1, p))
+               (inv (Sg A C) (tot A B C f u.1) t (inv (Sg A C) t (tot A B C f u.1) u.2)) u.2 (inv/involutive (Sg A C) t (tot A B C f u.1) u.2))
+
+tot/Equiv-fib (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) : Equiv (Fib (Sg A B) (Sg A C) (tot A B C f) t) (Fib (B t.1) (C t.1) (f t.1) t.2) =
+  has-inverse/Equiv (Fib (Sg A B) (Sg A C) (tot A B C f) t) (Fib (B t.1) (C t.1) (f t.1) t.2) (tot/fib-equiv-map A B C f t)
+    (tot/fib-equiv-inv-map A B C f t, (tot/fib-equiv-right-htpy A B C f t, tot/fib-equiv-left-htpy A B C f t))
+
+fam-equiv/is-equiv-tot (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : (x : A) -> is-equiv (B x) (C x) (f x)) : is-equiv (Sg A B) (Sg A C) (tot A B C f) =
+  \ t. is-contr/is-contr-equiv (Fib (Sg A B) (Sg A C) (tot A B C f) t) (Fib (B t.1) (C t.1) (f t.1) t.2) (tot/Equiv-fib A B C f t) (e t.1 t.2)
+
+fam-equiv/Equiv-tot (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : (x : A) -> is-equiv (B x) (C x) (f x)) : Equiv (Sg A B) (Sg A C) =
+  (tot A B C f, fam-equiv/is-equiv-tot A B C f e)
+
+is-equiv-tot/fam-equiv (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : is-equiv (Sg A B) (Sg A C) (tot A B C f)) (x : A) : is-equiv (B x) (C x) (f x) =
+  \ z. is-contr/is-contr-equiv' (Fib (Sg A B) (Sg A C) (tot A B C f) (x, z)) (Fib (B x) (C x) (f x) z) (tot/Equiv-fib A B C f (x, z)) (e (x, z))
+
 Sg/equiv-base-map (A B : U) (C : B -> U) (f : A -> B) : Sg A (\ x. C (f x)) -> Sg B C =
   \ u.
     let x : A = u.1
@@ -242,3 +309,12 @@ Sg/equiv-base-is-equiv (A B : U) (C : B -> U) (f : A -> B) (H : is-equiv A B f) 
 
 Sg/equiv-base (A B : U) (C : B -> U) (e : Equiv A B) : Equiv (Sg A (\ x. C (Equiv/map A B e x))) (Sg B C) =
   (Sg/equiv-base-map A B C (Equiv/map A B e), Sg/equiv-base-is-equiv A B C (Equiv/map A B e) (Equiv/is-equiv A B e))
+
+fundamental-theorem-id (A : U) (B : A -> U) (a : A) (f : (x : A) -> (Path A a x) -> B x) (c : is-contr (Sg A B)) (x : A) : is-equiv (Path A a x) (B x) (f x) =
+  is-equiv-tot/fam-equiv A (\ y. Path A a y) B f (is-contr/is-equiv (Sg A (\ y. Path A a y)) (Sg A B) (tot A (\ y. Path A a y) B f) (is-contr/Sg-path-is-contr A a) c) x
+
+fundamental-theorem-id' (A : U) (B : A -> U) (a : A) (f : (x : A) -> (Path A a x) -> B x) (e : (x : A) -> is-equiv (Path A a x) (B x) (f x)) : is-contr (Sg A B) =
+  is-contr/is-contr-equiv' (Sg A (\ x. Path A a x)) (Sg A B) (fam-equiv/Equiv-tot A (\ x. Path A a x) B f e)
+    (is-contr/Sg-path-is-contr A a)
+
+z : Nat = zero

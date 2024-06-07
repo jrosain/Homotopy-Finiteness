@@ -119,8 +119,11 @@ is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A 
 is-contr/is-contr-equiv' (A B : U) (e : Equiv A B) (c : is-contr A) : is-contr B =
   is-contr/is-contr-equiv B A (Equiv/sym A B e) c
 
-is-contr/is-equiv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
   is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
+
+is-contr/is-equiv (A B : U) (f : A -> B) (cA : is-contr A) (cB : is-contr B) : is-equiv A B f =
+  is-bi-inv/is-equiv A B f (is-bi-inv/is-bi-inv-contr' A B f cA cB)
 
 is-equiv/is-bi-inv-copr-empty-type-map (A : U) : Coprod Empty A -> A = split
   inl x -> ex-falso A x
@@ -304,11 +307,5 @@ is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k
 
 is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
   is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
-
--- is-set/closed-equiv (A B : U) (e : Equiv A B) (H : is-set B) : is-set A =
---   is-of-lvl/closed-equiv A B e two-Nat H
-
--- is-set/closed-equiv' (A B : U) (e : Equiv A B) (H : is-set A) : is-set B =
---   is-of-lvl/closed-equiv' A B e two-Nat H
 
 test : Nat = zero

@@ -199,12 +199,13 @@ The other side is trivial.
 #+end_src
 Now, if two types are contractible, they are obviously equivalent: they both hold only one object, thus there is a trivial bijection between them.
 #+begin_src ctt
-  is-contr/is-equiv-contr (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+  is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
     is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
+
+  is-contr/is-equiv (A B : U) (f : A -> B) (cA : is-contr A) (cB : is-contr B) : is-equiv A B f =
+    is-bi-inv/is-equiv A B f (is-bi-inv/is-bi-inv-contr' A B f cA cB)
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
 ** Equivalences between types
 *** =Coprod Empty A=
 There is a bi-invertible map between =Coprod Empty A= and =A=.

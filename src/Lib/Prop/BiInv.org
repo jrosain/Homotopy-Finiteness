@@ -118,6 +118,12 @@ Moreover, if both =A= and =B= are contractible, then there is a bi-invertible ma
         R : Htpy' B B (\ z. f (g z)) (id B) = \ x. (contraction B cB x)
         L : Htpy' A A (\ z. g (f z)) (id A) = \ x. (contraction A cA x)
     in ((g, R), (g, L))
+
+  is-bi-inv/is-bi-inv-contr' (A B : U) (f : A -> B) (cA : is-contr A) (cB : is-contr B) : is-bi-inv A B f =
+    let g : B -> A = is-bi-inv/is-bi-inv-contr-inv-map A B cA
+        R : Htpy' B B (\ z. f (g z)) (id B) = \ x. comp B (f (g x)) (center B cB) (inv B (center B cB) (f (g x)) (contraction B cB (f (g x)))) x (contraction B cB x)
+        L : Htpy' A A (\ z. g (f z)) (id A) = \ x. (contraction A cA x)
+    in ((g, R), (g, L))
 #+end_src
 
 ** Double-composition property
