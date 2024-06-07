@@ -1,21 +1,58 @@
 module Lib.Hedberg where
 
 import Stdlib.Prelude
+import Lib.FundamentalTheorem
+import Lib.Prop.Sg  
+import Lib.Prop.Levels
 
 fundamental-theorem-id-map (A : U) (R : A -> A -> U) (r : (x : A) -> R x x) (x y : A) (p : Path A x y) : R x y =
   J A x (\ z _. R x z) (r x) y p
 
 fundamental-theorem-id-isretr (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (rf : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
-                              (x y : A) (p : Path A x y) : retract-of (R x y) (Path A x y) =
+                              (x y : A) : retract-of (R x y) (Path A x y) =
   let s : R x y -> Path A x y = M x y
       r : Path A x y -> R x y = fundamental-theorem-id-map A R rf x y
   in
   (s, (r, \ u. H x y (r (s u)) u))
 
--- TODO: show that Sg A (R x) is a retract of Sg A x = y (should be easy as R x y is a retract of x = y)
--- Then, as Sg A x = y is contractible, Sg A (R x) is also contractible (is-contr/closed-retract)
--- So (fundamental theorem id) the family of maps x = y -> R x y is a family of equivalence
--- That is, A is a set as its identity types are equivalent to propositions.      
+fundamental-theorem-id'' (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (r : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
+                         (x y : A) : is-equiv (Path A x y) (R x y) (fundamental-theorem-id-map A R r x y) =
+  fundamental-theorem-id A (R x) x (fundamental-theorem-id-map A R r x)
+    (is-contr/closed-retract (Sg A (R x)) (Sg A (\ z. Path A x z)) (Sg/closed-retract A (R x) (\ z. Path A x z) (fundamental-theorem-id-isretr A R H r M x)) (is-contr/Sg-path-is-contr A x)) y
 
--- fundamental-theorem-id (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (r : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
---                        (x y : A) (p : Path A x y) : is-equiv (Path A x y) (R x y) (fundamental-theorem-id-map A R r x y) =
+fundamental-theorem-id/Equiv (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (r : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y)
+                             (x y : A) : Equiv (Path A x y) (R x y) =
+  (fundamental-theorem-id-map A R r x y, fundamental-theorem-id'' A R H r M x y)
+
+id-rel/is-set (A : U) (R : A -> A -> U) (H : (x y : A) -> is-prop (R x y)) (r : (x : A) -> R x x) (M : (x y : A) -> R x y -> Path A x y) : is-set A =
+  \ x y. is-prop/closed-equiv (Path A x y) (R x y) (fundamental-theorem-id/Equiv A R H r M x y) (H x y)
+
+hedberg/bin-rel' (A : U) (x y : A) : (Coprod (Path A x y) (neg (Path A x y))) -> U = split
+  inl _ -> Unit
+  inr _ -> Empty
+
+hedberg/bin-rel (A : U) (d : has-decidable-equality A) (x y : A) : U =
+  hedberg/bin-rel' A x y (d x y)
+
+-- hedberg/bin-rel/refl' (A : U) (d : has-decidable-equality A) (x : A) : (Coprod (Path A x x) (neg (Path A x x))) -> hedberg/bin-rel A d x x = split
+--   inl _ -> star
+--   inr f -> f (refl A x)
+
+hedberg/bin-rel/refl (A : U) (d : has-decidable-equality A) (x : A) : hedberg/bin-rel A d x x =
+  ind-Coprod (Path A x x) (neg (Path A x x)) (\ p. hedberg/bin-rel' A x x p)
+    (\ _. star) (\ f. f (refl A x)) (d x x)
+
+hedberg/bin-rel/is-prop (A : U) (d : has-decidable-equality A) (x y : A) : is-prop (hedberg/bin-rel A d x y) =
+  ind-Coprod (Path A x y) (neg (Path A x y)) (\ q. is-prop (hedberg/bin-rel' A x y q))
+    (\ _. Unit/is-prop)
+    (\ _ z t. ex-falso (Path Empty z t) z) (d x y)
+
+hedberg/bin-rel/id' (A : U) (d : has-decidable-equality A) (x y : A) : (q : Coprod (Path A x y) (neg (Path A x y))) -> hedberg/bin-rel' A x y q -> Path A x y = split
+  inl p -> \ _. p
+  inr _ -> \ e. ex-falso (Path A x y) e
+
+hedberg/bin-rel/id (A : U) (d : has-decidable-equality A) (x y : A) (r : hedberg/bin-rel A d x y) : Path A x y =
+  hedberg/bin-rel/id' A d x y (d x y) r
+
+hedberg (A : U) (d : has-decidable-equality A) : is-set A =
+  id-rel/is-set A (hedberg/bin-rel A d) (hedberg/bin-rel/is-prop A d) (hedberg/bin-rel/refl A d) (hedberg/bin-rel/id A d)

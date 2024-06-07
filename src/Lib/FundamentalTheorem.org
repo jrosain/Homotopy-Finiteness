@@ -376,8 +376,6 @@ By the theorem =fam-equiv/Equiv-tot=, if the family of maps =f= is an equivalenc
   fundamental-theorem-id' (A : U) (B : A -> U) (a : A) (f : (x : A) -> (Path A a x) -> B x) (e : (x : A) -> is-equiv (Path A a x) (B x) (f x)) : is-contr (Sg A B) =
     is-contr/is-contr-equiv' (Sg A (\ x. Path A a x)) (Sg A B) (fam-equiv/Equiv-tot A (\ x. Path A a x) B f e)
       (is-contr/Sg-path-is-contr A a)
-
-  z : Nat = zero
 #+end_src
 
 #+RESULTS:
