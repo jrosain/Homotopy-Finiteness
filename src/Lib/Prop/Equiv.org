@@ -20,6 +20,7 @@ This file regroups the properties of =Equiv= and =is-equiv= that are not provide
   import Lib.QInv
   import Lib.ContrMap
   import Lib.Prop.ActionPaths
+  import Lib.Prop.Unit
    #+end_src
 
 ** Accessors
@@ -406,6 +407,83 @@ We have shown that there is a bijection between (Fib pr1 x) and (B x), that is, 
   Equiv/fib-space-Equiv (A : U) (B : A -> U) (x : A) : Equiv (Fib (Sg A B) A (\ u. u.1) x) (B x) =
     (Equiv/fib-pr1-space-map A B x, Equiv/fib-space-is-equiv A B x)
 #+end_src
+
+*** \Sigma fib is A
+    #+begin_src ctt
+  equiv-total-fib/map (A B : U) (f : A -> B) (t : Sg B (Fib A B f)) : A = t.2.1
+
+  equiv-total-fib/inv-map (A B : U) (f : A -> B) (x : A) : Sg B (Fib A B f) = (f x, (x, refl B (f x)))
+
+  equiv-total-fib/right-htpy (A B : U) (f : A -> B) : Htpy' A A (\ z. (equiv-total-fib/map A B f) (equiv-total-fib/inv-map A B f z)) (id A) =
+    \ x. refl A x
+
+  equiv-total-fib/left-htpy/refl (A B : U) (f : A -> B) (x : A) 
+                                       : Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (f x, (x, inv B (f x) (f x) (refl B (f x))))))
+                                              (f x, (x, inv B (f x) (f x) (refl B (f x)))) =
+    ap (Path B (f x) (f x)) (Sg B (Fib A B f)) (\ p. (f x, (x, p))) (refl B (f x)) (inv B (f x) (f x) (refl B (f x))) (refl/sym B (f x))
+
+  equiv-total-fib/left-htpy' (A B : U) (f : A -> B) (y : B) (x : A) (p : Path B (f x) y)
+                                  : Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y p)))) (y, (x, inv B (f x) y p)) =
+    J B (f x) (\ z q. Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (z, (x, inv B (f x) z q)))) (z, (x, inv B (f x) z q)))
+              (equiv-total-fib/left-htpy/refl A B f x) y p
+
+  equiv-total-fib/left-htpy (A B : U) (f : A -> B)
+                                 : Htpy' (Sg B (Fib A B f)) (Sg B (Fib A B f))
+                                         (\ z. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f z)) (id (Sg B (Fib A B f))) =
+    \ u.
+      let x : A = u.2.1
+          y : B = u.1
+          p : Path B y (f x) = u.2.2
+      in comp-n (Sg B (Fib A B f)) three-Nat ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, p))))
+          ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y (inv B y (f x) p)))))
+          (ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, q)))) p (inv B (f x) y (inv B y (f x) p))
+              (inv/involutive' B y (f x) p))
+          (y, (x, inv B (f x) y (inv B y (f x) p))) (equiv-total-fib/left-htpy' A B f y x (inv B y (f x) p))
+          (y, (x, p)) (ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (y, (x, q))) (inv B (f x) y (inv B y (f x) p)) p (inv/involutive B y (f x) p))
+
+  equiv-total-fib/Equiv (A B : U) (f : A -> B) : Equiv (Sg B (Fib A B f)) A =
+    has-inverse/Equiv (Sg B (Fib A B f)) A (equiv-total-fib/map A B f)
+      (equiv-total-fib/inv-map A B f, (equiv-total-fib/right-htpy A B f, equiv-total-fib/left-htpy A B f))
+    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+*** \Sigma A Empty is empty
+    #+begin_src ctt
+  Equiv/Sg-empty-map (A : U) (u : Sg A (\ _. Empty)) : Empty = u.2
+
+  Equiv/Sg-empty-inv-map (A : U) (n : Empty) : Sg A (\ _. Empty) = (ex-falso A n, n)
+
+  Equiv/Sg-empty-right-htpy (A : U) : Htpy' Empty Empty (\ z. (Equiv/Sg-empty-map A) (Equiv/Sg-empty-inv-map A z)) (id Empty) =
+    \ n. ex-falso (Path Empty ((Equiv/Sg-empty-map A) (Equiv/Sg-empty-inv-map A n)) n) n
+
+  Equiv/Sg-empty-left-htpy (A : U) : Htpy' (Sg A (\ _. Empty)) (Sg A (\ _. Empty)) (\ z. (Equiv/Sg-empty-inv-map A) (Equiv/Sg-empty-map A z)) (id (Sg A (\ _. Empty))) =
+    \ n. ex-falso (Path (Sg A (\ _. Empty)) ((Equiv/Sg-empty-inv-map A) (Equiv/Sg-empty-map A n)) n) (n.2)
+
+  Equiv/Sg-empty (A : U) : Equiv (Sg A (\ _. Empty)) Empty =
+    has-inverse/Equiv (Sg A (\ _. Empty)) Empty (Equiv/Sg-empty-map A)
+      (Equiv/Sg-empty-inv-map A, (Equiv/Sg-empty-right-htpy A, Equiv/Sg-empty-left-htpy A))
+     #+end_src
+
+*** \Sigma A Unit is A
+    #+begin_src ctt
+  Equiv/Sg-base-unit-map (A : U) (u : Sg A (\ _. Unit)) : A = u.1
+
+  Equiv/Sg-base-unit-inv-map (A : U) (x : A) : Sg A (\ _. Unit) = (x, star)
+
+  Equiv/Sg-base-unit-right-htpy (A : U) : Htpy' A A (\ z. (Equiv/Sg-base-unit-map A) (Equiv/Sg-base-unit-inv-map A z)) (id A) =
+    \ x. refl A x
+
+  Equiv/Sg-base-unit-left-htpy (A : U) : Htpy' (Sg A (\ _. Unit)) (Sg A (\ _. Unit))
+                                               (\ z. (Equiv/Sg-base-unit-inv-map A) (Equiv/Sg-base-unit-map A z)) (id (Sg A (\ _. Unit))) =
+    \ u. Eq-prod/eq A Unit ((Equiv/Sg-base-unit-inv-map A) (Equiv/Sg-base-unit-map A u)) u (refl A u.1, Unit/all-elements-equal star u.2)
+
+  Equiv/Sg-base-unit (A : U) : Equiv (Sg A (\ _. Unit)) A =
+    has-inverse/Equiv (Sg A (\ _. Unit)) A (Equiv/Sg-base-unit-map A)
+      (Equiv/Sg-base-unit-inv-map A, (Equiv/Sg-base-unit-right-htpy A, Equiv/Sg-base-unit-left-htpy A))
+    #+end_src
+
 ** Closure of truncation levels under equivalence
 
 If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =k=.

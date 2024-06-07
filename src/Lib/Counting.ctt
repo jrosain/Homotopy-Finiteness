@@ -5,6 +5,7 @@ import Lib.Data.Fin
 import Lib.Prop.Proposition
 import Lib.Prop.Fin
 import Lib.FundamentalTheorem
+import Lib.Hedberg
 
 count (A : U) : U =
   Sg Nat (\ k. Equiv (Fin k) A)
@@ -73,6 +74,9 @@ count/is-decidable-is-countable (X : U) (p : is-prop X) : is-decidable X -> coun
 count/has-decidable-eq (A : U) (c : count A) : has-decidable-equality A =
   has-decidable-equality/Equiv' (Fin (number-of-elements A c)) A (count/Equiv A c) (Fin/decidable-eq (number-of-elements A c))
 
+count/is-set (A : U) (c : count A) : is-set A =
+  hedberg A (count/has-decidable-eq A c)
+
 count/Unit : count Unit =
   (one-Nat, Equiv/Equiv-copr-empty-type Unit)
 
@@ -106,8 +110,71 @@ count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat)
 count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
   count/closed-Sg/sg A B H (number-of-elements A cA) (count/Equiv A cA)
 
-count/closed-fam/sg (A : U) (B : A -> U) (k : Nat) (e : Equiv (Fin k) A) (l : Nat) (f : Equiv (Fin l) (Sg A B)) (x : A) : count (B x) =
-  count/zero-count
+count/closed-fam (A : U) (B : A -> U) (cA : count A) (cT : count (Sg A B)) (x : A) : count (B x) =
+  count/closed-equiv' (Fib (Sg A B) A (\ u. u.1) x) (B x) (Equiv/fib-space-Equiv A B x)
+    (count/closed-Sg (Sg A B) (\ y. Path A x y.1) cT
+      (\ y. count/is-decidable-is-countable
+        (Path A x y.1)
+        (count/is-set A cA x y.1)
+        (count/has-decidable-eq A cA x y.1)))
 
-count/closed-fam (A : U) (B : A -> U) (cA : count A) (cT : count (Sg A B)) : (x : A) -> count (B x) =
-  count/closed-fam/sg A B (number-of-elements A cA) (count/Equiv A cA) (number-of-elements (Sg A B) cT) (count/Equiv (Sg A B) cT)
+count/closed-base-sg-map (A : U) (B : A -> U) (b : (x : A) -> B x) (x : A) : Sg A B = (x, b x)
+
+count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) A =
+  equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
+
+-- count/closed-base-sg (A : U) (B : A -> U) (b : (x : A) -> B x) (cT : count (Sg A B)) (cF : (x : A) -> count B x) : count A =
+  --count/closed-equiv
+
+is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
+
+is-decidable-subtype (X : U) (P : X -> U) : U = is-subtype X P * ((x : X) -> is-decidable (P x))
+
+count/closed-decidable-subtype (X : U) (P : X -> U) (c : count X) (s : is-decidable-subtype X P) (x : X) : count (P x) =
+  count/closed-fam X P c
+    (count/closed-Sg X P c (\ y. count/is-decidable-is-countable (P y) (s.1 y) (s.2 y))) x
+
+count/is-left (A B : U) : Coprod A B -> U = split
+  inl _ -> Unit
+  inr _ -> Empty
+
+count/is-left-count (A B : U) : (c : Coprod A B) -> count (count/is-left A B c) = split
+  inl _ -> count/Unit
+  inr _ -> count/zero-count
+
+count/Equiv-is-left (A B : U) : Equiv (Sg (Coprod A B) (count/is-left A B)) A =
+  Equiv/trans (Sg (Coprod A B) (count/is-left A B)) (Coprod (Sg A (\ _. Unit)) (Sg B (\ _. Empty))) A
+    (Equiv/Sg-distr-over-coprod A B (count/is-left A B))
+    (Equiv/trans (Coprod (Sg A (\ _. Unit)) (Sg B (\ _. Empty))) (Coprod (Sg A (\ _. Unit)) Empty) A
+      (Coprod/closed-Equiv (Sg A (\ _. Unit)) (Sg A (\ _. Unit)) (Sg B (\ _. Empty)) Empty (Equiv/refl (Sg A (\ _. Unit))) (Equiv/Sg-empty B))
+      (Equiv/trans (Coprod (Sg A (\ _. Unit)) Empty) (Sg A (\ _. Unit)) A
+        (Equiv/Equiv-copr-type-empty (Sg A (\ _. Unit)))
+        (Equiv/Sg-base-unit A)))
+
+count/closed-Coprod-left (A B : U) (c : count (Coprod A B)) : count A =
+  count/closed-equiv' (Sg (Coprod A B) (count/is-left A B)) A (count/Equiv-is-left A B)
+    (count/closed-Sg (Coprod A B) (count/is-left A B) c (count/is-left-count A B))
+
+count/is-right (A B : U) : Coprod A B -> U = split
+  inl _ -> Empty
+  inr _ -> Unit
+
+count/is-right-count (A B : U) : (c : Coprod A B) -> count (count/is-right A B c) = split
+  inl _ -> count/zero-count
+  inr _ -> count/Unit  
+
+count/Equiv-is-right (A B : U) : Equiv (Sg (Coprod A B) (count/is-right A B)) B =
+  Equiv/trans (Sg (Coprod A B) (count/is-right A B)) (Coprod (A * Empty) (B * Unit)) B
+    (Equiv/Sg-distr-over-coprod A B (count/is-right A B))
+    (Equiv/trans (Coprod (A * Empty) (B * Unit)) (Coprod Empty (B * Unit)) B
+      (Coprod/closed-Equiv (A * Empty) Empty (B * Unit) (B * Unit) (Equiv/Sg-empty A) (Equiv/refl (B * Unit)))
+      (Equiv/trans (Coprod Empty (B * Unit)) (B * Unit) B
+        (Equiv/Equiv-copr-empty-type (B * Unit))
+        (Equiv/Sg-base-unit B)))
+
+count/closed-Coprod-right (A B : U) (c : count (Coprod A B)) : count B =
+  count/closed-equiv' (Sg (Coprod A B) (count/is-right A B)) B (count/Equiv-is-right A B)
+    (count/closed-Sg (Coprod A B) (count/is-right A B) c (count/is-right-count A B))
+
+count/closed-Prod (A B : U) (cA : count A) (cB : count B) : count (A * B) =
+  count/closed-Sg A (\ _. B) cA (\ _. cB)

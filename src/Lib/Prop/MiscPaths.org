@@ -21,6 +21,17 @@ This file contains some miscellanous properties of paths.
   tr/refl-path (A : U) (x : A) (P : A -> U) (u : P x) : Path (P x) (tr A x x (refl A x) P u) u =
     \ i. tr/refl A x P i u
 #+end_src
+It generalizes using J.
+#+begin_src ctt
+  tr/path (A : U) (x y : A) (p : Path A x y) (P : U) (u : P) : Path P (tr A x y p (\ _. P) u) u =
+    J A x (\ z q. Path P (tr A x z q (\ _. P) u) u) (tr/refl-path A x (\ _. P) u) y p
+
+  tr/inv-path (A : U) (x y : A) (p : Path A x y) (P : U) (u : P) : Path P u (tr A x y p (\ _. P) u) =
+    inv P (tr A x y p (\ _. P) u) u (tr/path A x y p P u)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Transport of refl with \Sigma
 

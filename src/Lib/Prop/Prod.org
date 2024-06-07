@@ -13,6 +13,7 @@ This file shows some properties of product-types.
 
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Prop.MiscPaths
    #+end_src
 
 ** Induction principle
@@ -20,6 +21,22 @@ This file shows some properties of product-types.
    #+begin_src ctt
   ind-Prod (A B : U) (P : (A * B) -> U) (f : (x : A) (y : B) -> P (x, y)) (z : A * B) : P z =
     f z.1 z.2
+   #+end_src
+
+** Equality
+
+   #+begin_src ctt
+  Eq-prod (A B : U) (x y : A * B) : U = (Path A x.1 y.1) * (Path B x.2 y.2)
+
+  Eq-prod/refl (A B : U) (x : A * B) : Eq-prod A B x x = (refl A x.1, refl B x.2)
+
+  Eq-prod/map (A B : U) (x y : A * B) (p : Path (A * B) x y) : Eq-prod A B x y =
+    J (A * B) x (\ z _. Eq-prod A B x z) (Eq-prod/refl A B x) y p
+
+  Eq-prod/inv-map (A B : U) (x y : A * B) (p : Eq-prod A B x y) : Path (A * B) x y =
+    SgPathO->PathSg A (\ _. B) x y (p.1, (tr B x.2 (tr A x.1 y.1 p.1 (\ _. B) x.2) (tr/inv-path A x.1 y.1 p.1 B x.2) (\ z. Path B z y.2) p.2))
+
+  Eq-prod/eq : (A B : U) -> (x y : A * B) -> Eq-prod A B x y -> Path (A * B) x y = Eq-prod/inv-map
    #+end_src
 
 #+RESULTS:
