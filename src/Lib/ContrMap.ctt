@@ -36,6 +36,9 @@ is-equiv/is-bi-inv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-bi-inv A B f
       (is-equiv/is-bi-inv-inv-right-htpy A B f e,
        is-equiv/is-bi-inv-inv-left-htpy A B f e))
 
+Equiv/is-bi-inv (A B : U) (e : Equiv A B) : is-bi-inv A B e.1 =
+  is-equiv/is-bi-inv A B e.1 e.2
+
 -- is-bi-inv/is-equiv-ap-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
 --                                                 : is-bi-inv (Path A x y) (Path A (g (is-bi-inv/right-inv B A g b x)) (g (is-bi-inv/right-inv B A g b y)))
 --                                                             (ap A A (\ z. g (is-bi-inv/right-inv B A g b z)) x y) =
@@ -162,3 +165,7 @@ has-inverse/is-equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-equiv A
 
 has-inverse/Equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : Equiv A B =
   is-bi-inv/Equiv A B f (has-inverse-is-bi-inv A B f i)
+
+Equiv/is-inj (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A) : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+  has-inverse/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
+    (ap/closure-bi-inv-has-inv A B f (is-equiv/is-bi-inv A B f e) x y)

@@ -178,3 +178,44 @@ count/closed-Coprod-right (A B : U) (c : count (Coprod A B)) : count B =
 
 count/closed-Prod (A B : U) (cA : count A) (cB : count B) : count (A * B) =
   count/closed-Sg A (\ _. B) cA (\ _. cB)
+
+-- count/closed-Prod-left (A B : U) (c : count (A * B)) (b : B) : count A =
+--   count/closed-fam
+
+Maybe (X : U) : U = Coprod X Unit
+
+star-value/inj-empty (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (z : Maybe Y) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) z)
+                     (q : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) z) : Empty =
+  let f : Maybe X -> Maybe Y = Equiv/map (Maybe X) (Maybe Y) e in
+  Coprod/Eq/eq-map X Unit (inl x) (inr star)
+    (QInv/map (Path (Maybe X) (inl x) (inr star)) (Path (Maybe Y) (f (inl x)) (f (inr star)))
+      (ap (Maybe X) (Maybe Y) f (inl x) (inr star))
+      (is-bi-inv/is-inj (Maybe X) (Maybe Y) f (Equiv/is-bi-inv (Maybe X) (Maybe Y) e) (inl x) (inr star))
+      (comp (Maybe Y) (f (inl x)) z p (f (inr star)) (inv (Maybe Y) (f (inr star)) z q)))
+
+star-value/inj (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star))
+  : (y : Maybe Y) -> Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) y -> Y = split
+  inl y -> \ _. y
+  inr s -> \ q. ind-Unit (\ z. Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (inr z) -> Y)
+                       (\ r. ex-falso Y (star-value/inj-empty X Y e x (inr star) p r)) s q
+
+star-value (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star)) : Y =
+  star-value/inj X Y e x p (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (refl (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)))
+
+star-value-htpy/inj-empty (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star))
+                               : (s : Unit) -> Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (inr s) -> Empty = split
+  star -> (star-value/inj-empty X Y e x (inr star) p)
+
+star-value-htpy/inj' (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star))
+                     (s : Unit) (q : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (inr s))
+                        : Path (Maybe Y) (inl (star-value X Y e x p)) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) = 
+  ex-falso (Path (Maybe Y) (inl (star-value X Y e x p)) (Equiv/map (Maybe X) (Maybe Y) e (inr star)))
+           (star-value-htpy/inj-empty X Y e x p s q)
+
+star-value-htpy/inj (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (p : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star))
+                         : (y : Maybe Y) -> Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) y
+                                         -> Path (Maybe Y) (inl (star-value X Y e x p)) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) = split
+  inl y -> \ q. J (Maybe Y) (inl y) (\ z _. (r : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) z) -> Path (Maybe Y) (inl (star-value/inj X Y e x p z r)) z)
+                (\ r. Coprod/Eq/map Y Unit (inl (star-value/inj X Y e x p (inl y) r)) (inl y) (refl Y y))
+                (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (inv (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) (inl y) q) (refl (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)))
+  inr s -> star-value-htpy/inj' X Y e x p s

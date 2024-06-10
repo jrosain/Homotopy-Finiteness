@@ -16,6 +16,7 @@ This file shows additional properties on coproducts.
   import Stdlib.Prelude
   import Lib.Prop.Htpy
   import Lib.Prop.Equiv
+  import Lib.FundamentalTheorem
    #+end_src
 
 ** If A \simeq A' and B \simeq B', then A + B \simeq A' + B'
@@ -148,3 +149,57 @@ Thus, the inverse of f + g is f^-1 + g^-1. Indeed, we have (f + g) \circ (f^-1 +
   Coprod/assoc (A B C : U) : Equiv (Coprod (Coprod A B) C) (Coprod A (Coprod B C)) =
     (Coprod/assoc-map A B C, Coprod/assoc-is-equiv A B C)
    #+end_src
+** Observational equality of coprod
+
+We define equality for coproducts.
+#+begin_src ctt
+  Coprod/Eq-inl (A B : U) (a : A) : Coprod A B -> U = split
+    inl x -> Path A a x
+    inr _ -> Empty
+
+  Coprod/Eq-inr (A B : U) (b : B) : Coprod A B -> U = split
+    inl _ -> Empty
+    inr y -> Path B b y
+
+  Coprod/Eq (A B : U) : Coprod A B -> Coprod A B -> U = split
+    inl a -> Coprod/Eq-inl A B a
+    inr b -> Coprod/Eq-inr A B b
+
+  Coprod/Eq/refl (A B : U) : (x : Coprod A B) -> Coprod/Eq A B x x = split
+    inl y -> refl A y
+    inr z -> refl B z
+#+end_src
+We use the fundamental theorem to show that this observational equality is indeed an equality. First, we show that for any s : A + B, \Sigma (t : A + B) Coprod/Eq s t is contractible.
+#+begin_src ctt
+  Coprod/Eq/is-contr (A B : U) : (s : Coprod A B) -> is-contr (Sg (Coprod A B) (Coprod/Eq A B s)) = split
+    inl x -> is-contr/is-contr-equiv (Sg (Coprod A B) (Coprod/Eq A B (inl x))) (Sg A (\ y. Path A x y))
+              (Equiv/trans (Sg (Coprod A B) (Coprod/Eq A B (inl x))) (Coprod (Sg A (\ y. Path A x y)) (B * Empty)) (Sg A (\ y. Path A x y))
+                (Equiv/Sg-distr-over-coprod A B (Coprod/Eq A B (inl x)))
+                (Equiv/trans (Coprod (Sg A (\ y. Path A x y)) (B * Empty)) (Coprod (Sg A (\ y. Path A x y)) Empty) (Sg A (\ y. Path A x y))
+                  (Coprod/closed-Equiv (Sg A (\ y. Path A x y)) (Sg A (\ y. Path A x y)) (B * Empty) Empty (Equiv/refl (Sg A (\ y. Path A x y))) (Equiv/Sg-empty B))
+                  (Equiv/Equiv-copr-type-empty (Sg A (\ y. Path A x y)))))
+              (is-contr/Sg-path-is-contr A x)
+    inr y -> is-contr/is-contr-equiv (Sg (Coprod A B) (Coprod/Eq A B (inr y))) (Sg B (\ z. Path B y z))
+              (Equiv/trans (Sg (Coprod A B) (Coprod/Eq A B (inr y))) (Coprod (A * Empty) (Sg B (\ z. Path B y z))) (Sg B (\ z. Path B y z))
+                (Equiv/Sg-distr-over-coprod A B (Coprod/Eq A B (inr y)))
+                (Equiv/trans (Coprod (A * Empty) (Sg B (\ z. Path B y z))) (Coprod Empty (Sg B (\ z. Path B y z))) (Sg B (\ z. Path B y z))
+                  (Coprod/closed-Equiv (A * Empty) Empty (Sg B (\ z. Path B y z)) (Sg B (\ z. Path B y z))
+                    (Equiv/Sg-empty A) (Equiv/refl (Sg B (\ z. Path B y z))))
+                  (Equiv/Equiv-copr-empty-type (Sg B (\ z. Path B y z)))))
+              (is-contr/Sg-path-is-contr B y)
+#+end_src
+That is, using the fundamental theorem, the following family of maps is a family of equivalences.
+#+begin_src ctt
+  Coprod/Eq/eq-map (A B : U) (s : Coprod A B) : (t : Coprod A B) -> Path (Coprod A B) s t -> Coprod/Eq A B s t = split
+    inl x -> \ p. J (Coprod A B) (inl x) (\ t _. Coprod/Eq A B t (inl x)) (refl A x) s (inv (Coprod A B) s (inl x) p)
+    inr y -> \ p. J (Coprod A B) (inr y) (\ t _. Coprod/Eq A B t (inr y)) (refl B y) s (inv (Coprod A B) s (inr y) p)
+
+  Coprod/Eq/is-equiv-eq-map (A B : U) (s t : Coprod A B) : is-equiv (Path (Coprod A B) s t) (Coprod/Eq A B s t) (Coprod/Eq/eq-map A B s t) =
+    fundamental-theorem-id (Coprod A B) (Coprod/Eq A B s) s (Coprod/Eq/eq-map A B s) (Coprod/Eq/is-contr A B s) t
+
+  Coprod/Eq/map (A B : U) (s t : Coprod A B) : Coprod/Eq A B s t -> Path (Coprod A B) s t =
+    is-equiv/inv-map (Path (Coprod A B) s t) (Coprod/Eq A B s t) (Coprod/Eq/eq-map A B s t) (Coprod/Eq/is-equiv-eq-map A B s t)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

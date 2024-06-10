@@ -60,6 +60,9 @@ Thus, an equivalence is bi-invertible.
       (is-equiv/is-bi-inv-inv-map A B f e,
         (is-equiv/is-bi-inv-inv-right-htpy A B f e,
          is-equiv/is-bi-inv-inv-left-htpy A B f e))
+
+  Equiv/is-bi-inv (A B : U) (e : Equiv A B) : is-bi-inv A B e.1 =
+    is-equiv/is-bi-inv A B e.1 e.2
 #+end_src
 
 ** Any bi-invertible map is an equivalence
@@ -230,6 +233,14 @@ Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
   has-inverse/Equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : Equiv A B =
     is-bi-inv/Equiv A B f (has-inverse-is-bi-inv A B f i)
     #+end_src
+
+** Any equivalence is injective
+
+   #+begin_src ctt
+  Equiv/is-inj (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A) : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+    has-inverse/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
+      (ap/closure-bi-inv-has-inv A B f (is-equiv/is-bi-inv A B f e) x y)
+   #+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.
