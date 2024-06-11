@@ -73,23 +73,51 @@ Let g : B \to A be a bi-invertible map, that is, it is equipped with f, h : A \t
 **** Bi-invertibility of ap of composites
 We could also start by showing that (ap g \circ f) and (ap h \circ g) are bi-invertible. We need function extensionnality to do so though.
 #+begin_src ctt
-  -- is-bi-inv/is-equiv-ap-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
-  --                                                 : is-bi-inv (Path A x y) (Path A (g (is-bi-inv/right-inv B A g b x)) (g (is-bi-inv/right-inv B A g b y)))
-  --                                                             (ap A A (\ z. g (is-bi-inv/right-inv B A g b z)) x y) =
-  --   let f : A -> B = is-bi-inv/right-inv B A g b
-  --       p : Path (A -> A) (\ z. g (f z)) (id A) = (eq-htpy A A (\ z. g (f z)) (id A) (is-bi-inv/right-htpy B A g b))
-  --       q : Path (A -> A) (id A) (\ z. g (f z)) = (inv (A -> A) (\ z. g (f z)) (id A) p)
-  --   in
-  --   tr ((Path A x y) -> Path A (g (f x)) (g (f y)))
-  --      (tr (A -> A) (id A) (\ z. g (f z)) q (\ h. Path A x y -> Path A (h x) (h y)) (ap A A (id A) x y))
-  --      (ap A A (\ z. g (f z)) x y) (ap/eq A A (id A) (\ z. g (f z)) q x y)
-  --      (\ h. is-bi-inv (Path A x y) (Path A (g (f x)) (g (f y))) h)
-  --      (is-bi-inv/ap-id-is-bi-inv A x y)
+  is-bi-inv/is-equiv-ap-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A)
+                                                  : is-bi-inv (Path A x y) (Path A (g (is-bi-inv/right-inv B A g b x)) (g (is-bi-inv/right-inv B A g b y)))
+                                                              (ap A A (\ z. g (is-bi-inv/right-inv B A g b z)) x y) =
+    let f : A -> B = is-bi-inv/right-inv B A g b
+        p : Path (A -> A) (\ z. g (f z)) (id A) = (eq-htpy A A (\ z. g (f z)) (id A) (is-bi-inv/right-htpy B A g b))
+        q : Path (A -> A) (id A) (\ z. g (f z)) = (inv (A -> A) (\ z. g (f z)) (id A) p)
+    in
+    is-bi-inv/ap-eq-id A (\ z. g (f z)) q x y
+
+  is-bi-inv/is-equiv-ap-comp-left-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : B)
+                                                 : is-bi-inv (Path B x y) (Path B (is-bi-inv/left-inv B A g b (g x)) (is-bi-inv/left-inv B A g b (g y)))
+                                                             (ap B B (\ z. (is-bi-inv/left-inv B A g b (g z))) x y) =
+    let h : A -> B = is-bi-inv/left-inv B A g b
+        p : Path (B -> B) (\ z. h (g z)) (id B) = (eq-htpy B B (\ z. h (g z)) (id B) (is-bi-inv/left-htpy B A g b))
+        q : Path (B -> B) (id B) (\ z. h (g z)) = (inv (B -> B) (\ z. h (g z)) (id B) p)
+    in
+    is-bi-inv/ap-eq-id B (\ z. h (g z)) q x y
 #+end_src
 
-**** =ap f= is bi-invertible
-As such, =ap f= is also bi-invertible. 
-TODO: using double composition property together with the bi-invertibility of ap of composites.
+**** =ap g= is bi-invertible
+As such, =ap g= is also bi-invertible. 
+#+begin_src ctt
+  is-bi-inv/is-inj'/inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A) : is-bi-inv (Path B (is-bi-inv/right-inv B A g b x) (is-bi-inv/right-inv B A g b y))
+                                                                                          (Path A (g (is-bi-inv/right-inv B A g b x)) (g (is-bi-inv/right-inv B A g b y)))
+                                                                                          (ap B A g (is-bi-inv/right-inv B A g b x) (is-bi-inv/right-inv B A g b y)) =
+    let f : A -> B = is-bi-inv/right-inv B A g b
+        h : A -> B = is-bi-inv/left-inv B A g b in
+    is-bi-inv-comp/is-bi-inv-middle-map (Path A x y) (Path B (f x) (f y)) (Path A (g (f x)) (g (f y))) (Path B (h (g (f x))) (h (g (f y))))
+      (ap A B f x y) (ap B A g (f x) (f y)) (ap A B h (g (f x)) (g (f y)))
+      (is-bi-inv/is-equiv-ap-comp-right-is-bi-inv A B g b x y)
+      (is-bi-inv/is-equiv-ap-comp-left-is-bi-inv A B g b (f x) (f y))
+
+  is-bi-inv/is-inj' (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : B) : is-bi-inv (Path B x y) (Path A (g x) (g y)) (ap B A g x y) =
+    let f : A -> B = is-bi-inv/right-inv B A g b 
+        p : Path (B -> B) (\ z. f (g z)) (id B) = eq-htpy B B (\ z. f (g z)) (id B) (is-bi-inv/inv-left-htpy B A g b)
+    in
+    tr (B -> B) (\ z. f (g z)) (id B) p (\ h. is-bi-inv (Path B (h x) (h y)) (Path A (g (h x)) (g (h y))) (ap B A g (h x) (h y)))
+      (is-bi-inv/is-inj'/inv A B g b (g x) (g y))
+
+  is-bi-inv/is-inj (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+    is-bi-inv/is-inj' B A f b x y
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 **** f is contractible
 For any x : A, Sg (y : A) f x = f y is also contractible: from the previous lemma, we can deduce that this space is a retract of Sg (y : A) x = y.
@@ -219,7 +247,7 @@ That is, the map =f= is contractible: any =y : B= corresponds to a unique =x : A
 Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
     #+begin_src ctt
   is-bi-inv/is-equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-equiv A B f =
-    is-bi-inv/is-equiv-is-bi-inv-ap A B f b (ap/closure-bi-inv A B f b)
+    is-bi-inv/is-equiv-is-bi-inv-ap A B f b (is-bi-inv/is-inj A B f b)
 
   is-bi-inv/Equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Equiv A B =
     (f, is-bi-inv/is-equiv A B f b)
@@ -238,8 +266,8 @@ Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
 
    #+begin_src ctt
   Equiv/is-inj (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A) : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
-    has-inverse/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
-      (ap/closure-bi-inv-has-inv A B f (is-equiv/is-bi-inv A B f e) x y)
+    is-bi-inv/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
+      (is-bi-inv/is-inj A B f (is-equiv/is-bi-inv A B f e) x y)
    #+end_src
 
 #+RESULTS:

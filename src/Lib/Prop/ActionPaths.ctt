@@ -25,6 +25,11 @@ is-bi-inv/ap-id-inv-htpy (A : U) (x y : A) : Htpy' (Path A x y) (Path A x y) (\ 
 is-bi-inv/ap-id-is-bi-inv (A : U) (x y : A) : is-bi-inv (Path A x y) (Path A x y) (ap A A (id A) x y) =
   ((ap A A (id A) x y, is-bi-inv/ap-id-inv-htpy A x y), (ap A A (id A) x y, is-bi-inv/ap-id-inv-htpy A x y))
 
+is-bi-inv/ap-eq-id (A : U) (f : A -> A) (p : Path (A -> A) (id A) f) (x y : A)
+                      : is-bi-inv (Path A x y) (Path A (f x) (f y)) (ap A A f x y) =
+  tr (A -> A) (id A) f p (\ h. is-bi-inv (Path A x y) (Path A (h x) (h y)) (ap A A h x y))
+    (is-bi-inv/ap-id-is-bi-inv A x y)
+
 ap/comp (A B C : U) (f : A -> B) (g : B -> C) (x y : A) (p : Path A x y)
                : Path (Path C (g (f x)) (g (f y))) (ap B C g (f x) (f y) (ap A B f x y p)) (ap A C (map/comp A B C g f) x y p) =
   J A x (\ z q. Path (Path C (g (f x)) (g (f z))) (ap B C g (f x) (f z) (ap A B f x z q)) (ap A C (map/comp A B C g f) x z q))
@@ -377,6 +382,3 @@ ap/closure-bi-inv-has-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A)
 
 ap/closure-bi-inv (A B : U) (f : A -> B) (b : is-bi-inv A B f) (x y : A) : is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
   has-inverse-is-bi-inv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) (ap/closure-bi-inv-has-inv A B f b x y)
-
-is-bi-inv/is-inj : (A B : U) -> (f : A -> B) -> is-bi-inv A B f -> (x y : A) -> has-inverse (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
-  ap/closure-bi-inv-has-inv
