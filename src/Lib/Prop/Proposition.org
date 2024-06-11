@@ -170,5 +170,12 @@ A map between two propositions is an equivalence as soon as there is a map back 
     (f, Prop/is-equiv A B f g)
 #+end_src
 
+** Product of propositions is proposition
+
+   #+begin_src ctt
+  is-prop/prod (A B : U) (p : is-prop A) (q : is-prop B) : is-prop (A * B) =
+    is-prop/sg A (\ _. B) p (\ _. q)
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

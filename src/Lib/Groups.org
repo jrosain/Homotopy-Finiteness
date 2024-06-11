@@ -1,0 +1,156 @@
+#+NAME: Groups
+#+AUTHOR: Johann Rosain
+
+* Groups
+
+  #+begin_src ctt
+  module Lib.Groups where
+  #+end_src
+
+This file defines the type of groups in univalent mathematics. It also shows that isomorphic groups can be identified.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Prop.Set
+  import Lib.Prop.Proposition
+   #+end_src
+
+** Semi-group (definitions, accessors)
+
+*** Definition, universe
+An operation \mu is associative whenever there is a witness \mu (\mu x y) z = \mu x (\mu y z).
+#+begin_src ctt
+  is-assoc (X : U) (f : X -> X -> X) : U =
+    (x y z : X) -> Path X (f (f x y) z) (f x (f y z))
+#+end_src
+A semi-group is a set together with an associative operation.
+#+begin_src ctt
+  has-assoc-op (X : U) : U =
+    Sg (X -> X -> X) (is-assoc X)
+
+  is-semi-group (X : UU-Set) : U =
+    has-assoc-op (Set/type X)
+
+  Semi-Group : U = Sg UU-Set is-semi-group
+#+end_src
+
+*** Accessors
+    #+begin_src ctt
+  Semi-Group/Set (G : Semi-Group) : UU-Set = G.1
+
+  Semi-Group/is-semi-group (G : Semi-Group) : is-semi-group (Semi-Group/Set G) = G.2  
+
+  Semi-Group/type (G : Semi-Group) : U = Set/type (Semi-Group/Set G)
+
+  Semi-Group/op (G : Semi-Group) : (Semi-Group/type G) -> (Semi-Group/type G) -> (Semi-Group/type G) =
+    (Semi-Group/is-semi-group G).1
+
+  Semi-Group/is-assoc (G : Semi-Group) : is-assoc (Semi-Group/type G) (Semi-Group/op G) =
+    (Semi-Group/is-semi-group G).2
+    #+end_src
+
+** Monoid (definitions, accessors)
+
+*** Definition
+A semi-group is unital if there is a unit /e : G/ that satisfies the left and right unit laws.
+#+begin_src ctt
+  left-unit-law (G : Semi-Group) (e : Semi-Group/type G) : U =
+    (y : Semi-Group/type G) -> Path (Semi-Group/type G) (Semi-Group/op G e y) y
+
+  right-unit-law (G : Semi-Group) (e : Semi-Group/type G) : U =
+    (x : Semi-Group/type G) -> Path (Semi-Group/type G) (Semi-Group/op G x e) x
+
+  is-unital (G : Semi-Group) : U =
+    Sg (Semi-Group/type G) (\ e. (left-unit-law G e) * (right-unit-law G e))
+#+end_src
+Unital semi-groups are called /monoids/. As such, we can define the universe of monoids.
+#+begin_src ctt
+  Monoid : U = Sg Semi-Group is-unital
+#+end_src
+
+*** Accessors
+    #+begin_src ctt
+  Monoid/Semi-Group (M : Monoid) : Semi-Group = M.1
+
+  Monoid/is-unital (M : Monoid) : is-unital (Monoid/Semi-Group M) = M.2  
+
+  Monoid/Set (M : Monoid) : UU-Set = Semi-Group/Set (Monoid/Semi-Group M)
+
+  Monoid/is-semi-group (M : Monoid) : is-semi-group (Monoid/Set M) = Semi-Group/is-semi-group (Monoid/Semi-Group M)
+
+  Monoid/type (M : Monoid) : U = Set/type (Monoid/Set M)
+
+  Monoid/is-set (M : Monoid) : is-set (Monoid/type M) = Set/is-set (Monoid/Set M)
+
+  Monoid/op (M : Monoid) : (Monoid/type M) -> (Monoid/type M) -> (Monoid/type M) =
+    (Semi-Group/op (Monoid/Semi-Group M))
+
+  Monoid/is-assoc (M : Monoid) : is-assoc (Monoid/type M) (Monoid/op M) =
+    (Semi-Group/is-assoc (Monoid/Semi-Group M))
+
+  Monoid/unit (M : Monoid) : (Monoid/type M) = (Monoid/is-unital M).1
+
+  Monoid/left-unit-law (M : Monoid) : left-unit-law (Monoid/Semi-Group M) (Monoid/unit M) = (Monoid/is-unital M).2.1
+
+  Monoid/right-unit-law (M : Monoid) : right-unit-law (Monoid/Semi-Group M) (Monoid/unit M) = (Monoid/is-unital M).2.2
+    #+end_src
+
+*** Is property
+The unit of a semi-group is unique when it exists. We show this by showing that being unital is a /property/ of semi-groups rather than a structure on it, that is, we show that =is-unital= is a proposition.
+#+begin_src ctt
+  is-unital/is-prop/sg (X : U) (is-set-X : is-set X) (f : X -> X -> X) (assoc-f : (x y z : X) -> Path X (f (f x y) z) (f x (f y z)))
+                       (e : X) (left-unit : left-unit-law ((X, is-set-X), (f, assoc-f)) e) (right-unit : right-unit-law ((X, is-set-X), (f, assoc-f)) e)
+                       (e' : X) (left-unit' : left-unit-law ((X, is-set-X), (f, assoc-f)) e') (right-unit' : right-unit-law ((X, is-set-X), (f, assoc-f)) e') 
+                           : Path (is-unital ((X, is-set-X), (f, assoc-f))) (e, (left-unit, right-unit)) (e', (left-unit', right-unit')) =
+    let G : Semi-Group = ((X, is-set-X), (f, assoc-f)) in
+    SgPath-prop X (\ z. (left-unit-law G z) * (right-unit-law G z))
+      (\ z. is-prop/prod (left-unit-law G z) (right-unit-law G z)
+            (is-prop/pi X (\ y. Path X (f z y) y) (\ y. is-set-X (f z y) y))
+            (is-prop/pi X (\ x. Path X (f x z) x) (\ x. is-set-X (f x z) x)))
+      (e, (left-unit, right-unit)) (e', (left-unit', right-unit'))
+      (comp X e (f e e') (inv X (f e e') e (right-unit' e)) e' (left-unit e'))
+
+  is-unital/is-prop (G : Semi-Group) : is-prop (is-unital G) =
+    \ x y. is-unital/is-prop/sg (Semi-Group/type G) (Set/is-set (Semi-Group/Set G)) (Semi-Group/op G) (Semi-Group/is-assoc G)
+            x.1 x.2.1 x.2.2 y.1 y.2.1 y.2.2
+#+end_src
+
+** Invertible monoids
+
+A monoid is invertible if \forall x : M, there exists x^-1 such that x \cdot x^-1 = e and x^-1 \cdot x = e.
+#+begin_src ctt
+  is-invertible-Monoid (M : Monoid) (x : Monoid/type M) : U =
+    Sg (Monoid/type M) (\ y. (Path (Monoid/type M) (Monoid/op M y x) (Monoid/unit M)) * (Path (Monoid/type M) (Monoid/op M x y) (Monoid/unit M)))
+#+end_src
+Once again, being invertible is a property of monoids.
+#+begin_src ctt
+  is-invertible-Monoid/is-prop/sg (M : Monoid) (x : Monoid/type M) (y : Monoid/type M) (p : Path (Monoid/type M) (Monoid/op M y x) (Monoid/unit M))
+                                  (q : Path (Monoid/type M) (Monoid/op M x y) (Monoid/unit M)) (y' : Monoid/type M)
+                                  (p' : Path (Monoid/type M) (Monoid/op M y' x) (Monoid/unit M)) (q' : Path (Monoid/type M) (Monoid/op M x y') (Monoid/unit M))
+                                      : Path (is-invertible-Monoid M x) (y, (p, q)) (y', (p', q')) =
+    let X : U = Monoid/type M
+        f : X -> X -> X = Monoid/op M
+        e : X = Monoid/unit M
+    in
+    SgPath-prop X (\ z. (Path X (f z x) e) * (Path X (f x z) e))
+      (\ z. is-prop/prod (Path X (f z x) e) (Path X (f x z) e)
+            (Monoid/is-set M (f z x) e)
+            (Monoid/is-set M (f x z) e))
+      (y, (p, q)) (y', (p', q'))
+      (comp-n X five-Nat y (f e y)
+        (inv X (f e y) y (Monoid/left-unit-law M y))
+        (f (f y' x) y) (ap X X (\ z. f z y) e (f y' x) (inv X (f y' x) e p'))
+        (f y' (f x y)) (Monoid/is-assoc M y' x y)
+        (f y' e) (ap X X (f y') (f x y) e q)
+        y' (Monoid/right-unit-law M y'))
+
+  is-invertible-Monoid/is-prop (M : Monoid) (x : Monoid/type M) : is-prop (is-invertible-Monoid M x) =
+    \ y z. is-invertible-Monoid/is-prop/sg M x y.1 y.2.1 y.2.2 z.1 z.2.1 z.2.2
+#+end_src
+
+** Groups
+
+#+RESULTS:
+: Typecheck has succeeded.

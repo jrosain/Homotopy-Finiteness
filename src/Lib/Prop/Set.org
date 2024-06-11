@@ -45,26 +45,17 @@ Conversely, if =A= satisfies axiom K, then for any =p, q : Path A x y=, we have 
                                    q (comp/ident-l A x y q)
 #+end_src
 
-** On binary relations 
-In this section, we define a binary relation that is logically equivalent to the identity. It characterizes sets in the sense that if a type =A= is equipped with such a binary relation, then it is a set.
-#+begin_src ctt
-  is-bin-rel (A : U) (R : A -> A -> U) : U =
-    (x y : A) -> is-prop (R x y)
+** Universe of sets
 
-  is-bin-rel/is-refl (A : U) (R : A -> A -> U) : U =
-    (x : A) -> R x x
+   #+begin_src ctt
+  UU-Set : U = Sg U is-set
 
-  is-bin-rel/is-identifiable (A : U) (R : A -> A -> U) : U =
-    (x y : A) -> R x y -> Path A x y
-#+end_src
-If a binary relation is reflexive and identifiable, then the canonical family of maps (x y : A) \to x = y \to R x y is a family of equivalences.
-#+begin_src ctt
-  is-bin-rel/is-fam-equiv-map (A : U) (R : A -> A -> U) (r : is-bin-rel/is-refl A R) (x y : A) (p : Path A x y) : R x y =
-    J A x (\ z _. R x z) (r x) y p
+  Set/type (A : UU-Set) : U = A.1
 
-  -- is-bin-rel/is-fam-equiv (A : U) (R : A -> A -> U) (b : is-bin-rel A R) (r : is-bin-rel/is-refl A R) (
-#+end_src
-TODO: the theorem above needs the fundamental theorem of identity.
+  Set/is-set (A : UU-Set) : is-set (Set/type A) = A.2  
+
+  Set/hom (A B : UU-Set) : U = (Set/type A) -> (Set/type B)
+   #+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.

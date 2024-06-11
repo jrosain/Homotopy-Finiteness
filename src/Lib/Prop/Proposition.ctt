@@ -99,3 +99,6 @@ Prop/is-equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : is-equiv (
 
 Prop/Equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : Equiv (Prop/type A) (Prop/type B) =
   (f, Prop/is-equiv A B f g)
+
+is-prop/prod (A B : U) (p : is-prop A) (q : is-prop B) : is-prop (A * B) =
+  is-prop/sg A (\ _. B) p (\ _. q)
