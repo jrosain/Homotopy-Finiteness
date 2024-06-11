@@ -201,5 +201,15 @@ That is, using the fundamental theorem, the following family of maps is a family
     is-equiv/inv-map (Path (Coprod A B) s t) (Coprod/Eq A B s t) (Coprod/Eq/eq-map A B s t) (Coprod/Eq/is-equiv-eq-map A B s t)
 #+end_src
 
+** =inl= and =inr= are injective
+
+   #+begin_src ctt
+  Coprod/inl-inj (A B : U) (x y : A) (p : Path (Coprod A B) (inl x) (inl y)) : Path A x y =
+    Coprod/Eq/eq-map A B (inl x) (inl y) p
+
+  Coprod/inr-inj (A B : U) (x y : B) (p : Path (Coprod A B) (inr x) (inr y)) : Path B x y =
+    Coprod/Eq/eq-map A B (inr x) (inr y) p
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

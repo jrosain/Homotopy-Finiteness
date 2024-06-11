@@ -1,0 +1,103 @@
+#+NAME: PropTrunc
+#+AUTHOR: Johann Rosain
+
+* Propositional Truncation
+
+  #+begin_src ctt
+  module Lib.PropTrunc where
+  #+end_src
+
+This file defines the propositional truncation. It is useful when wanting to show that a certain type is inhabited, without exhibiting its inhabitant.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Prop.Proposition
+   #+end_src
+
+** Specification
+
+Let =A= be a type and =P= a proposition. A map f : A \to P is a propositional truncation whenever its precomposition is an equivalence.
+#+begin_src ctt
+  precomp-Prop (A : U) (P : UU-Prop) (f : A -> (Prop/type P)) (Q : UU-Prop) (g : Prop/hom P Q) : A -> Prop/type Q =
+    \ z. g (f z)
+
+  is-prop-trunc (A : U) (P : UU-Prop) (f : A -> (Prop/type P)) : U =
+    (Q : UU-Prop) -> is-equiv (Prop/hom P Q) (A -> Prop/type Q) (precomp-Prop A P f Q)
+#+end_src
+
+We can extract the underlying map of a propositional truncation.
+#+begin_src ctt
+  is-prop-trunc/map (A : U) (P : UU-Prop) (f : A -> Prop/type P) (H : is-prop-trunc A P f) (Q : UU-Prop) (g : A -> Prop/type Q) : Prop/hom P Q =
+    (H Q g).1.1
+#+end_src
+
+Note that a map A \to P is a proposition whenever P is a proposition. Moreover, a map between two propositions is an equivalence as soon as there is a map back and forth between these two propositions.
+#+begin_src ctt
+  prop-trunc/has-ext-prop (A : U) (P : UU-Prop) (f : A -> Prop/type P) : U =
+    (Q : UU-Prop) -> (A -> Prop/type Q) -> (Prop/hom P Q)
+#+end_src
+That is, to show that f : A \to P is a propositional truncation, it suffices to show that precomp-Prop has an inverse.
+#+begin_src ctt
+  has-ext-property/is-prop-trunc (A : U) (P : UU-Prop) (f : A -> Prop/type P) (H : prop-trunc/has-ext-prop A P f) : is-prop-trunc A P f =
+    \ Q.
+      Prop/is-equiv
+        (Prop/hom P Q, is-prop/pi (Prop/type P) (\ _. Prop/type Q) (\ _. Prop/is-prop Q))
+        (A -> Prop/type Q, is-prop/pi A (\ _. Prop/type Q) (\ _. Prop/is-prop Q))
+        (precomp-Prop A P f Q)
+        (H Q)
+#+end_src
+
+** Definition as an higher inductive type
+Sadly, we are not able to show that there exists a propositional truncation for every types. But we can define propositional truncation as higher inductive types!
+#+begin_src ctt
+  data Prop-trunc (A : U) : U
+    = Prop-trunc/unit (a : A)
+    | Prop-trunc/squash (u v : Prop-trunc A) <i> [(i=0) -> u, (i=1) -> v]
+#+end_src
+We can remark that the second constructor makes =Prop-trunc= a proposition.
+#+begin_src ctt
+  Prop-trunc/is-prop (A : U) : is-prop (Prop-trunc A) =
+    \ x y i. Prop-trunc/squash x y i
+#+end_src
+Thus, =Prop-trunc A= is in =UU-Prop=.
+#+begin_src ctt
+  Prop-trunc/Prop (A : U) : UU-Prop =
+    (Prop-trunc A, Prop-trunc/is-prop A)
+#+end_src
+Of course, as it is an inductive type, it has a recurrence principle.
+#+begin_src ctt
+  rec-Prop-trunc (A : U) (P : UU-Prop) (f : A -> Prop/type P) : Prop-trunc A -> Prop/type P = split
+    Prop-trunc/unit a -> f a
+    Prop-trunc/squash x y i -> (Prop/is-prop P) (rec-Prop-trunc A P f x) (rec-Prop-trunc A P f y) i
+#+end_src
+
+** TODO =unit= is a propositional truncation
+Of course, the =unit= constructor of =Prop-trunc= satisfies the =is-prop-trunc= property.
+#+begin_src ctt
+  Prop-trunc/is-prop-trunc (A : U) : is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) =
+    has-ext-property/is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (\ Q. rec-Prop-trunc A Q)
+#+end_src
+This makes the eval fail (in coe). See how to report that with a concise file?
+
+** Map between truncations
+If there is a map between A and B, then there is a map between the propositional truncations of A and B.
+   #+begin_src ctt
+  Prop-trunc/map (A B : U) (f : A -> B) : (Prop-trunc A) -> Prop-trunc B =
+    is-prop-trunc/map A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (Prop-trunc/is-prop-trunc A)
+      (Prop-trunc/Prop B) (\ a. Prop-trunc/unit (f a))
+   #+end_src
+As such, when there is an equivalence between A and B, there is an equivalence between the propositional truncation of A and the propositional truncation of B (as well as the associated maps).
+#+begin_src ctt
+  Equiv/Prop-trunc-map (A B : U) (e : Equiv A B) : (Prop-trunc A) -> Prop-trunc B =
+    Prop-trunc/map A B (Equiv/map A B e)
+
+  Equiv/Prop-trunc-inv-map (A B : U) (e : Equiv A B) : (Prop-trunc B) -> Prop-trunc A =
+    Prop-trunc/map B A (Equiv/inv-map A B e)  
+
+  Equiv/Prop-trunc (A B : U) (e : Equiv A B) : Equiv (Prop-trunc A) (Prop-trunc B) =
+    Prop/Equiv (Prop-trunc/Prop A) (Prop-trunc/Prop B) (Equiv/Prop-trunc-map A B e) (Equiv/Prop-trunc-inv-map A B e)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

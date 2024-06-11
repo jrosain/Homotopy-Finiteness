@@ -47,8 +47,14 @@ Futhermore, this inverse map is also an equivalence.
     in is-bi-inv/is-equiv B A g b'
 
   Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
-    (Equiv/inv-map A B e, is-equiv/inv-is-equiv A B (Equiv/map A B e) (Equiv/is-equiv A B e))
+    let f : A -> B = Equiv/map A B e
+        b : is-bi-inv A B f = is-equiv/is-bi-inv A B f (Equiv/is-equiv A B e)
+        g : B -> A = is-bi-inv/inv-map A B f b
+        b' : is-bi-inv B A g = ((f, is-bi-inv/inv-left-htpy A B f b), (f, is-bi-inv/inv-right-htpy A B f b))
+    in
+    (g, is-bi-inv/is-equiv B A g b')
 #+end_src
+
 Moreover, we get the nice properties of inverse maps.
 #+begin_src ctt
   is-equiv/inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
@@ -165,17 +171,9 @@ We show that if =A= and =B= are equivalent, then =A= has decidable equality iff 
 *** Equivalent types have equivalent identity types
 If =A= and =B= are two equivalent types, then there is also an equivalence between their identity types.
 #+begin_src ctt
-  is-equiv/is-equiv-id (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A)
-                            : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
-    is-bi-inv/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
-                       (ap/closure-bi-inv A B f (is-equiv/is-bi-inv A B f e) x y)
-
   Equiv/Equiv-id (A B : U) (e : Equiv A B) (x y : A) : Equiv (Path A x y) (Path B (Equiv/map A B e x) (Equiv/map A B e y)) =
-    (ap A B (Equiv/map A B e) x y, is-equiv/is-equiv-id A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
+    (ap A B (Equiv/map A B e) x y, Equiv/is-inj A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 ** 3-for-2 properties
 *** 3-for-2 property of contractibility

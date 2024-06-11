@@ -153,3 +153,9 @@ Coprod/Eq/is-equiv-eq-map (A B : U) (s t : Coprod A B) : is-equiv (Path (Coprod 
 
 Coprod/Eq/map (A B : U) (s t : Coprod A B) : Coprod/Eq A B s t -> Path (Coprod A B) s t =
   is-equiv/inv-map (Path (Coprod A B) s t) (Coprod/Eq A B s t) (Coprod/Eq/eq-map A B s t) (Coprod/Eq/is-equiv-eq-map A B s t)
+
+Coprod/inl-inj (A B : U) (x y : A) (p : Path (Coprod A B) (inl x) (inl y)) : Path A x y =
+  Coprod/Eq/eq-map A B (inl x) (inl y) p
+
+Coprod/inr-inj (A B : U) (x y : B) (p : Path (Coprod A B) (inr x) (inr y)) : Path B x y =
+  Coprod/Eq/eq-map A B (inr x) (inr y) p

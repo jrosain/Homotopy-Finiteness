@@ -188,7 +188,7 @@ star-value/inj-empty (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) (z : Mayb
                      (q : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inr star)) z) : Empty =
   let f : Maybe X -> Maybe Y = Equiv/map (Maybe X) (Maybe Y) e in
   Coprod/Eq/eq-map X Unit (inl x) (inr star)
-    (QInv/map (Path (Maybe X) (inl x) (inr star)) (Path (Maybe Y) (f (inl x)) (f (inr star)))
+    (is-bi-inv/inv-map (Path (Maybe X) (inl x) (inr star)) (Path (Maybe Y) (f (inl x)) (f (inr star)))
       (ap (Maybe X) (Maybe Y) f (inl x) (inr star))
       (is-bi-inv/is-inj (Maybe X) (Maybe Y) f (Equiv/is-bi-inv (Maybe X) (Maybe Y) e) (inl x) (inr star))
       (comp (Maybe Y) (f (inl x)) z p (f (inr star)) (inv (Maybe Y) (f (inr star)) z q)))
@@ -283,37 +283,17 @@ double-counting/map-inr-id (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X)
              (comp/inv-r' (Maybe Y) (f (inl x)) (inr star) p))
          (star-value X Y e x p) (double-counting/map-inr-id' X Y e x p)
 
-
-  -- J (Maybe Y) (inr star) (\ _ _. Path Y (double-counting/map X Y e x) (star-value X Y e x p))
-  --   (refl Y (star-value X Y e x p)) (Equiv/map (Maybe X) (Maybe Y) e (inl x))
-  --   (inv (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl x)) (inr star) p)
-
-  -- J (Maybe Y) (inr star) (\ z q. (r : Path (Maybe Y) (f (inl x)) z)
-  --                               -> Path Y (double-counting/map' X Y e x z r)
-  --                                        (star-value X Y e x (comp (Maybe Y) (f (inl x)) z r (inr star) (inv (Maybe Y) (inr star) z q))))
-  --   (\ r. refl Y (star-value X Y e x (comp (Maybe Y) (f (inl x)) (inr star) r (inr star) (inv (Maybe Y) (inr star) (inr star) (refl (Maybe Y) (inr star))))))
-  --   (f (inl x)) (inv (Maybe Y) (f (inl x)) (inr star) p) (refl (Maybe Y) (f (inl x)))
-
-double-counting/inv-map-star (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y)
-                                  : (s : Unit) -> Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr s) -> X = split
-  star -> star-value Y X (Equiv/sym (Maybe X) (Maybe Y) e) y
-
-double-counting/inv-map' (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y)
-                          : (u : Maybe X) -> Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) u -> X = split
-  inl x -> \ _. x
-  inr s -> double-counting/inv-map-star X Y e y s
-
 double-counting/inv-map (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) : X =
-  double-counting/inv-map' X Y e y (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (refl (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)))
+  double-counting/map Y X (Equiv/sym (Maybe X) (Maybe Y) e) y
 
 double-counting/inv-map-inl-id (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (x : X)
                                (p : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inl x)) : Path X (double-counting/inv-map X Y e y) x =
-  tr (Maybe X) (inl x) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y))
-    (inv (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inl x) p)
-    (\ u. (q : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) u) -> Path X (double-counting/inv-map' X Y e y u q) x)
-    (\ _. refl X x) (refl (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)))
+  double-counting/map-inl-id Y X (Equiv/sym (Maybe X) (Maybe Y) e) y x p
 
--- TODO
+double-counting/inv-map-inr-id (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y)
+                               (p : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star))
+                                  : Path X (double-counting/inv-map X Y e y) (star-value Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p) =
+  double-counting/map-inr-id Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p
 
 double-counting/has-decidable-eq (X : U) : (x : Maybe X) -> is-decidable (Path (Maybe X) x (inr star)) = split
   inl x -> inr (\ p. Coprod/Eq/eq-map X Unit (inl x) (inr star) p)
@@ -348,5 +328,62 @@ double-counting/convert-path (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (
                                   : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inl (double-counting/not-exception-value X Y e y f)) =
   double-counting/convert-path' X Y e y f (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (refl (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)))
 
---double-counting/right-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (p : neg (Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star)))
---                                : Path Y (double-counting/map X Y e (double-counting/inv-map X Y e y)) y =
+double-counting/convert-path-Y (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (p : neg (Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star)))
+                                  : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl (double-counting/not-exception-value X Y e y p))) (inl y) =
+  let f : (Maybe X) -> Maybe Y = Equiv/map (Maybe X) (Maybe Y) e
+      g : Maybe Y -> Maybe X = Equiv/inv-map (Maybe X) (Maybe Y) e
+      x : X = double-counting/not-exception-value X Y e y p
+  in
+  comp (Maybe Y) (f (inl x)) (f (g (inl y)))
+       (ap (Maybe X) (Maybe Y) f (inl x) (g (inl y)) (inv (Maybe X) (g (inl y)) (inl x) (double-counting/convert-path X Y e y p)))
+       (inl y) (Equiv/inv-right-htpy (Maybe X) (Maybe Y) e (inl y))
+
+double-counting/right-htpy-inr (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (f : neg (Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star)))
+                                    : Path Y (double-counting/map X Y e (double-counting/inv-map X Y e y)) y =  
+  let x : X = (double-counting/not-exception-value X Y e y f) in
+  comp Y (double-counting/map X Y e (double-counting/inv-map X Y e y))
+         (double-counting/map X Y e x)
+         (ap X Y (double-counting/map X Y e) (double-counting/inv-map X Y e y) x
+                 (double-counting/inv-map-inl-id X Y e y x (double-counting/convert-path X Y e y f)))
+         y (double-counting/map-inl-id X Y e x y (double-counting/convert-path-Y X Y e y f))
+
+double-counting/right-htpy/star-value (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) (p : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star))
+                                           : Path (Maybe Y) (Equiv/map (Maybe X) (Maybe Y) e (inl (double-counting/inv-map X Y e y))) (inr star) =
+  let f : (Maybe X) -> Maybe Y = Equiv/map (Maybe X) (Maybe Y) e
+      g : Maybe Y -> Maybe X = Equiv/inv-map (Maybe X) (Maybe Y) e
+      h : Y -> X = double-counting/inv-map X Y e
+  in comp-n (Maybe Y) three-Nat
+            (f (inl (h y))) (f (inl (star-value Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p)))
+            (ap X (Maybe Y) (\ z. f (inl z)) (h y) (star-value Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p)
+                  (double-counting/inv-map-inr-id X Y e y p))
+            (f (g (inr star))) (ap (Maybe X) (Maybe Y) (\ z. f z) (inl (star-value Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p)) (g (inr star))
+                                   (star-value-htpy Y X (Equiv/sym (Maybe X) (Maybe Y) e) y p))
+            (inr star) (Equiv/inv-right-htpy (Maybe X) (Maybe Y) e (inr star))
+
+double-counting/right-htpy/inl (X Y : U) (eq : Equiv (Maybe X) (Maybe Y)) (y : Y) (p : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) eq (inl y)) (inr star))
+                                    : Path (Maybe Y) (inl ((double-counting/map X Y eq) (double-counting/inv-map X Y eq y))) (inl y) =
+  let e  : (Maybe X) -> Maybe Y = Equiv/map (Maybe X) (Maybe Y) eq
+      e' : Maybe Y -> Maybe X = Equiv/inv-map (Maybe X) (Maybe Y) eq
+      f : X -> Y = double-counting/map X Y eq
+      g : Y -> X = double-counting/inv-map X Y eq
+      q : Path (Maybe Y) (e (inl (g y))) (inr star) = double-counting/right-htpy/star-value X Y eq y p
+  in comp-n (Maybe Y) four-Nat (inl (f (g y))) (inl (star-value X Y eq (g y) q))
+      (ap Y (Maybe Y) (\ z. inl z) (f (g y)) (star-value X Y eq (g y) q) (double-counting/map-inr-id X Y eq (g y) q))
+      (e (inr star)) (star-value-htpy X Y eq (g y) q)
+      (e (e' (inl y))) (ap (Maybe X) (Maybe Y) e (inr star) (e' (inl y)) (inv (Maybe X) (e' (inl y)) (inr star) p))
+      (inl y) (Equiv/inv-right-htpy (Maybe X) (Maybe Y) eq (inl y))
+
+double-counting/right-htpy-inl (X Y : U) (eq : Equiv (Maybe X) (Maybe Y)) (y : Y) (p : Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) eq (inl y)) (inr star))
+                                    : Path Y ((double-counting/map X Y eq) (double-counting/inv-map X Y eq y)) y =
+  Coprod/inl-inj Y Unit ((double-counting/map X Y eq) (double-counting/inv-map X Y eq y)) y (double-counting/right-htpy/inl X Y eq y p)
+
+double-counting/right-htpy-dec (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y)
+                                    : is-decidable (Path (Maybe X) (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)) (inr star))
+                                      -> Path Y ((double-counting/map X Y e) (double-counting/inv-map X Y e y)) y = split
+  inl p -> double-counting/right-htpy-inl X Y e y p
+  inr f -> double-counting/right-htpy-inr X Y e y f  
+
+double-counting/right-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) : Path Y ((double-counting/map X Y e) (double-counting/inv-map X Y e y)) y =
+  double-counting/right-htpy-dec X Y e (double-counting/has-decidable-eq X (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)))
+
+ttttt : Nat = zero

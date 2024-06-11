@@ -82,3 +82,20 @@ has-contr-eq/is-proof-irrelevant (A : U) (c : has-contr-eq A) : is-proof-irrelev
 
 has-contr-eq/is-subterminal (A : U) (x : A) (c : has-contr-eq A) : is-subterminal A =
   is-proof-irrelevant/is-subterminal A x (has-contr-eq/is-proof-irrelevant A c)
+
+UU-Prop : U = Sg U is-prop
+
+Prop/type (A : UU-Prop) : U = A.1
+
+Prop/is-prop (A : UU-Prop) : is-prop (Prop/type A) = A.2  
+
+Prop/hom (A B : UU-Prop) : U = (Prop/type A) -> (Prop/type B)
+
+Prop/is-equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : is-equiv (Prop/type A) (Prop/type B) f =
+  let H : Htpy' (Prop/type B) (Prop/type B) (\ z. f (g z)) (id (Prop/type B)) = \ x. Prop/is-prop B (f (g x)) x
+      K : Htpy' (Prop/type A) (Prop/type A) (\ z. g (f z)) (id (Prop/type A)) = \ x. Prop/is-prop A (g (f x)) x
+  in
+  has-inverse/is-equiv (Prop/type A) (Prop/type B) f (g, (H, K))
+
+Prop/Equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : Equiv (Prop/type A) (Prop/type B) =
+  (f, Prop/is-equiv A B f g)
