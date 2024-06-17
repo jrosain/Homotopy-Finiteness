@@ -43,7 +43,7 @@ is-bi-inv/is-equiv-ap-comp-right-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv
                                                 : is-bi-inv (Path A x y) (Path A (g (is-bi-inv/right-inv B A g b x)) (g (is-bi-inv/right-inv B A g b y)))
                                                             (ap A A (\ z. g (is-bi-inv/right-inv B A g b z)) x y) =
   let f : A -> B = is-bi-inv/right-inv B A g b
-      p : Path (A -> A) (\ z. g (f z)) (id A) = (eq-htpy A A (\ z. g (f z)) (id A) (is-bi-inv/right-htpy B A g b))
+      p : Path (A -> A) (\ z. g (f z)) (id A) = (eq-htpy A (\ _. A) (\ z. g (f z)) (id A) (is-bi-inv/right-htpy B A g b))
       q : Path (A -> A) (id A) (\ z. g (f z)) = (inv (A -> A) (\ z. g (f z)) (id A) p)
   in
   is-bi-inv/ap-eq-id A (\ z. g (f z)) q x y
@@ -52,7 +52,7 @@ is-bi-inv/is-equiv-ap-comp-left-is-bi-inv (A B : U) (g : B -> A) (b : is-bi-inv 
                                                : is-bi-inv (Path B x y) (Path B (is-bi-inv/left-inv B A g b (g x)) (is-bi-inv/left-inv B A g b (g y)))
                                                            (ap B B (\ z. (is-bi-inv/left-inv B A g b (g z))) x y) =
   let h : A -> B = is-bi-inv/left-inv B A g b
-      p : Path (B -> B) (\ z. h (g z)) (id B) = (eq-htpy B B (\ z. h (g z)) (id B) (is-bi-inv/left-htpy B A g b))
+      p : Path (B -> B) (\ z. h (g z)) (id B) = (eq-htpy B (\ _. B) (\ z. h (g z)) (id B) (is-bi-inv/left-htpy B A g b))
       q : Path (B -> B) (id B) (\ z. h (g z)) = (inv (B -> B) (\ z. h (g z)) (id B) p)
   in
   is-bi-inv/ap-eq-id B (\ z. h (g z)) q x y
@@ -69,7 +69,7 @@ is-bi-inv/is-inj'/inv (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : A) : i
 
 is-bi-inv/is-inj' (A B : U) (g : B -> A) (b : is-bi-inv B A g) (x y : B) : is-bi-inv (Path B x y) (Path A (g x) (g y)) (ap B A g x y) =
   let f : A -> B = is-bi-inv/right-inv B A g b 
-      p : Path (B -> B) (\ z. f (g z)) (id B) = eq-htpy B B (\ z. f (g z)) (id B) (is-bi-inv/inv-left-htpy B A g b)
+      p : Path (B -> B) (\ z. f (g z)) (id B) = eq-htpy B (\ _. B) (\ z. f (g z)) (id B) (is-bi-inv/inv-left-htpy B A g b)
   in
   tr (B -> B) (\ z. f (g z)) (id B) p (\ h. is-bi-inv (Path B (h x) (h y)) (Path A (g (h x)) (g (h y))) (ap B A g (h x) (h y)))
     (is-bi-inv/is-inj'/inv A B g b (g x) (g y))
@@ -194,3 +194,9 @@ has-inverse/Equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : Equiv A B =
 Equiv/is-inj (A B : U) (f : A -> B) (e : is-equiv A B f) (x y : A) : is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
   is-bi-inv/is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y)
     (is-bi-inv/is-inj A B f (is-equiv/is-bi-inv A B f e) x y)
+
+htpy-eq/is-equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : is-equiv (Path ((x : A) -> B x) f g) (Htpy A B f g) (htpy-eq A B f g) =
+  has-inverse/is-equiv (Path ((x : A) -> B x) f g) (Htpy A B f g) (htpy-eq A B f g) (htpy-eq/has-inverse A B f g)
+
+eq-htpy/is-equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : is-equiv (Htpy A B f g) (Path ((x : A) -> B x) f g) (eq-htpy A B f g) =
+  has-inverse/is-equiv (Htpy A B f g) (Path ((x : A) -> B x) f g) (eq-htpy A B f g) (eq-htpy/has-inverse A B f g)

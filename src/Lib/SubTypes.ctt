@@ -1,0 +1,17 @@
+module Lib.SubTypes where
+
+import Stdlib.Prelude
+import Lib.Prop.Equiv
+import Lib.Prop.Proposition
+
+is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
+
+is-decidable-subtype (X : U) (P : X -> U) : U = is-subtype X P * ((x : X) -> is-decidable (P x))
+
+substructure/is-contr-total-Eq (A : U) (B C : A -> U) (is-contr-tot : is-contr (Sg A B)) (is-subtype-C : is-subtype A C) (a : A) (b : B a) (c : C a)
+                                  : is-contr (Sg (Sg A C) (\ t. B t.1)) =
+  is-contr/is-contr-equiv (Sg (Sg A C) (\ t. B t.1)) (Sg (Sg A B) (\ t. C t.1))
+    (Equiv/assoc-Sg A C B)
+    (is-contr/closed-retract (Sg (Sg A B) (\ t. C t.1)) (C a)
+      (Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
+      (is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))

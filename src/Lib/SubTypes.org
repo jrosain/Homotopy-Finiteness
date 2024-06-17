@@ -1,0 +1,44 @@
+#+NAME: SubTypes
+#+AUTHOR: Johann Rosain
+
+* Subtypes
+
+  #+begin_src ctt
+  module Lib.SubTypes where
+  #+end_src
+
+This file defines subtypes and some properties associated to them.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Prop.Equiv
+  import Lib.Prop.Proposition
+   #+end_src
+
+** Definitions
+
+   #+begin_src ctt
+  is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
+
+  is-decidable-subtype (X : U) (P : X -> U) : U = is-subtype X P * ((x : X) -> is-decidable (P x))
+   #+end_src
+
+** Equivalence of substructure
+
+We show a lemma that helps us show that the identity type of a subtype agrees with the identity type of the original type.
+
+#+begin_src ctt
+  substructure/is-contr-total-Eq (A : U) (B C : A -> U) (is-contr-tot : is-contr (Sg A B)) (is-subtype-C : is-subtype A C) (a : A) (b : B a) (c : C a)
+                                    : is-contr (Sg (Sg A C) (\ t. B t.1)) =
+    is-contr/is-contr-equiv (Sg (Sg A C) (\ t. B t.1)) (Sg (Sg A B) (\ t. C t.1))
+      (Equiv/assoc-Sg A C B)
+      (is-contr/closed-retract (Sg (Sg A B) (\ t. C t.1)) (C a)
+        (Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
+        (is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+

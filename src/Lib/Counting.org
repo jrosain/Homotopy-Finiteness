@@ -18,6 +18,7 @@ This file defines the notion of /counting/ in HoTT, and basic counting propertie
   import Lib.Prop.Fin
   import Lib.FundamentalTheorem
   import Lib.Hedberg
+  import Lib.SubTypes
    #+end_src
 
 ** Definition
@@ -198,10 +199,6 @@ We can also show that if \Sigma A B comes with a counting, as well as =B x= come
 #+end_src
 Remark that if =P= is a decidable subtype of =X=, then =P= is countable whenever =X= is countable.
 #+begin_src ctt
-  is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
-
-  is-decidable-subtype (X : U) (P : X -> U) : U = is-subtype X P * ((x : X) -> is-decidable (P x))
-
   count/closed-decidable-subtype (X : U) (P : X -> U) (c : count X) (s : is-decidable-subtype X P) (x : X) : count (P x) =
     count/closed-fam X P c
       (count/closed-Sg X P c (\ y. count/is-decidable-is-countable (P y) (s.1 y) (s.2 y))) x

@@ -13,6 +13,9 @@ This file states some properties of homotopies.
 
 #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.FunExt
+  import Lib.FundamentalTheorem
+  import Lib.ContrMap
 #+end_src
 
 ** Equivalence property
@@ -30,3 +33,24 @@ This file states some properties of homotopies.
 
   Htpy'/inv : (A B : U) -> (f g : A -> B) -> (H : Htpy' A B f g) -> Htpy' A B g f = Htpy'/sym
     #+end_src
+
+*** Reflexivity
+
+    #+begin_src ctt
+  Htpy/refl (A : U) (B : A -> U) (f : (x : A) -> B x) : Htpy A B f f =
+    \ x. refl (B x) (f x)
+
+  Htpy'/refl (A B : U) : (f : A -> B) -> Htpy' A B f f =
+    Htpy/refl A (\ _. B)
+    #+end_src
+
+** The total homotopy is contractible
+Remark that the total space \Sigma (g : (x : A) \to B x) (f \sim g) is contractible iff htpy-eq is a family of equivalences by the fundamental theorem of identity types. But we know that htpy-eq is a family of equivalences, thus the result follows.
+   #+begin_src ctt
+  Htpy/is-contr-total-htpy (A : U) (B : A -> U) (f : (x : A) -> B x) : is-contr (Sg ((x : A) -> B x) (\ g. Htpy A B f g)) =
+    fundamental-theorem-id' ((x : A) -> B x) (\ g. Htpy A B f g) f
+      (htpy-eq A B f) (htpy-eq/is-equiv A B f)
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

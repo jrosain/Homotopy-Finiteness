@@ -1,6 +1,9 @@
 module Lib.Prop.Htpy where
 
 import Stdlib.Prelude
+import Lib.FunExt
+import Lib.FundamentalTheorem
+import Lib.ContrMap
 
 Htpy/sym (A : U) (B : A -> U) (f g : (x : A) -> B x) (H : Htpy A B f g) : Htpy A B g f =
   \ x. inv (B x) (f x) (g x) (H x)
@@ -11,3 +14,13 @@ Htpy'/sym (A B : U) : (f : A -> B) -> (g : A -> B) -> Htpy' A B f g -> Htpy' A B
 Htpy/inv : (A : U) -> (B : A -> U) -> (f g : (x : A) -> B x) -> (H : Htpy A B f g) -> Htpy A B g f = Htpy/sym
 
 Htpy'/inv : (A B : U) -> (f g : A -> B) -> (H : Htpy' A B f g) -> Htpy' A B g f = Htpy'/sym
+
+Htpy/refl (A : U) (B : A -> U) (f : (x : A) -> B x) : Htpy A B f f =
+  \ x. refl (B x) (f x)
+
+Htpy'/refl (A B : U) : (f : A -> B) -> Htpy' A B f f =
+  Htpy/refl A (\ _. B)
+
+Htpy/is-contr-total-htpy (A : U) (B : A -> U) (f : (x : A) -> B x) : is-contr (Sg ((x : A) -> B x) (\ g. Htpy A B f g)) =
+  fundamental-theorem-id' ((x : A) -> B x) (\ g. Htpy A B f g) f
+    (htpy-eq A B f) (htpy-eq/is-equiv A B f)

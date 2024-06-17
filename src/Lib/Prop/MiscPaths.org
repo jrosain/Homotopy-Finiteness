@@ -13,6 +13,7 @@ This file contains some miscellanous properties of paths.
 
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Data.Nat
 #+end_src
 
 ** Transport of refl
@@ -38,6 +39,39 @@ It generalizes using J.
 #+begin_src ctt
   PathO/refl (A : U) (x : A) (P : A -> U) (u v : P x) (q : Path (P x) u v) : PathO A x x (refl A x) P u v =
     comp (P x) (tr A x x (refl A x) P u) u (tr/refl-path A x P u) v q
+#+end_src
+
+** Transport identity
+The transportation on =inv p= then on =p= is the reflexive transportation.
+   #+begin_src ctt
+  tr/right-inv/refl (A : U) (B : A -> U) (x : A) (y : B x)
+                       :  Path (B x) (tr A x x (refl A x) B (tr A x x (inv A x x (refl A x)) B y)) y =
+    comp-n (B x) three-Nat (tr A x x (refl A x) B (tr A x x (inv A x x (refl A x)) B y)) (tr A x x (inv A x x (refl A x)) B y)
+      (tr/refl-path A x B (tr A x x (inv A x x (refl A x)) B y)) (tr A x x (refl A x) B y)
+      (ap (Path A x x) (B x) (\ p. (tr A x x p B y)) (inv A x x (refl A x)) (refl A x)
+          (inv/refl A x))
+      y (tr/refl-path A x B y)
+
+  tr/right-inv (A : U) (B : A -> U) (u v : Sg A B) (p : Path A u.1 v.1)
+                  : Path (B v.1) (tr A u.1 v.1 p B (tr A v.1 u.1 (inv A u.1 v.1 p) B v.2)) v.2 =
+    J A u.1 (\ x q. (y : B x) -> Path (B x) (tr A u.1 x q B (tr A x u.1 (inv A u.1 x q) B y)) y)
+      (\ y. tr/right-inv/refl A B u.1 y) v.1 p v.2
+   #+end_src
+It goes the same for left inverse.
+#+begin_src ctt
+  tr/left-inv/refl (A : U) (B : A -> U) (x : A) (y : B x)
+                       :  Path (B x) (tr A x x (inv A x x (refl A x)) B (tr A x x (refl A x) B y)) y =
+    comp-n (B x) three-Nat (tr A x x (inv A x x (refl A x)) B (tr A x x (refl A x) B y)) (tr A x x (refl A x) B (tr A x x (refl A x) B y))
+      (ap (Path A x x) (B x) (\ p. (tr A x x p B (tr A x x (refl A x) B y))) (inv A x x (refl A x)) (refl A x)
+          (inv/refl A x))
+      (tr A x x (refl A x) B y)
+      (tr/refl-path A x B (tr A x x (refl A x) B y)) 
+      y (tr/refl-path A x B y)
+
+  tr/left-inv (A : U) (B : A -> U) (u v : Sg A B) (p : Path A u.1 v.1)
+                 : Path (B u.1) (tr A v.1 u.1 (inv A u.1 v.1 p) B (tr A u.1 v.1 p B u.2)) u.2 =
+    J A u.1 (\ x q. Path (B u.1) (tr A x u.1 (inv A u.1 x q) B (tr A u.1 x q B u.2)) u.2)
+      (tr/left-inv/refl A B u.1 u.2) v.1 p
 #+end_src
 
 ** inv is involutive

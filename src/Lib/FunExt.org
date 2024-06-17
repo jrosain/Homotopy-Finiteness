@@ -13,18 +13,50 @@ This file defines function extensionnality and provides utility functions.
 
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Data.QInv
    #+end_src
 
 ** Definitions
 
 First, we define =eq-htpy= and =htpy-eq= that should be inverses.
    #+begin_src ctt
-  eq-htpy (A B : U) (f g : A -> B) (H : Htpy' A B f g) : Path (A -> B) f g =
+  eq-htpy (A : U) (B : A -> U) (f g : (x : A) -> B x) (H : Htpy A B f g) : Path ((x : A) -> B x) f g =
     \ i a. H a i
 
-  htpy-eq (A B : U) (f g : A -> B) (p : Path (A -> B) f g) : Htpy' A B f g =
-    J (A -> B) f (\ h _. Htpy' A B f h)
-                (\ x. refl B (f x)) g p
+  htpy-eq (A : U) (B : A -> U) (f g : (x : A) -> B x) (p : Path ((x : A) -> B x) f g) : Htpy A B f g =
+    \ x i. p i x
+
+  eq-htpy' (A B : U) (f g : A -> B) (H : Htpy' A B f g) : Path (A -> B) f g =
+    eq-htpy A (\ _. B) f g H
+
+  htpy-eq' (A B : U) (f g : A -> B) (p : Path (A -> B) f g) : Htpy' A B f g =
+    htpy-eq A (\ _. B) f g p
    #+end_src
 
-The function extensionnality principle states that =htpy-eq= is a family of equivalences (todo).
+** Equivalence
+The function extensionnality principle states that =htpy-eq= is a family of equivalences.
+The right homotopy is reflexivity by definition.
+#+begin_src ctt
+  htpy-eq/right-htpy (A : U) (B : A -> U) (f g : (x : A) -> B x)
+                        : Htpy' (Htpy A B f g) (Htpy A B f g) (\ H. htpy-eq A B f g (eq-htpy A B f g H)) (id (Htpy A B f g)) =
+    \ H. refl (Htpy A B f g) (\ x i. H x i)
+#+end_src
+The left homotopy is also reflexivity.
+#+begin_src ctt
+  htpy-eq/left-htpy (A : U) (B : A -> U) (f g : (x : A) -> B x)
+                       : Htpy' (Path ((x : A) -> B x) f g) (Path ((x : A) -> B x) f g) (\ p. eq-htpy A B f g (htpy-eq A B f g p)) (id (Path ((x : A) -> B x) f g)) =
+    \ p. refl (Path ((x : A) -> B x) f g) (\ i a. p i a)
+#+end_src
+Thus, =htpy-eq= has an inverse.
+#+begin_src ctt
+  htpy-eq/has-inverse (A : U) (B : A -> U) (f g : (x : A) -> B x) : has-inverse (Path ((x : A) -> B x) f g) (Htpy A B f g) (htpy-eq A B f g) =
+    (eq-htpy A B f g, (htpy-eq/right-htpy A B f g, htpy-eq/left-htpy A B f g))
+#+end_src
+Same for =eq-htpy=.
+#+begin_src ctt
+  eq-htpy/has-inverse (A : U) (B : A -> U) (f g : (x : A) -> B x) : has-inverse (Htpy A B f g) (Path ((x : A) -> B x) f g) (eq-htpy A B f g) =
+    (htpy-eq A B f g, (htpy-eq/left-htpy A B f g, htpy-eq/right-htpy A B f g))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

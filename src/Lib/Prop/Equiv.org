@@ -152,7 +152,7 @@ We show that if =A= and =B= are equivalent, then =A= has decidable equality iff 
       let eq-A : U = (Path A x y)
           eq-B : U = (Path B (f x) (f y)) 
           g : B -> A = is-equiv/inv-map A B f e
-          p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A A (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
+          p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A (\ _. A) (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
           h : Path B (f x) (f y) -> Path A x y = \ q. (tr (A -> A) (\ z. g (f z)) (id A) p (\ i. Path A (i x) (i y)) (ap B A g (f x) (f y) q))
       in
       Coprod/map eq-B (neg eq-B) eq-A (neg eq-A) h
@@ -167,6 +167,9 @@ We show that if =A= and =B= are equivalent, then =A= has decidable equality iff 
   has-decidable-equality/Equiv' (A B : U) (e : Equiv A B) (dA : has-decidable-equality A) : has-decidable-equality B =
     has-decidable-equality/is-equiv' A B (Equiv/map A B e) (Equiv/is-equiv A B e) dA
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 *** Equivalent types have equivalent identity types
 If =A= and =B= are two equivalent types, then there is also an equivalence between their identity types.
@@ -482,6 +485,44 @@ We have shown that there is a bijection between (Fib pr1 x) and (B x), that is, 
       (Equiv/Sg-base-unit-inv-map A, (Equiv/Sg-base-unit-right-htpy A, Equiv/Sg-base-unit-left-htpy A))
     #+end_src
 
+*** \Sigma (\Sigma A B) (C \circ pr1) is \Sigma (\Sigma A C) (B \circ pr1)
+Forward map.
+    #+begin_src ctt
+  Equiv/assoc-Sg/map (A : U) (B C : A -> U) : Sg (Sg A B) (\ t. C t.1) -> Sg (Sg A C) (\ t. B t.1) =
+    \ u. ((u.1.1, u.2), u.1.2)
+    #+end_src
+Inverse map.
+#+begin_src ctt
+  Equiv/assoc-Sg/inv-map (A : U) (B C : A -> U) : Sg (Sg A C) (\ t. B t.1) -> Sg (Sg A B) (\ t. C t.1) =
+    \ u. ((u.1.1, u.2), u.1.2)
+#+end_src
+Right homotopy.
+#+begin_src ctt
+  Equiv/assoc-Sg/right-htpy/sg (A : U) (B C : A -> U) (a : A) (b : B a) (c : C a)
+                                  : Path (Sg (Sg A C) (\ t. B t.1)) (Equiv/assoc-Sg/map A B C (Equiv/assoc-Sg/inv-map A B C ((a, c), b))) ((a, c), b) =
+    refl (Sg (Sg A C) (\ t. B t.1)) ((a, c), b)
+
+  Equiv/assoc-Sg/right-htpy (A : U) (B C : A -> U) : Htpy' (Sg (Sg A C) (\ t. B t.1)) (Sg (Sg A C) (\ t. B t.1))
+                                                          (\ t. Equiv/assoc-Sg/map A B C (Equiv/assoc-Sg/inv-map A B C t)) (id (Sg (Sg A C) (\ t. B t.1))) =
+    \ t. Equiv/assoc-Sg/right-htpy/sg A B C t.1.1 t.2 t.1.2
+#+end_src
+Left homotopy.
+#+begin_src ctt
+  Equiv/assoc-Sg/left-htpy/sg (A : U) (B C : A -> U) (a : A) (b : B a) (c : C a)
+                                  : Path (Sg (Sg A B) (\ t. C t.1)) (Equiv/assoc-Sg/inv-map A B C (Equiv/assoc-Sg/map A B C ((a, b), c))) ((a, b), c) =
+    refl (Sg (Sg A B) (\ t. C t.1)) ((a, b), c)
+
+  Equiv/assoc-Sg/left-htpy (A : U) (B C : A -> U) : Htpy' (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A B) (\ t. C t.1))
+                                                         (\ t. Equiv/assoc-Sg/inv-map A B C (Equiv/assoc-Sg/map A B C t)) (id (Sg (Sg A B) (\ t. C t.1))) =
+    \ t. Equiv/assoc-Sg/left-htpy/sg A B C t.1.1 t.1.2 t.2
+#+end_src
+Thus, it is an equivalence.
+#+begin_src ctt
+  Equiv/assoc-Sg (A : U) (B C : A -> U) : Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1)) =
+    has-inverse/Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1))
+      (Equiv/assoc-Sg/map A B C) (Equiv/assoc-Sg/inv-map A B C, (Equiv/assoc-Sg/right-htpy A B C, Equiv/assoc-Sg/left-htpy A B C))
+#+end_src
+
 ** Closure of truncation levels under equivalence
 
 If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =k=.
@@ -494,6 +535,8 @@ If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =
 
   is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
     is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
+
+  ttttt : Nat = zero
    #+end_src
 
 #+RESULTS:

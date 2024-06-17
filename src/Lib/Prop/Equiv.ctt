@@ -91,7 +91,7 @@ has-decidable-equality/is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) (dB 
     let eq-A : U = (Path A x y)
         eq-B : U = (Path B (f x) (f y)) 
         g : B -> A = is-equiv/inv-map A B f e
-        p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A A (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
+        p : Path (A -> A) (\ z. g (f z)) (id A) = eq-htpy A (\ _. A) (\ z. g (f z)) (id A) (is-equiv/inv-left-htpy A B f e)
         h : Path B (f x) (f y) -> Path A x y = \ q. (tr (A -> A) (\ z. g (f z)) (id A) p (\ i. Path A (i x) (i y)) (ap B A g (f x) (f y) q))
     in
     Coprod/map eq-B (neg eq-B) eq-A (neg eq-A) h
@@ -364,6 +364,32 @@ Equiv/Sg-base-unit (A : U) : Equiv (Sg A (\ _. Unit)) A =
   has-inverse/Equiv (Sg A (\ _. Unit)) A (Equiv/Sg-base-unit-map A)
     (Equiv/Sg-base-unit-inv-map A, (Equiv/Sg-base-unit-right-htpy A, Equiv/Sg-base-unit-left-htpy A))
 
+Equiv/assoc-Sg/map (A : U) (B C : A -> U) : Sg (Sg A B) (\ t. C t.1) -> Sg (Sg A C) (\ t. B t.1) =
+  \ u. ((u.1.1, u.2), u.1.2)
+
+Equiv/assoc-Sg/inv-map (A : U) (B C : A -> U) : Sg (Sg A C) (\ t. B t.1) -> Sg (Sg A B) (\ t. C t.1) =
+  \ u. ((u.1.1, u.2), u.1.2)
+
+Equiv/assoc-Sg/right-htpy/sg (A : U) (B C : A -> U) (a : A) (b : B a) (c : C a)
+                                : Path (Sg (Sg A C) (\ t. B t.1)) (Equiv/assoc-Sg/map A B C (Equiv/assoc-Sg/inv-map A B C ((a, c), b))) ((a, c), b) =
+  refl (Sg (Sg A C) (\ t. B t.1)) ((a, c), b)
+
+Equiv/assoc-Sg/right-htpy (A : U) (B C : A -> U) : Htpy' (Sg (Sg A C) (\ t. B t.1)) (Sg (Sg A C) (\ t. B t.1))
+                                                        (\ t. Equiv/assoc-Sg/map A B C (Equiv/assoc-Sg/inv-map A B C t)) (id (Sg (Sg A C) (\ t. B t.1))) =
+  \ t. Equiv/assoc-Sg/right-htpy/sg A B C t.1.1 t.2 t.1.2
+
+Equiv/assoc-Sg/left-htpy/sg (A : U) (B C : A -> U) (a : A) (b : B a) (c : C a)
+                                : Path (Sg (Sg A B) (\ t. C t.1)) (Equiv/assoc-Sg/inv-map A B C (Equiv/assoc-Sg/map A B C ((a, b), c))) ((a, b), c) =
+  refl (Sg (Sg A B) (\ t. C t.1)) ((a, b), c)
+
+Equiv/assoc-Sg/left-htpy (A : U) (B C : A -> U) : Htpy' (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A B) (\ t. C t.1))
+                                                       (\ t. Equiv/assoc-Sg/inv-map A B C (Equiv/assoc-Sg/map A B C t)) (id (Sg (Sg A B) (\ t. C t.1))) =
+  \ t. Equiv/assoc-Sg/left-htpy/sg A B C t.1.1 t.1.2 t.2
+
+Equiv/assoc-Sg (A : U) (B C : A -> U) : Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1)) =
+  has-inverse/Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1))
+    (Equiv/assoc-Sg/map A B C) (Equiv/assoc-Sg/inv-map A B C, (Equiv/assoc-Sg/right-htpy A B C, Equiv/assoc-Sg/left-htpy A B C))
+
 is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k B) -> is-of-lvl k A = split
   zero -> \ H. is-contr/is-contr-equiv A B e H
   suc k ->
@@ -372,3 +398,5 @@ is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k
 
 is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
   is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
+
+ttttt : Nat = zero
