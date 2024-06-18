@@ -1,0 +1,15 @@
+module Lib.Univalence where
+
+import Stdlib.Prelude
+import Lib.FundamentalTheorem
+
+ua/is-contr-total-equiv (A : U) : is-contr (Sg U (Equiv A)) =
+  let i : (B : U) -> has-inverse (Path U A B) (Equiv A B) (path-to-equiv A B) = \ B. (equiv-to-path A B, (equiv-to-path/comp A B, equiv-to-path/unique A B)) in
+  fundamental-theorem-id' U
+    ( Equiv A) A
+    ( path-to-equiv A)
+    ( \ B. has-inverse/is-equiv
+            ( Path U A B)
+            ( Equiv A B)
+            ( path-to-equiv A B)
+            ( i B))

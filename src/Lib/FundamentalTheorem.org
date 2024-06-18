@@ -378,5 +378,65 @@ By the theorem =fam-equiv/Equiv-tot=, if the family of maps =f= is an equivalenc
       (is-contr/Sg-path-is-contr A a)
 #+end_src
 
+** The structure identity principle
+This result leads to another result that helps characterize structures. It is easy to show: we use the fact that we can make =y= and =z= commute in the types. Then, \Sigma (\Sigma A C) \cdot is contractible as \Sigma A C is contractible (using [[Prop/Contr.org][Sg/is-contr']]).
+
+First, let us show that we can make the types commute.
+#+begin_src ctt
+  str-principle/map (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U)
+                       : (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) -> (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2))) =
+    \ t. ((t.1.1, t.2.1), (t.1.2, t.2.2))
+
+  str-principle/inv-map (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U)
+                           : (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2))) -> (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) =
+    \ t. ((t.1.1, t.2.1), (t.1.2, t.2.2))
+
+  str-principle/right-htpy/sg (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U) (a : A) (b : B a) (c : C a) (d : D a b c)
+                                 : Path (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)))
+                                        (str-principle/map A B C D (str-principle/inv-map A B C D ((a, c), (b, d)))) ((a, c), (b, d)) =
+    refl (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2))) ((a, c), (b, d))
+
+  str-principle/right-htpy (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U) (u : Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)))
+                              : Path (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)))
+                                     (str-principle/map A B C D (str-principle/inv-map A B C D u)) u =
+    str-principle/right-htpy/sg A B C D u.1.1 u.2.1 u.1.2 u.2.2
+
+  str-principle/left-htpy/sg (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U) (a : A) (b : B a) (c : C a) (d : D a b c)
+                                : Path (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2)))
+                                       (str-principle/inv-map A B C D (str-principle/map A B C D ((a, b), (c, d)))) ((a, b), (c, d)) =
+    refl (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) ((a, b), (c, d))
+
+  str-principle/left-htpy (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U) (u : Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2)))
+                             : Path (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2)))
+                                     (str-principle/inv-map A B C D (str-principle/map A B C D u)) u =
+    str-principle/left-htpy/sg A B C D u.1.1 u.1.2 u.2.1 u.2.2
+
+  str-principle/is-equiv (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U)
+                            : is-equiv (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2))) (str-principle/map A B C D) =
+    has-inverse/is-equiv
+      ( Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2)))
+      ( Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)))
+      ( str-principle/map A B C D)
+      ( str-principle/inv-map A B C D,
+        ( str-principle/right-htpy A B C D,
+          str-principle/left-htpy A B C D))
+
+  str-principle/Equiv (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U)
+                         : Equiv (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) (Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2))) =
+    ( str-principle/map A B C D,
+      str-principle/is-equiv A B C D)
+#+end_src
+
+Then, we can state the structure identity principle.
+#+begin_src ctt
+  str-principle-id (A : U) (B C : A -> U) (D : (x : A) -> B x -> C x -> U) (is-contr-AC : is-contr (Sg A C)) (a : A) (c : C a)
+                   (is-contr-tot : is-contr (Sg (B a) (\ y. D a y c))) : is-contr (Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2))) =
+    is-contr/is-contr-equiv
+      ( Sg (Sg A B) (\ t. Sg (C t.1) (D t.1 t.2)))
+      ( Sg (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)))
+      ( str-principle/Equiv A B C D)
+      ( Sg/is-contr' (Sg A C) (\ t. Sg (B t.1) (\ y. D t.1 y t.2)) is-contr-AC (a, c) is-contr-tot)
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

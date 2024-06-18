@@ -1,0 +1,36 @@
+#+NAME: Univalence
+#+AUTHOR: Johann Rosain
+
+* Univalence
+
+  #+begin_src ctt
+  module Lib.Univalence where
+  #+end_src
+
+This file shows some properties that follows from univalence.
+
+** Packages imports
+
+#+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.FundamentalTheorem
+#+end_src
+
+** Fundamental theorem of univalence
+
+We state the fundamental theorem of univalence, that is: the fundamental theorem of identity for equivalences.
+#+begin_src ctt
+  ua/is-contr-total-equiv (A : U) : is-contr (Sg U (Equiv A)) =
+    let i : (B : U) -> has-inverse (Path U A B) (Equiv A B) (path-to-equiv A B) = \ B. (equiv-to-path A B, (equiv-to-path/comp A B, equiv-to-path/unique A B)) in
+    fundamental-theorem-id' U
+      ( Equiv A) A
+      ( path-to-equiv A)
+      ( \ B. has-inverse/is-equiv
+              ( Path U A B)
+              ( Equiv A B)
+              ( path-to-equiv A B)
+              ( i B))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

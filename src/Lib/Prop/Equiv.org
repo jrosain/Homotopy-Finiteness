@@ -523,6 +523,50 @@ Thus, it is an equivalence.
       (Equiv/assoc-Sg/map A B C) (Equiv/assoc-Sg/inv-map A B C, (Equiv/assoc-Sg/right-htpy A B C, Equiv/assoc-Sg/left-htpy A B C))
 #+end_src
 
+*** \Sigma A B and \Sigma A C whenever B is equivalent to C
+    #+begin_src ctt
+  Equiv/Sg-fam/map (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) : Sg A B -> Sg A C =
+    \ t. (t.1, Equiv/map (B t.1) (C t.1) (e t.1) t.2)
+
+  Equiv/Sg-fam/inv-map (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) : Sg A C -> Sg A B =
+    \ t. (t.1, Equiv/inv-map (B t.1) (C t.1) (e t.1) t.2)
+
+  Equiv/Sg-fam/right-htpy/sg (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) (a : A) (c : C a)
+                                : Path (Sg A C) (Equiv/Sg-fam/map A B C e (Equiv/Sg-fam/inv-map A B C e (a, c))) (a, c) =
+    SgPathO->PathSg A C
+      ( Equiv/Sg-fam/map A B C e (Equiv/Sg-fam/inv-map A B C e (a, c))) (a, c)
+      ( refl A a,
+        PathO/refl A a C
+          ( Equiv/map (B a) (C a) (e a) (Equiv/inv-map (B a) (C a) (e a) c)) c
+          ( Equiv/inv-right-htpy (B a) (C a) (e a) c))
+
+  Equiv/Sg-fam/right-htpy (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) (t : Sg A C)
+                             : Path (Sg A C) (Equiv/Sg-fam/map A B C e (Equiv/Sg-fam/inv-map A B C e t)) t =
+    Equiv/Sg-fam/right-htpy/sg A B C e t.1 t.2
+
+  Equiv/Sg-fam/left-htpy/sg (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) (a : A) (b : B a)
+                               : Path (Sg A B) (Equiv/Sg-fam/inv-map A B C e (Equiv/Sg-fam/map A B C e (a, b))) (a, b) =
+    SgPathO->PathSg A B
+      ( Equiv/Sg-fam/inv-map A B C e (Equiv/Sg-fam/map A B C e (a, b))) (a, b)
+      ( refl A a,
+        PathO/refl A a B
+          ( Equiv/inv-map (B a) (C a) (e a) (Equiv/map (B a) (C a) (e a) b)) b
+          ( Equiv/inv-left-htpy (B a) (C a) (e a) b))
+
+  Equiv/Sg-fam/left-htpy (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) (t : Sg A B)
+                            : Path (Sg A B) (Equiv/Sg-fam/inv-map A B C e (Equiv/Sg-fam/map A B C e t)) t =
+    Equiv/Sg-fam/left-htpy/sg A B C e t.1 t.2
+
+  Equiv/Sg-fam (A : U) (B C : A -> U) (e : (x : A) -> Equiv (B x) (C x)) : Equiv (Sg A B) (Sg A C) =
+    has-inverse/Equiv
+      ( Sg A B)
+      ( Sg A C)
+      ( Equiv/Sg-fam/map A B C e)
+      ( Equiv/Sg-fam/inv-map A B C e,
+        ( Equiv/Sg-fam/right-htpy A B C e,
+          Equiv/Sg-fam/left-htpy A B C e))
+    #+end_src
+
 ** Closure of truncation levels under equivalence
 
 If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =k=.
@@ -535,8 +579,6 @@ If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =
 
   is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
     is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
-
-  ttttt : Nat = zero
    #+end_src
 
 #+RESULTS:

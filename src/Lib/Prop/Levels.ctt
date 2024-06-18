@@ -16,4 +16,23 @@ is-set/closed-equiv (A B : U) (e : Equiv A B) (H : is-set B) : is-set A =
 is-set/closed-equiv' (A B : U) (e : Equiv A B) (H : is-set A) : is-set B =
   is-set/closed-equiv B A (Equiv/sym A B e) H
 
-test' : Nat = zero
+is-prop/is-set (A : U) (is-prop-A : is-prop A) : is-set A =
+  \ x y. is-contr->is-prop (Path A x y) (is-prop/has-contr-eq A is-prop-A x y)
+
+is-prop/is-prop (A : U) : is-prop (is-prop A) =
+  is-prop/ass-inh
+    ( is-prop A)
+    ( \ is-prop-A.
+        is-prop/pi-2 A
+          ( \ _. A)
+          ( \ x y. Path A x y)
+          ( is-prop/is-set A is-prop-A))
+
+is-set/is-prop (A : U) : is-prop (is-set A) =
+  is-prop/ass-inh
+    ( is-set A)
+    ( \ is-set-A.
+        is-prop/pi-2 A
+          ( \ _. A)
+          ( \ x y. is-prop (Path A x y))
+          ( \ x y. is-prop/is-prop (Path A x y)))

@@ -4,8 +4,9 @@ import Stdlib.Prelude
 import Lib.Prop.Set
 import Lib.Prop.Proposition
 import Lib.Prop.Htpy
-import Lib.SubTypes
 import Lib.Prop.Levels
+import Lib.SubTypes
+import Lib.Univalence
 
 is-assoc (X : U) (f : X -> X -> X) : U =
   (x y z : X) -> Path X (f (f x y) z) (f x (f y z))
@@ -316,18 +317,18 @@ Semi-Group/is-iso/left-htpy (G H : Semi-Group) (h : Semi-Group/hom G H) (i : Sem
 
 Semi-Group/is-iso/right-htpy (G H : Semi-Group) (h : Semi-Group/hom G H) (i : Semi-Group/is-iso G H h) : Semi-Group/hom/right-inv G H h (Semi-Group/is-iso/hom G H h i) = i.2.2
 
-Semi-Group/iso (G H : Semi-Group) : U =
+Semi-Group/Iso (G H : Semi-Group) : U =
   Sg (Semi-Group/hom G H) (Semi-Group/is-iso G H)
 
-Semi-Group/iso/hom (G H : Semi-Group) (i : Semi-Group/iso G H) : Semi-Group/hom G H = i.1
+Semi-Group/Iso/hom (G H : Semi-Group) (i : Semi-Group/Iso G H) : Semi-Group/hom G H = i.1
 
-Semi-Group/iso/inv-map (G H : Semi-Group) (i : Semi-Group/iso G H) : Semi-Group/hom H G = Semi-Group/is-iso/hom G H (Semi-Group/iso/hom G H i) i.2
+Semi-Group/Iso/inv-map (G H : Semi-Group) (i : Semi-Group/Iso G H) : Semi-Group/hom H G = Semi-Group/is-iso/hom G H (Semi-Group/Iso/hom G H i) i.2
 
-Semi-Group/iso/left-htpy (G H : Semi-Group) (i : Semi-Group/iso G H) : Semi-Group/hom/left-inv G H (Semi-Group/iso/hom G H i) (Semi-Group/iso/inv-map G H i) =
-  Semi-Group/is-iso/left-htpy G H (Semi-Group/iso/hom G H i) i.2
+Semi-Group/Iso/left-htpy (G H : Semi-Group) (i : Semi-Group/Iso G H) : Semi-Group/hom/left-inv G H (Semi-Group/Iso/hom G H i) (Semi-Group/Iso/inv-map G H i) =
+  Semi-Group/is-iso/left-htpy G H (Semi-Group/Iso/hom G H i) i.2
 
-Semi-Group/iso/right-htpy (G H : Semi-Group) (i : Semi-Group/iso G H) : Semi-Group/hom/right-inv G H (Semi-Group/iso/hom G H i) (Semi-Group/iso/inv-map G H i) =
-  Semi-Group/is-iso/right-htpy G H (Semi-Group/iso/hom G H i) i.2
+Semi-Group/Iso/right-htpy (G H : Semi-Group) (i : Semi-Group/Iso G H) : Semi-Group/hom/right-inv G H (Semi-Group/Iso/hom G H i) (Semi-Group/Iso/inv-map G H i) =
+  Semi-Group/is-iso/right-htpy G H (Semi-Group/Iso/hom G H i) i.2
 
 Semi-Group/is-iso/is-prop (G H : Semi-Group) (h : Semi-Group/hom G H) : is-prop (Semi-Group/is-iso G H h) =
   \ k k'.
@@ -356,4 +357,204 @@ Semi-Group/is-iso/is-prop (G H : Semi-Group) (h : Semi-Group/hom G H) : is-prop 
         f'
         (Semi-Group/hom/left-unit-law H G f'))
 
-tttttttttttt : Nat = zero
+Semi-Group/Iso/id (G : Semi-Group) : Semi-Group/Iso G G =
+  ( Semi-Group/hom/id G,
+    ( Semi-Group/hom/id G,
+        ( Semi-Group/hom/Eq
+            G G
+            (Semi-Group/hom/comp G G G (Semi-Group/hom/id G) (Semi-Group/hom/id G))
+            (Semi-Group/hom/id G)
+            (\ x. refl (Semi-Group/type G) x),
+          Semi-Group/hom/Eq
+            G G
+            (Semi-Group/hom/comp G G G (Semi-Group/hom/id G) (Semi-Group/hom/id G))
+            (Semi-Group/hom/id G)
+            (\ x. refl (Semi-Group/type G) x))))
+
+Semi-Group/hom/is-iso/is-equiv (G H : Semi-Group) (h : Semi-Group/hom G H) (i : Semi-Group/is-iso G H h)
+                                    : is-equiv (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h) =
+  has-inverse/is-equiv
+    ( Semi-Group/type G)
+    ( Semi-Group/type H)
+    ( Semi-Group/hom/map G H h)
+    ( Semi-Group/is-iso/map G H h i,
+      ( Semi-Group/hom/htpy
+          H H
+          (Semi-Group/hom/comp H G H h (Semi-Group/is-iso/hom G H h i))
+          (Semi-Group/hom/id H)
+          (Semi-Group/is-iso/right-htpy G H h i),
+        Semi-Group/hom/htpy
+          G G
+          (Semi-Group/hom/comp G H G (Semi-Group/is-iso/hom G H h i) h)
+          (Semi-Group/hom/id G)
+          (Semi-Group/is-iso/left-htpy G H h i)))
+
+Semi-Group/hom/is-equiv/is-iso/hom (G H : Semi-Group) (h : Semi-Group/hom G H) (e : is-equiv (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h))
+                                    : Semi-Group/hom H G =
+  let f  : Semi-Group/map G H = Semi-Group/hom/map G H h
+      h' : Semi-Group/map H G = is-equiv/inv-map (Semi-Group/type G) (Semi-Group/type H) f e
+      muG : Semi-Group/type G -> (Semi-Group/map G G) = Semi-Group/op G
+      muH : Semi-Group/type H -> (Semi-Group/map H H) = Semi-Group/op H
+  in
+  ( h',
+    \ x y.
+      comp-n
+        (Semi-Group/type G)
+        four-Nat
+        (h' (muH x y))
+        (h' (muH (f (h' x)) y))
+        (ap (Semi-Group/type H) (Semi-Group/type G) (\ z. h' (muH z y)) x (f (h' x))
+            (inv (Semi-Group/type H) (f (h' x)) x (is-equiv/inv-right-htpy (Semi-Group/type G) (Semi-Group/type H) f e x)))
+        (h' (muH (f (h' x)) (f (h' y))))
+        (ap (Semi-Group/type H) (Semi-Group/type G) (\ z. h' (muH (f (h' x)) z)) y (f (h' y))
+            (inv (Semi-Group/type H) (f (h' y)) y (is-equiv/inv-right-htpy (Semi-Group/type G) (Semi-Group/type H) f e y)))
+        (h' (f (muG (h' x) (h' y))))
+        (ap (Semi-Group/type H) (Semi-Group/type G) h' (muH (f (h' x)) (f (h' y))) (f (muG (h' x) (h' y)))
+            (inv (Semi-Group/type H) (f (muG (h' x) (h' y))) (muH (f (h' x)) (f (h' y))) (Semi-Group/hom/preserves-mul G H h (h' x) (h' y))))
+        (muG (h' x) (h' y))
+        (is-equiv/inv-left-htpy (Semi-Group/type G) (Semi-Group/type H) f e (muG (h' x) (h' y))))
+
+Semi-Group/hom/is-equiv/is-iso (G H : Semi-Group) (h : Semi-Group/hom G H) (e : is-equiv (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h))
+                                    : Semi-Group/is-iso G H h =
+  let h' : Semi-Group/hom H G = Semi-Group/hom/is-equiv/is-iso/hom G H h e in
+  ( h',
+    ( Semi-Group/hom/Eq
+        G G
+        ( Semi-Group/hom/comp G H G h' h)
+        ( Semi-Group/hom/id G)
+        ( is-equiv/inv-left-htpy
+            ( Semi-Group/type G)
+            ( Semi-Group/type H)
+            ( Semi-Group/hom/map G H h)
+            e),
+      Semi-Group/hom/Eq
+        H H
+        ( Semi-Group/hom/comp H G H h h')
+        ( Semi-Group/hom/id H)
+        ( is-equiv/inv-right-htpy
+            ( Semi-Group/type G)
+            ( Semi-Group/type H)
+            ( Semi-Group/hom/map G H h)
+            e)))
+
+Semi-Group/Iso/Equiv/type (G H : Semi-Group) : U =
+  (Sg ( Equiv (Semi-Group/type G) (Semi-Group/type H))
+     ( \ e. preserves-mul
+         ( Semi-Group/type G)
+         ( Semi-Group/type H)
+         ( Equiv/map (Semi-Group/type G) (Semi-Group/type H) e)
+         ( Semi-Group/op G)
+         ( Semi-Group/op H)))
+
+Semi-Group/Iso/Equiv (G H : Semi-Group) : Equiv (Semi-Group/Iso G H) (Semi-Group/Iso/Equiv/type G H) =
+  Equiv/trans
+    ( Semi-Group/Iso G H)
+    ( Sg (Semi-Group/hom G H) (\ h. is-equiv (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h)))
+    ( Semi-Group/Iso/Equiv/type G H)
+    ( subtype/Equiv-tot
+        ( Semi-Group/hom G H)
+        ( Semi-Group/is-iso G H)
+        ( \ h. is-equiv (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h))
+        ( Semi-Group/is-iso/is-prop G H)
+        ( \ h. is-equiv/is-prop (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H h))
+        ( Semi-Group/hom/is-iso/is-equiv G H)
+        ( Semi-Group/hom/is-equiv/is-iso G H))
+    ( Equiv/assoc-Sg
+        ( Semi-Group/map G H)
+        ( Semi-Group/preserves-mul G H)
+        ( is-equiv (Semi-Group/type G) (Semi-Group/type H)))
+
+Semi-Group/iso-eq (G H : Semi-Group) (p : Path Semi-Group G H) : Semi-Group/Iso G H =
+  J Semi-Group G ( \ K _. Semi-Group/Iso G K) ( Semi-Group/Iso/id G) H p
+
+preserves-mul-id/type (G : Semi-Group) : U =
+  Sg (has-assoc-op (Semi-Group/type G)) (\ mu. Semi-Group/preserves-mul G (Semi-Group/Set G, mu) (id (Semi-Group/type G)))
+
+preserves-mul-id/center (G : Semi-Group) : preserves-mul-id/type G =
+  ( Semi-Group/is-semi-group G, \ x y. refl (Semi-Group/type G) (Semi-Group/op G x y))
+
+preserves-mul-id/contraction (G : Semi-Group) (t : preserves-mul-id/type G) : Path (preserves-mul-id/type G) (preserves-mul-id/center G) t =
+  SgPath-prop
+    ( has-assoc-op (Semi-Group/type G))
+    ( \ mu. Semi-Group/preserves-mul G (Semi-Group/Set G, mu) (id (Semi-Group/type G)))
+    ( \ mu. preserves-mul/is-prop G (Semi-Group/Set G, mu) (id (Semi-Group/type G)))
+    ( preserves-mul-id/center G) t
+    ( SgPath-prop
+      ( Semi-Group/type G -> Semi-Group/type G -> Semi-Group/type G)
+      ( is-assoc (Semi-Group/type G))
+      ( \ mu. is-prop/pi
+          ( Semi-Group/type G)
+          ( \ x. (y z : Semi-Group/type G) -> Path (Semi-Group/type G) (mu (mu x y) z) (mu x (mu y z)))
+          ( \ x. is-prop/pi
+              ( Semi-Group/type G)
+              ( \ y. (z : Semi-Group/type G) -> Path (Semi-Group/type G) (mu (mu x y) z) (mu x (mu y z)))
+              ( \ y. is-prop/pi
+                  ( Semi-Group/type G)
+                  ( \ z. Path (Semi-Group/type G) (mu (mu x y) z) (mu x (mu y z)))
+                  ( \ z. Semi-Group/is-set G (mu (mu x y) z) (mu x (mu y z))))))
+      ( preserves-mul-id/center G).1 t.1
+      ( eq-htpy'
+          ( Semi-Group/type G)
+          ( Semi-Group/map G G)
+          ( preserves-mul-id/center G).1.1 t.1.1
+          ( \ x. eq-htpy'
+              ( Semi-Group/type G)
+              ( Semi-Group/type G)
+              (( preserves-mul-id/center G).1.1 x)
+              ( t.1.1 x)
+              ( \ y. t.2 x y))))
+
+
+preserves-mul-id/is-contr (G : Semi-Group) : is-contr (preserves-mul-id/type G) = 
+ ( preserves-mul-id/center G,
+   preserves-mul-id/contraction G)
+
+Semi-Group/iso-eq/is-contr-Equiv-type (G : Semi-Group) : is-contr (Sg Semi-Group (Semi-Group/Iso/Equiv/type G)) =
+  str-principle-id
+    UU-Set
+    is-semi-group
+    ( \ H. Equiv (Semi-Group/type G) (Set/type H))
+    ( \ H is-semi-group-H e.
+        preserves-mul
+        ( Semi-Group/type G)
+        ( Set/type H)
+        ( Equiv/map (Semi-Group/type G) (Set/type H) e)
+        ( Semi-Group/op G)
+        ( is-semi-group-H.1))
+    ( substructure/is-contr-total-Eq
+        U
+        ( Equiv (Semi-Group/type G))
+        ( is-set)
+        ( ua/is-contr-total-equiv (Semi-Group/type G))
+        ( is-set/is-prop)
+        ( Semi-Group/type G)
+        ( Equiv/refl (Semi-Group/type G))
+        ( Semi-Group/is-set G))
+    ( Semi-Group/Set G)
+    ( Equiv/refl (Semi-Group/type G))
+    ( preserves-mul-id/is-contr G)
+
+Semi-Group/iso-eq/contr-Iso (G : Semi-Group) : is-contr (Sg Semi-Group (Semi-Group/Iso G)) =
+  ( is-contr/is-contr-equiv
+      ( Sg Semi-Group (Semi-Group/Iso G))
+      ( Sg Semi-Group (Semi-Group/Iso/Equiv/type G))
+      ( Equiv/Sg-fam
+          Semi-Group
+          ( Semi-Group/Iso G)
+          ( Semi-Group/Iso/Equiv/type G)
+          ( \ H. Semi-Group/Iso/Equiv G H))
+      ( Semi-Group/iso-eq/is-contr-Equiv-type G))
+
+Semi-Group/iso-eq/is-equiv (G : Semi-Group) : (H : Semi-Group) -> is-equiv (Path Semi-Group G H) (Semi-Group/Iso G H) (Semi-Group/iso-eq G H) =
+  fundamental-theorem-id
+    Semi-Group
+    ( Semi-Group/Iso G) G
+    ( Semi-Group/iso-eq G)
+    ( Semi-Group/iso-eq/contr-Iso G)
+
+Semi-Group/eq-iso (G H : Semi-Group) : Semi-Group/Iso G H -> Path Semi-Group G H =
+  is-equiv/inv-map
+    ( Path Semi-Group G H)
+    ( Semi-Group/Iso G H)
+    ( Semi-Group/iso-eq G H)
+    ( Semi-Group/iso-eq/is-equiv G H)

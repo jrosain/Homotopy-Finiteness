@@ -40,3 +40,19 @@ Sg/left-unit-law-is-contr/right-htpy (A : U) (B : A -> U) (c : is-contr A) (a : 
 
 Sg/left-unit-law-is-contr (A : U) (B : A -> U) (c : is-contr A) (a : A) : retract-of (Sg A B) (B a) =
   (Sg/left-unit-law-is-contr/inv-map A B c a, (Sg/left-unit-law-is-contr/map A B c a, Sg/left-unit-law-is-contr/right-htpy A B c a))
+
+Sg/is-contr (A : U) (B : A -> U) (is-contr-A : is-contr A) (is-contr-fam : ((x : A) -> is-contr (B x)))
+               : is-contr (Sg A B) =
+  is-contr/closed-retract
+    (Sg A B)
+    (B (center A is-contr-A))
+    (Sg/left-unit-law-is-contr A B is-contr-A (center A is-contr-A))
+    (is-contr-fam (center A is-contr-A))
+
+Sg/is-contr' (A : U) (B : A -> U) (is-contr-A : is-contr A) (a : A) (is-contr-B : is-contr (B a))
+                : is-contr (Sg A B) =
+  is-contr/closed-retract
+    (Sg A B)
+    (B a)
+    (Sg/left-unit-law-is-contr A B is-contr-A a)
+    (is-contr-B)

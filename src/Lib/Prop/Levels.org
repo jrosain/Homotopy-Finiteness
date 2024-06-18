@@ -31,5 +31,35 @@
     is-set/closed-equiv B A (Equiv/sym A B e) H    
    #+end_src
 
+** TODO =is-prop= is a proposition
+
+   #+begin_src ctt
+  is-prop/is-set (A : U) (is-prop-A : is-prop A) : is-set A =
+    \ x y. is-contr->is-prop (Path A x y) (is-prop/has-contr-eq A is-prop-A x y)
+
+  is-prop/is-prop (A : U) : is-prop (is-prop A) =
+    is-prop/ass-inh
+      ( is-prop A)
+      ( \ is-prop-A.
+          is-prop/pi-2 A
+            ( \ _. A)
+            ( \ x y. Path A x y)
+            ( is-prop/is-set A is-prop-A))
+   #+end_src
+TODO: the thing above has really long eval time, find out why.
+
+** =is-set= is a proposition
+
+   #+begin_src ctt
+  is-set/is-prop (A : U) : is-prop (is-set A) =
+    is-prop/ass-inh
+      ( is-set A)
+      ( \ is-set-A.
+          is-prop/pi-2 A
+            ( \ _. A)
+            ( \ x y. is-prop (Path A x y))
+            ( \ x y. is-prop/is-prop (Path A x y)))
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

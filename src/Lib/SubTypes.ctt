@@ -3,6 +3,7 @@ module Lib.SubTypes where
 import Stdlib.Prelude
 import Lib.Prop.Equiv
 import Lib.Prop.Proposition
+import Lib.FundamentalTheorem
 
 is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
 
@@ -15,3 +16,12 @@ substructure/is-contr-total-Eq (A : U) (B C : A -> U) (is-contr-tot : is-contr (
     (is-contr/closed-retract (Sg (Sg A B) (\ t. C t.1)) (C a)
       (Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
       (is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))
+
+subtype/Equiv-tot (A : U) (P Q : A -> U) (is-subtype-P : is-subtype A P) (is-subtype-Q : is-subtype A Q)
+                  (f : (x : A) -> P x -> Q x) (g : (x : A) -> Q x -> P x) : Equiv (Sg A P) (Sg A Q) =
+  fam-equiv/Equiv-tot A P Q f
+    (\ x. Prop/is-equiv
+          ( P x, is-subtype-P x)
+          ( Q x, is-subtype-Q x)
+          ( f x)
+          ( g x))

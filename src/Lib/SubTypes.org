@@ -15,6 +15,7 @@ This file defines subtypes and some properties associated to them.
   import Stdlib.Prelude
   import Lib.Prop.Equiv
   import Lib.Prop.Proposition
+  import Lib.FundamentalTheorem
    #+end_src
 
 ** Definitions
@@ -38,6 +39,19 @@ We show a lemma that helps us show that the identity type of a subtype agrees wi
         (Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
         (is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))
 #+end_src
+
+** Equivalent subtypes
+If =P= and =Q= are two subtypes of =A= such that there are back-and-forth maps between =P= and =Q=, then \Sigma A P is equivalent to \Sigma A Q.
+      #+begin_src ctt
+  subtype/Equiv-tot (A : U) (P Q : A -> U) (is-subtype-P : is-subtype A P) (is-subtype-Q : is-subtype A Q)
+                    (f : (x : A) -> P x -> Q x) (g : (x : A) -> Q x -> P x) : Equiv (Sg A P) (Sg A Q) =
+    fam-equiv/Equiv-tot A P Q f
+      (\ x. Prop/is-equiv
+            ( P x, is-subtype-P x)
+            ( Q x, is-subtype-Q x)
+            ( f x)
+            ( g x))
+      #+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.
