@@ -3,6 +3,7 @@ module Lib.SubTypes where
 import Stdlib.Prelude
 import Lib.Prop.Equiv
 import Lib.Prop.Proposition
+import Lib.Prop.Levels
 import Lib.FundamentalTheorem
 
 is-subtype (X : U) (P : X -> U) : U = (x : X) -> is-prop (P x)
@@ -25,3 +26,29 @@ subtype/Equiv-tot (A : U) (P Q : A -> U) (is-subtype-P : is-subtype A P) (is-sub
           ( Q x, is-subtype-Q x)
           ( f x)
           ( g x))
+
+subtype/is-inj-prop-map (A B : U) (f : A -> B) (is-subtype-fib : (b : B) -> is-prop (Fib A B f b)) (x : A)
+                             : (y : A) -> is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+  fundamental-theorem-id 
+    A
+    ( \ y. Path B (f x) (f y)) x
+    ( ap A B f x)
+    ( is-prop/is-proof-irrelevant
+      ( Fib A B f (f x))
+      ( is-subtype-fib (f x))
+      ( x, refl B (f x)))
+
+pr1/is-inj (A : U) (B : A -> U) (is-prop-B : (x : A) -> is-prop (B x)) (t u : Sg A B)
+                      : is-equiv (Path (Sg A B) t u) (Path A t.1 u.1) (ap (Sg A B) A (\ v. v.1) t u) =
+  subtype/is-inj-prop-map
+    ( Sg A B)
+    A
+    ( \ v. v.1)
+    ( \ x. is-prop/closed-equiv
+      ( Fib (Sg A B) A (\ v. v.1) x)
+      ( B x)
+      ( Equiv/fib-space-Equiv A B x)
+      ( is-prop-B x))
+    t u
+
+ttttt : Nat = zero

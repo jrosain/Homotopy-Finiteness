@@ -15,6 +15,7 @@ This file defines subtypes and some properties associated to them.
   import Stdlib.Prelude
   import Lib.Prop.Equiv
   import Lib.Prop.Proposition
+  import Lib.Prop.Levels
   import Lib.FundamentalTheorem
    #+end_src
 
@@ -52,6 +53,37 @@ If =P= and =Q= are two subtypes of =A= such that there are back-and-forth maps b
             ( f x)
             ( g x))
       #+end_src
+
+** A map is injective iff its fibrations are propositions
+   #+begin_src ctt
+  subtype/is-inj-prop-map (A B : U) (f : A -> B) (is-subtype-fib : (b : B) -> is-prop (Fib A B f b)) (x : A)
+                               : (y : A) -> is-equiv (Path A x y) (Path B (f x) (f y)) (ap A B f x y) =
+    fundamental-theorem-id 
+      A
+      ( \ y. Path B (f x) (f y)) x
+      ( ap A B f x)
+      ( is-prop/is-proof-irrelevant
+        ( Fib A B f (f x))
+        ( is-subtype-fib (f x))
+        ( x, refl B (f x)))
+   #+end_src
+
+** Equivalence of =pr1=
+We have shown that =fib pr1 x= is equivalent to =B x=. Then, whenever =B x= is a proposition for all =x=, =pr1= is an equivalence.
+#+begin_src ctt
+  pr1/is-inj (A : U) (B : A -> U) (is-prop-B : (x : A) -> is-prop (B x)) (t u : Sg A B)
+                        : is-equiv (Path (Sg A B) t u) (Path A t.1 u.1) (ap (Sg A B) A (\ v. v.1) t u) =
+    subtype/is-inj-prop-map
+      ( Sg A B)
+      A
+      ( \ v. v.1)
+      ( \ x. is-prop/closed-equiv
+        ( Fib (Sg A B) A (\ v. v.1) x)
+        ( B x)
+        ( Equiv/fib-space-Equiv A B x)
+        ( is-prop-B x))
+      t u
+#+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.

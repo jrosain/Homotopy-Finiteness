@@ -510,7 +510,15 @@ Thus, we have the result for the right homotopy.
     inr f -> double-counting/right-htpy-inr X Y e y f  
 
   double-counting/right-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) : Path Y ((double-counting/map X Y e) (double-counting/inv-map X Y e y)) y =
-    double-counting/right-htpy-dec X Y e (double-counting/has-decidable-eq X (Equiv/inv-map (Maybe X) (Maybe Y) e (inl y)))
+    double-counting/right-htpy-dec
+      X Y e
+      ( double-counting/has-decidable-eq
+          X
+          ( Equiv/inv-map
+            ( Maybe X)
+            ( Maybe Y)
+            e
+            ( inl y)))
 
   ttttt : Nat = zero
 #+end_src
