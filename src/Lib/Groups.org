@@ -676,21 +676,21 @@ Then, we can show the desired property.
             ( \ H. Semi-Group/Iso/Equiv G H))
         ( Semi-Group/iso-eq/is-contr-Equiv-type G))
 
-  -- Semi-Group/iso-eq/is-equiv (G : Semi-Group) : (H : Semi-Group) -> is-equiv (Path Semi-Group G H) (Semi-Group/Iso G H) (Semi-Group/iso-eq G H) =
-  --   fundamental-theorem-id
-  --     Semi-Group
-  --     ( Semi-Group/Iso G) G
-  --     ( Semi-Group/iso-eq G)
-  --     ( Semi-Group/iso-eq/contr-Iso G)
+  Semi-Group/iso-eq/is-equiv (G : Semi-Group) : (H : Semi-Group) -> is-equiv (Path Semi-Group G H) (Semi-Group/Iso G H) (Semi-Group/iso-eq G H) =
+    fundamental-theorem-id
+      Semi-Group
+      ( Semi-Group/Iso G) G
+      ( Semi-Group/iso-eq G)
+      ( Semi-Group/iso-eq/contr-Iso G)
 #+end_src
 Thus, isomorphic semi-groups are identifiable.
 #+begin_src ctt
-  -- Semi-Group/eq-iso (G H : Semi-Group) : Semi-Group/Iso G H -> Path Semi-Group G H =
-  --   is-equiv/inv-map
-  --     ( Path Semi-Group G H)
-  --     ( Semi-Group/Iso G H)
-  --     ( Semi-Group/iso-eq G H)
-  --     ( Semi-Group/iso-eq/is-equiv G H)
+  Semi-Group/eq-iso (G H : Semi-Group) : Semi-Group/Iso G H -> Path Semi-Group G H =
+    is-equiv/inv-map
+      ( Path Semi-Group G H)
+      ( Semi-Group/Iso G H)
+      ( Semi-Group/iso-eq G H)
+      ( Semi-Group/iso-eq/is-equiv G H)
 #+end_src
 
 ** Group homomorphisms
@@ -766,7 +766,10 @@ We define group isomorphisms similarly to semi-group isomorphisms.
 We define =iso-eq= for groups.
 #+begin_src ctt
   Group/iso-eq (G H : Group) (p : Path Group G H) : Group/Iso G H =
-    J Group G (\ K _. Group/Iso G K) (Group/Iso/id G) H p
+    Semi-Group/iso-eq
+      ( Group/Semi-Group G)
+      ( Group/Semi-Group H)
+      ( ap Group Semi-Group (\ t. t.1) G H p)
 #+end_src
 It is easy to show that =iso-eq= is a family of equivalences: it suffices to remark that being a group is a property of semi-groups. Thus, =ap pr1= is an equivalence. 
 #+begin_src ctt
@@ -775,14 +778,33 @@ It is easy to show that =iso-eq= is a family of equivalences: it suffices to rem
                                   ( Path Group G H)
                                   ( Path Semi-Group (Group/Semi-Group G) (Group/Semi-Group H))
                                   ( ap Group Semi-Group (\ t. t.1) G H) =
-    pr1/is-inj
-      Semi-Group
-      is-group
-      ( is-group/is-prop)
-      G H
+    pr1/is-inj Semi-Group is-group (is-group/is-prop) G H
 #+end_src
 We have also shown that =Semi-Group/iso-eq=. Hence, =Group/iso-eq= is again an equivalence by the 3-out-of-2 property of equivalences.
 #+begin_src ctt
-  -- Group/iso-eq/is-equiv (G H : Group) : is-equiv (Path Group G H) (Group/Iso G H) (Group/iso-eq G H) =
+  Group/iso-eq/is-equiv (G H : Group) : is-equiv (Path Group G H) (Group/Iso G H) (Group/iso-eq G H) =
+    is-equiv/comp-is-equiv
+      ( Path Group G H)
+      ( Path Semi-Group
+        ( Group/Semi-Group G)
+        ( Group/Semi-Group H))
+      ( Group/Iso G H)
+      ( ap Group Semi-Group (\ t. t.1) G H)
+      ( Semi-Group/iso-eq
+        ( Group/Semi-Group G)
+        ( Group/Semi-Group H))
+      ( Group/ap-pr1/is-equiv G H)
+      ( Semi-Group/iso-eq/is-equiv
+        ( Group/Semi-Group G)
+        ( Group/Semi-Group H))
+
+  Group/eq-iso (G H : Group) : (Group/Iso G H) -> Path Group G H =
+    is-equiv/inv-map
+      ( Path Group G H)
+      ( Group/Iso G H)
+      ( Group/iso-eq G H)
+      ( Group/iso-eq/is-equiv G H)
   #+end_src
-TODO: 3-for-2 property of equivalence to conclude.
+
+#+RESULTS:
+: Typecheck has succeeded.

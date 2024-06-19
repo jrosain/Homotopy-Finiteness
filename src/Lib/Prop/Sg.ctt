@@ -12,9 +12,15 @@ pr2 (A : U) (B : A -> U) (u : Sg A B) : B (pr1 A B u) = u.2
 Sg-path/left (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v) : Path A u.1 v.1 =
   J (Sg A B) u (\ w _. Path A u.1 w.1) (refl A u.1) v p
 
--- Sg-path/right (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v)
---   : PathO A u.1 v.1 (Sg-path/left A B u v p) B u.2 v.2 =
---   J (Sg A B) u (\ w q. Path (B w.1) (tr A u.1 w.1 (Sg-path/left A B u w q) B u.2) w.2) (refl (tr A u.1 u.1 (refl A u.1) B u.2) u.2) v p
+PathSg->SgPathO (A : U) (B : A -> U) (u v : Sg A B) : Path (Sg A B) u v -> SgPathO A B u v =
+  ( path-to-equiv
+    ( Path (Sg A B) u v)
+    ( SgPathO A B u v)
+    ( PathSg-eq-SgPathO A B u v)).1
+
+Sg-path/right (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v)
+                 : PathO A u.1 v.1 (PathSg->SgPathO A B u v p).1 B u.2 v.2 =
+  (PathSg->SgPathO A B u v p).2
 
 Sg/closed-retract (A : U) (B C : A -> U) (H : (x : A) -> retract-of (B x) (C x)) : retract-of (Sg A B) (Sg A C) =
   let s : Sg A B -> Sg A C = \ u. (u.1, (H u.1).1 u.2)

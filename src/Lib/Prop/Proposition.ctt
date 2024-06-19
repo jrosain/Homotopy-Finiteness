@@ -102,3 +102,14 @@ Prop/Equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : Equiv (Prop/t
 
 is-prop/prod (A B : U) (p : is-prop A) (q : is-prop B) : is-prop (A * B) =
   is-prop/sg A (\ _. B) p (\ _. q)
+
+is-prop/path (A : UU-Prop) (x y : Prop/type A) : is-prop (Path (Prop/type A) x y) =
+  is-contr->is-prop
+    ( Path (Prop/type A) x y)
+    ( is-prop/has-contr-eq
+      ( Prop/type A)
+      ( Prop/is-prop A) x y)
+
+is-prop/Prop-path (A : UU-Prop) (x y : Prop/type A) : UU-Prop =
+  ( Path (Prop/type A) x y,
+    is-prop/path A x y)

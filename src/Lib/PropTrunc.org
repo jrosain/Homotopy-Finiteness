@@ -99,5 +99,35 @@ As such, when there is an equivalence between A and B, there is an equivalence b
     Prop/Equiv (Prop-trunc/Prop A) (Prop-trunc/Prop B) (Equiv/Prop-trunc-map A B e) (Equiv/Prop-trunc-inv-map A B e)
 #+end_src
 
+** Mere equality
+A mere equality is the propositional truncation of an equality.
+#+begin_src ctt
+  mere-eq (A : U) (x y : A) : U =
+    Prop-trunc (Path A x y)
+
+  mere-eq/Prop (A : U) (x y : A) : UU-Prop =
+    Prop-trunc/Prop (Path A x y)
+#+end_src
+
+** Back-and-forth map between prop and prop trunc
+If =P= is a proposition, then there is a map out of =Prop-trunc P=.
+#+begin_src ctt
+  Prop-trunc/map-out (P : UU-Prop) : Prop-trunc (Prop/type P) -> Prop/type P =
+    rec-Prop-trunc
+      ( Prop/type P) P
+      ( id (Prop/type P))
+#+end_src
+And so, mere equality is equivalent to equality.
+#+begin_src ctt
+  Prop-trunc/mere-eq (A : UU-Prop) (x y : (Prop/type A)) : Equiv (Path (Prop/type A) x y) (mere-eq (Prop/type A) x y) =
+    Prop/Equiv
+      ( is-prop/Prop-path A x y)
+      ( mere-eq/Prop
+        ( Prop/type A) x y)
+      ( \ p. Prop-trunc/unit p)
+      ( Prop-trunc/map-out
+        ( is-prop/Prop-path A x y))
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

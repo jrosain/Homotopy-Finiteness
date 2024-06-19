@@ -510,21 +510,46 @@ Thus, we have the result for the right homotopy.
     inr f -> double-counting/right-htpy-inr X Y e y f  
 
   double-counting/right-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) : Path Y ((double-counting/map X Y e) (double-counting/inv-map X Y e y)) y =
-    double-counting/right-htpy-dec
-      X Y e
-      ( double-counting/has-decidable-eq
-          X
+    double-counting/right-htpy-dec X Y e y
+      ( double-counting/has-decidable-eq X
           ( Equiv/inv-map
             ( Maybe X)
-            ( Maybe Y)
-            e
+            ( Maybe Y) e
             ( inl y)))
-
-  ttttt : Nat = zero
 #+end_src
 
 *** g is a left homotopy of f
-We proceed as before by case analysis on e^-1(inl x) = inr star + e^-1(inl x) \neq inr star. As such, we have to: (i) constructively get the path e^-1(inl x) = inl y and (ii) proceed as before to show that we have a left homotopy.
+Of course, applying symmetry twice gives back the original equivalence.
+#+begin_src ctt
+  Equiv/sym/sym (A B : U) (e : Equiv A B)
+                     : Path (Equiv A B) (Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) e =
+    SgPath-prop
+      ( A -> B)
+      ( is-equiv A B)
+      ( is-equiv/is-prop A B)
+      ( Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) e
+      ( refl (A -> B) (Equiv/map A B e))
+#+end_src
+
+We proceed as before by case analysis on e(inl x) = inr star + e(inl x) \neq inr star. As such, we have to: (i) constructively get the path e(inl x) = inl y and (ii) proceed as before to show that we have a left homotopy.
+#+begin_src ctt
+  double-counting/left-htpy' (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X)
+                                  : Path X (double-counting/inv-map X Y e (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x)) x =
+    double-counting/right-htpy Y X
+      ( Equiv/sym (Maybe X) (Maybe Y) e) x
+
+  double-counting/left-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X)
+                                 : Path X ((double-counting/inv-map X Y e) (double-counting/map X Y e x)) x =
+    comp X
+      ( (double-counting/inv-map X Y e) (double-counting/map X Y e x))
+      ( (double-counting/inv-map X Y e) (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x))
+      ( ap
+        ( Equiv (Maybe X) (Maybe Y)) X
+        ( \ e'. double-counting/inv-map X Y e ( double-counting/map X Y e' x)) e
+        ( Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e))
+        ( Equiv/sym/sym' A B e)) x
+      ( double-counting/left-htpy' X Y e x)        
+#+end_src
 
 *** X \simeq Y
 We can conclude: f and g are inverses to each other, thus they are equivalences. Hence, X is equivalent to Y.

@@ -145,10 +145,10 @@ tot/Equiv-fib (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (t : Sg A C) : 
     (tot/fib-equiv-inv-map A B C f t, (tot/fib-equiv-right-htpy A B C f t, tot/fib-equiv-left-htpy A B C f t))
 
 fam-equiv/is-equiv-tot (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : (x : A) -> is-equiv (B x) (C x) (f x)) : is-equiv (Sg A B) (Sg A C) (tot A B C f) =
-  \ t. is-contr/is-contr-equiv (Fib (Sg A B) (Sg A C) (tot A B C f) t) (Fib (B t.1) (C t.1) (f t.1) t.2) (tot/Equiv-fib A B C f t) (e t.1 t.2)
+  is-equiv/Sg-fam A B C (\ x. (f x, e x))
 
 fam-equiv/Equiv-tot (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : (x : A) -> is-equiv (B x) (C x) (f x)) : Equiv (Sg A B) (Sg A C) =
-  (tot A B C f, fam-equiv/is-equiv-tot A B C f e)
+  Equiv/Sg-fam A B C (\ x. (f x, e x))
 
 is-equiv-tot/fam-equiv (A : U) (B C : A -> U) (f : (x : A) -> B x -> C x) (e : is-equiv (Sg A B) (Sg A C) (tot A B C f)) (x : A) : is-equiv (B x) (C x) (f x) =
   \ z. is-contr/is-contr-equiv' (Fib (Sg A B) (Sg A C) (tot A B C f) (x, z)) (Fib (B x) (C x) (f x) z) (tot/Equiv-fib A B C f (x, z)) (e (x, z))

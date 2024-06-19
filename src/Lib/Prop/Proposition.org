@@ -177,5 +177,20 @@ A map between two propositions is an equivalence as soon as there is a map back 
     is-prop/sg A (\ _. B) p (\ _. q)
    #+end_src
 
+** Path of proposition is proposition
+
+   #+begin_src ctt
+  is-prop/path (A : UU-Prop) (x y : Prop/type A) : is-prop (Path (Prop/type A) x y) =
+    is-contr->is-prop
+      ( Path (Prop/type A) x y)
+      ( is-prop/has-contr-eq
+        ( Prop/type A)
+        ( Prop/is-prop A) x y)
+
+  is-prop/Prop-path (A : UU-Prop) (x y : Prop/type A) : UU-Prop =
+    ( Path (Prop/type A) x y,
+      is-prop/path A x y)
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

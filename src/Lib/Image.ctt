@@ -1,0 +1,16 @@
+module Lib.Image where
+
+import Stdlib.Prelude
+import Lib.PropTrunc
+
+is-surj (A B : U) (f : A -> B) : U =
+  (b : B) -> Prop-trunc (Fib A B f b)
+
+is-surj/is-prop (A B : U) (f : A -> B) : is-prop (is-surj A B f) =
+  is-prop/pi B
+    ( \ b. Prop-trunc (Fib A B f b))
+    ( \ b. Prop-trunc/is-prop (Fib A B f b))
+
+is-surj/Prop (A B : U) (f : A -> B) : UU-Prop =
+  ( is-surj A B f,
+    is-surj/is-prop A B f)

@@ -12,6 +12,7 @@
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Prop.Proposition
+  import Lib.Prop.Set
    #+end_src
 
 ** Closure under equivalence for propositions and sets
@@ -47,6 +48,13 @@
             ( is-prop/is-set A is-prop-A))
    #+end_src
 TODO: the thing above has really long eval time, find out why.
+
+** Lifting prop universe to set universe
+
+   #+begin_src ctt
+  Prop/Set (A : UU-Prop) : UU-Set =
+    (Prop/type A, is-prop/is-set (Prop/type A) (Prop/is-prop A))
+   #+end_src
 
 ** =is-set= is a proposition
 

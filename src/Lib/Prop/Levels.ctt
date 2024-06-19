@@ -2,6 +2,7 @@ module Lib.Prop.Levels where
 
 import Stdlib.Prelude
 import Lib.Prop.Proposition
+import Lib.Prop.Set
 
 is-prop/closed-equiv (A B : U) (e : Equiv A B) (H : is-prop B) : is-prop A =
   has-contr-eq/is-prop A (is-of-lvl/closed-equiv A B e one-Nat (is-prop/has-contr-eq B H))
@@ -27,6 +28,9 @@ is-prop/is-prop (A : U) : is-prop (is-prop A) =
           ( \ _. A)
           ( \ x y. Path A x y)
           ( is-prop/is-set A is-prop-A))
+
+Prop/Set (A : UU-Prop) : UU-Set =
+  (Prop/type A, is-prop/is-set (Prop/type A) (Prop/is-prop A))
 
 is-set/is-prop (A : U) : is-prop (is-set A) =
   is-prop/ass-inh

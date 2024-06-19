@@ -1,0 +1,39 @@
+#+NAME: Image
+#+AUTHOR: Johann Rosain
+
+* Image
+
+  #+begin_src ctt
+  module Lib.Image where
+  #+end_src
+
+This file defines what it means to be surjective and some associated properties.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.PropTrunc
+   #+end_src
+
+** Surjective
+
+A map f : A \to B is surjective if for all b : B, there exists an unspecified x such that f x = b. 
+#+begin_src ctt
+  is-surj (A B : U) (f : A -> B) : U =
+    (b : B) -> Prop-trunc (Fib A B f b)
+#+end_src
+=is-surj= lives in the universe of propositions.
+#+begin_src ctt
+  is-surj/is-prop (A B : U) (f : A -> B) : is-prop (is-surj A B f) =
+    is-prop/pi B
+      ( \ b. Prop-trunc (Fib A B f b))
+      ( \ b. Prop-trunc/is-prop (Fib A B f b))
+
+  is-surj/Prop (A B : U) (f : A -> B) : UU-Prop =
+    ( is-surj A B f,
+      is-surj/is-prop A B f)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
