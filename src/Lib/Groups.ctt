@@ -232,6 +232,7 @@ Semi-Group/hom/htpy/is-contr (G H : Semi-Group) (f : Semi-Group/hom G H)
     (Htpy'/refl (Semi-Group/type G) (Semi-Group/type H) (Semi-Group/hom/map G H f))
     (Semi-Group/hom/preserves-mul G H f)
 
+
 Semi-Group/hom/htpy/is-equiv (G H : Semi-Group) (f : Semi-Group/hom G H)
                                   : (g : Semi-Group/hom G H) -> is-equiv (Path (Semi-Group/hom G H) f g) (Semi-Group/htpy G H f g) (Semi-Group/hom/htpy G H f g) =
   fundamental-theorem-id
@@ -544,6 +545,12 @@ Semi-Group/iso-eq/contr-Iso (G : Semi-Group) : is-contr (Sg Semi-Group (Semi-Gro
           ( Semi-Group/Iso/Equiv/type G)
           ( \ H. Semi-Group/Iso/Equiv G H))
       ( Semi-Group/iso-eq/is-contr-Equiv-type G))
+
+lock Semi-Group
+     Semi-Group/Iso
+     Semi-Group/iso-eq
+     Semi-Group/iso-eq/contr-Iso
+-- Semi-Group/hom/htpy/is-equiv
 
 Semi-Group/iso-eq/is-equiv (G : Semi-Group) : (H : Semi-Group) -> is-equiv (Path Semi-Group G H) (Semi-Group/Iso G H) (Semi-Group/iso-eq G H) =
   fundamental-theorem-id

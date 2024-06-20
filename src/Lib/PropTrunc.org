@@ -129,5 +129,57 @@ And so, mere equality is equivalent to equality.
         ( is-prop/Prop-path A x y))
 #+end_src
 
+** Mere equivalence
+A mere equivalence is the propositional truncation of an equivalence.
+   #+begin_src ctt
+  mere-equiv (X Y : U) : U =
+    Prop-trunc
+      ( Equiv X Y)
+   #+end_src
+Utilitary accessor of UU-Prop:
+#+begin_src ctt
+  mere-equiv/is-prop (X Y : U) : is-prop (mere-equiv X Y) =
+    Prop-trunc/is-prop
+      ( Equiv X Y)
+
+  mere-equiv/Prop (X Y : U) : UU-Prop =
+    ( mere-equiv X Y,
+      mere-equiv/is-prop X Y)  
+#+end_src
+Of course, it satisfies the equivalence properties of equivalence.
+#+begin_src ctt
+  mere-equiv/refl (X : U) : mere-equiv X X =
+    rec-Prop-trunc
+      ( Equiv X X)
+      ( mere-equiv/Prop X X)
+      ( \ e. Prop-trunc/unit e)
+      ( Prop-trunc/unit (Equiv/refl X))
+
+  mere-equiv/sym (X Y : U) (e : mere-equiv X Y) : mere-equiv Y X =
+    rec-Prop-trunc
+      ( Equiv X Y)
+      ( mere-equiv/Prop Y X)
+      ( \ e'. Prop-trunc/unit (Equiv/sym X Y e')) e    
+
+  Pi/Prop (A : U) (B : A -> U) (q : is-prop/fam A B) : UU-Prop =
+    ( Pi A B,
+      is-prop/pi A B q)
+
+  mere-equiv/trans (X Y : U) (e : mere-equiv X Y) (Z : U) (e' : mere-equiv Y Z) : mere-equiv X Z =
+    rec-Prop-trunc
+      ( Equiv X Y)
+      ( mere-equiv/Prop X Z)
+      ( \ eX.
+          rec-Prop-trunc
+            ( Equiv Y Z)
+            ( mere-equiv/Prop X Z)
+            ( \ eY. Prop-trunc/unit
+                    ( Equiv/trans X Y Z eX eY)) e') e          
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.
+
+
+
+

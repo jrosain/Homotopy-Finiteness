@@ -62,7 +62,10 @@ Of course, as it is an inductive type, it has a recurrence principle.
         ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y p)
         ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y q)) i j      
 #+end_src
-
+Moreover, =Set-trunc/unit= satisfies set truncation.
+#+begin_src ctt
+  -- is-set-trunc/unit (X : U) : is-set-trunc X (Set-trunc X) (\ x. Set-trunc/unit x) =
+#+end_src
 ** Map between truncations
 If there is a map between A and B, then there is a map between the set truncations of A and B.
    #+begin_src ctt
@@ -72,16 +75,42 @@ If there is a map between A and B, then there is a map between the set truncatio
       ( \ x. Set-trunc/unit (f x))
    #+end_src
 
+** Set truncation of a set is the set itself
+
+   #+begin_src ctt
+  Set-trunc/eq/Prop (X : U) (x y : Set-trunc X) : UU-Prop =
+    ( Path (Set-trunc X) x y,
+      Set-trunc/is-set X x y)
+
+  Set/Set-trunc/map (X : UU-Set) : Set-trunc (Set/type X) -> Set/type X =
+    rec-Set-trunc
+      ( Set/type X) X
+      ( id (Set/type X))
+
+  Prop/Set-trunc/map (X : UU-Prop) : Set-trunc (Prop/type X) -> Prop/type X =
+    Set/Set-trunc/map
+      ( Prop/Set X)
+   #+end_src
+
+
 ** Mere eq and set truncation
-Mere equality corresponds to equality on set truncation. Indeed, the equality on a set truncation is a proposition.
+Mere equality corresponds to equality on set truncation. Indeed, the equality on a set truncation is a proposition and we have a back-and-forth map between |x|_0 = |y|_0 and ||x = y||.
 #+begin_src ctt
-  -- Set-trunc/mere-eq (A : U) (x y : Set-trunc A) : Equiv (Path (Set-trunc A) x y) (mere-eq A x y) =
-  --   Prop/Equiv
-  --     ( Path (Set-trunc A) x y,
-  --       Set-trunc/is-set A x y)
-  --     ( mere-eq/Prop A x y)
-  --     ( 
+  Set-trunc/mere-eq/eq (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+    rec-Prop-trunc
+      ( Path X x y)
+      ( Set-trunc/eq/Prop X
+        ( Set-trunc/unit x)
+        ( Set-trunc/unit y))
+      ( J X x
+        ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
+        ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
 #+end_src
+
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 
 ** Connected type
 A type is connected whenever its set truncation is contractible.

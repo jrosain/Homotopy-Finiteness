@@ -13,6 +13,7 @@ This file shows some properties related to the fact that a type =A= is a proposi
 
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Data.Decidability
   import Lib.Data.Map
   import Lib.Data.Unit
   import Lib.Prop.Contr

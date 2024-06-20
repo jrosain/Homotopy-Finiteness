@@ -79,7 +79,7 @@ This function is called by `org-babel-execute-src-block'"
 		     (concat file ".ctt"))))
     (org-babel-tangle :target-file src-file)
     (load-imports src-file dir)
-    (if (< (string-match "Successfully" (org-babel-eval (concat org-babel-ctt-interpreter " eval " src-file) "")) (match-end 0))
+    (if (< (string-match "Successfully" (org-babel-eval (concat org-babel-ctt-interpreter " eval -m HeadLinear " src-file) "")) (match-end 0))
         "Typecheck has succeeded."
         "Typecheck has failed.")))
 

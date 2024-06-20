@@ -14,32 +14,33 @@ Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
 Equiv/is-equiv (A B : U) (e : Equiv A B) : is-equiv A B (Equiv/map A B e) = e.2
 
 is-equiv/inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
-  is-bi-inv/inv-map A B f (is-equiv/is-bi-inv A B f e)
+  \ y. (e y).1.1
 
 Equiv/inv-map (A B : U) (e : Equiv A B) : B -> A =
   is-equiv/inv-map A B (Equiv/map A B e) (Equiv/is-equiv A B e)
 
+is-equiv/inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (x : A)
+                            : Path A (is-equiv/inv-map A B f e (f x)) x =
+  \ i. ((e (f x)).2 (x, refl B (f x)) i).1
+
+is-equiv/inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f) (y : B)
+                             : Path B (f (is-equiv/inv-map A B f e y)) y =
+  inv B y
+    ( f (is-equiv/inv-map A B f e y))
+    ( e y).1.2
+
 is-equiv/inv-is-equiv (A B : U) (f : A -> B) (e : is-equiv A B f) : is-equiv B A (is-equiv/inv-map A B f e) =
-  let b : is-bi-inv A B f = is-equiv/is-bi-inv A B f e
-      g : B -> A = is-bi-inv/inv-map A B f b
-      b' : is-bi-inv B A g = ((f, is-bi-inv/inv-left-htpy A B f b), (f, is-bi-inv/inv-right-htpy A B f b))
-  in is-bi-inv/is-equiv B A g b'
+  has-inverse/is-equiv B A
+    ( is-equiv/inv-map A B f e)
+    ( f,
+      ( is-equiv/inv-left-htpy A B f e,
+        is-equiv/inv-right-htpy A B f e))
 
 Equiv/inv-equiv (A B : U) (e : Equiv A B) : Equiv B A =
-  let f : A -> B = Equiv/map A B e
-      b : is-bi-inv A B f = is-equiv/is-bi-inv A B f (Equiv/is-equiv A B e)
-      g : B -> A = is-bi-inv/inv-map A B f b
-      b' : is-bi-inv B A g = ((f, is-bi-inv/inv-left-htpy A B f b), (f, is-bi-inv/inv-right-htpy A B f b))
-  in
-  (g, is-bi-inv/is-equiv B A g b')
-
-is-equiv/inv-right-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
-                             :  Htpy' B B (\ z. f (is-equiv/inv-map A B f e z)) (id B) =
-  is-bi-inv/inv-right-htpy A B f (is-equiv/is-bi-inv A B f e)
-
-is-equiv/inv-left-htpy (A B : U) (f : A -> B) (e : is-equiv A B f)
-                            : Htpy' A A (\ z . (is-equiv/inv-map A B f e) (f z)) (id A) =
-  is-bi-inv/inv-left-htpy A B f (is-equiv/is-bi-inv A B f e)
+  ( Equiv/inv-map A B e,
+    is-equiv/inv-is-equiv A B
+      ( Equiv/map A B e)
+      ( Equiv/is-equiv A B e))
 
 Equiv/inv-right-htpy (A B : U) (e : Equiv A B) : Htpy' B B (\ z. (Equiv/map A B e) (Equiv/inv-map A B e z)) (id B) =
   is-equiv/inv-right-htpy A B (Equiv/map A B e) (Equiv/is-equiv A B e)
@@ -468,3 +469,46 @@ is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k
 
 is-of-lvl/closed-equiv' (A B : U) (e : Equiv A B) (k : Nat) (H : is-of-lvl k A) : is-of-lvl k B =
   is-of-lvl/closed-equiv B A (Equiv/sym A B e) k H
+
+lock has-inverse/is-equiv
+
+Equiv/sym/sym (A B : U) (e : Equiv A B)
+                   : Path (Equiv A B) (Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) e =
+  SgPath-prop
+    ( A -> B)
+    ( is-equiv A B)
+    ( is-equiv/is-prop A B)
+    ( Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) e
+    ( eq-htpy' A B
+        ( Equiv/map A B
+          ( Equiv/inv-equiv B A
+            ( Equiv/inv-equiv A B e)))
+        ( Equiv/map A B e)
+        ( \ x.
+            let e' : Equiv B A = Equiv/inv-equiv A B e
+                e'' : Equiv A B = Equiv/inv-equiv B A e'
+                f : A -> B = Equiv/map A B e
+                f' : B -> A = Equiv/map B A e'
+                f'' : A -> B = Equiv/map A B e''
+            in
+            comp B
+              ( f'' x)
+              ( f'' (f' (f x)))
+              ( ap A B f'' x
+                ( f' (f x))
+                ( inv A
+                  ( f' (f x)) x
+                  ( Equiv/inv-left-htpy A B e x)))
+              ( f x)
+              ( Equiv/inv-left-htpy B A e' (f x))))
+
+
+Equiv/sym/sym' (A B : U) (e : Equiv A B)
+                   : Path (Equiv A B) e (Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) =
+  inv
+    ( Equiv A B)
+    ( Equiv/inv-equiv B A
+      ( Equiv/inv-equiv A B e)) e
+    ( Equiv/sym/sym A B e)
+
+unlock has-inverse/is-equiv

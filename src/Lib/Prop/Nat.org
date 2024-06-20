@@ -1,0 +1,109 @@
+#+NAME: Nat
+#+AUTHOR: Johann Rosain
+
+* Natural numbers properties
+
+  #+begin_src ctt
+  module Lib.Prop.Nat where
+  #+end_src
+
+This file contains important properties of natural numbers such as the fact that =Nat= is a set.
+
+** Packages import
+
+   #+begin_src ctt
+  import Lib.Data.Nat
+  import Lib.Data.Unit
+  import Lib.Data.Empty
+  import Lib.Data.Decidability  
+  import Lib.Hedberg
+  import Stdlib.Prelude
+   #+end_src
+
+** Observational equality
+By double induction on m, n.
+#+begin_src ctt
+  Nat/eq/z : Nat -> U = split
+    zero -> Unit
+    suc _ -> Empty
+
+  Nat/eq/s (n : Nat) (IH : (m : Nat) -> U) : Nat -> U = split
+    zero -> Empty
+    suc m -> IH m
+
+  Nat/eq : Nat -> Nat -> U = split
+    zero -> Nat/eq/z
+    suc n -> Nat/eq/s n
+              ( Nat/eq n)
+#+end_src
+This relation is reflexive.
+#+begin_src ctt
+  Nat/eq/refl : (n : Nat) -> Nat/eq n n = split
+    zero -> star
+    suc n -> Nat/eq/refl n
+#+end_src
+And coincides with =Path=.
+#+begin_src ctt
+  Nat/path/eq (m n : Nat) (p : Path Nat m n) : Nat/eq m n =
+    J Nat m
+      ( \ k _. Nat/eq m k)
+      ( Nat/eq/refl m) n p
+
+  Nat/eq/path/z : (n : Nat) -> Nat/eq zero n -> Path Nat zero n = split
+    zero -> \ _. refl Nat zero
+    suc n -> \ f. ex-falso (Path Nat zero (suc n)) f
+
+  Nat/eq/path/s (m : Nat) (IH : (n : Nat) -> Nat/eq m n -> Path Nat m n) : (n : Nat) -> Nat/eq (suc m) n -> Path Nat (suc m) n = split
+    zero -> \ f. ex-falso (Path Nat (suc m) zero) f
+    suc n -> \ p. ap Nat Nat
+                  ( \ k. suc k) m n
+                  ( IH n p)
+
+  Nat/eq/path : (m n : Nat) -> Nat/eq m n -> Path Nat m n = split
+    zero -> Nat/eq/path/z
+    suc m -> Nat/eq/path/s m
+              ( Nat/eq/path m)
+#+end_src
+
+** Equality is decidable
+Using the observational equality, we show that =Nat= has a decidable equality.
+   #+begin_src ctt
+  Nat/has-decidable-eq/z : (n : Nat) -> is-decidable (Nat/eq zero n) = split
+    zero -> is-decidable/Unit
+    suc n -> is-decidable/Empty
+
+  Nat/has-decidable-eq/s (m : Nat) (IH : (n : Nat) -> is-decidable (Nat/eq m n)) : (n : Nat) -> is-decidable (Nat/eq (suc m) n) = split
+    zero -> is-decidable/Empty
+    suc n -> IH n
+
+  Nat/has-decidable-eq' : (m n : Nat) -> is-decidable (Nat/eq m n) = split
+    zero -> Nat/has-decidable-eq/z
+    suc m -> Nat/has-decidable-eq/s m
+              ( Nat/has-decidable-eq' m)
+
+  Nat/has-decidable-eq : has-decidable-equality Nat =
+    \ m n. Coprod/map
+            ( Nat/eq m n)
+            ( neg (Nat/eq m n))
+            ( Path Nat m n)
+            ( neg (Path Nat m n))
+            ( Nat/eq/path m n)
+            ( \ f p. f (Nat/path/eq m n p))
+            ( Nat/has-decidable-eq' m n)
+   #+end_src
+
+** Nat is a set
+
+   #+begin_src ctt
+  Nat/is-set : is-set Nat =
+    hedberg Nat
+      ( Nat/has-decidable-eq)
+   #+end_src
+
+** Equality of nat live in propositions
+
+   #+begin_src ctt
+  Nat/eq/Prop (m n : Nat) : UU-Prop =
+    ( Path Nat m n,
+      Nat/is-set m n)
+   #+end_src

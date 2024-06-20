@@ -8,10 +8,7 @@ import Lib.FundamentalTheorem
 import Lib.Hedberg
 import Lib.SubTypes
 
-
-Equiv/sym/sym (A B : U) (e : Equiv A B)
-                   : Path (Equiv A B) (Equiv/inv-equiv B A (Equiv/inv-equiv A B e)) e =
-  refl (Equiv A B) e
+lock has-inverse/is-equiv
 
 count (A : U) : U =
   Sg Nat (\ k. Equiv (Fin k) A)
@@ -393,18 +390,82 @@ double-counting/right-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (y : Y) : P
           ( Maybe Y) e
           ( inl y)))
 
-double-counting/left-htpy' (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) : Path X (double-counting/inv-map X Y e (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x)) x =
+double-counting/left-htpy' (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X)
+                                : Path X (double-counting/inv-map X Y e (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x)) x =
   double-counting/right-htpy Y X
     ( Equiv/sym (Maybe X) (Maybe Y) e) x
 
--- double-counting/left-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X) : Path X ((double-counting/inv-map X Y e) (double-counting/map X Y e x)) x =
---   comp X
---     ( (double-counting/inv-map X Y e) (double-counting/map X Y e x))
---     ( (double-counting/inv-map X Y e) (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x))
---     ( ap Y X
---       ( double-counting/inv-map X Y e)
---       ( double-counting/map X Y e x)
---       ( double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x)
---       ( ... )) x
---     ( double-counting/left-htpy' X Y e x)        
+double-counting/left-htpy (X Y : U) (e : Equiv (Maybe X) (Maybe Y)) (x : X)
+                               : Path X ((double-counting/inv-map X Y e) (double-counting/map X Y e x)) x =
+  comp X
+    ( (double-counting/inv-map X Y e) (double-counting/map X Y e x))
+    ( (double-counting/inv-map X Y e) (double-counting/map X Y (Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e)) x))
+    ( ap
+      ( Equiv (Maybe X) (Maybe Y)) X
+      ( \ e'. double-counting/inv-map X Y e ( double-counting/map X Y e' x)) e
+      ( Equiv/sym (Maybe Y) (Maybe X) (Equiv/sym (Maybe X) (Maybe Y) e))
+      ( Equiv/sym/sym' (Maybe X) (Maybe Y) e)) x
+    ( double-counting/left-htpy' X Y e x)
 
+double-counting/is-equiv (X Y : U) (e : Equiv (Maybe X) (Maybe Y))
+                              : is-equiv X Y (double-counting/map X Y e) =
+  has-inverse/is-equiv X Y
+    ( double-counting/map X Y e)
+    ( double-counting/inv-map X Y e,
+      ( double-counting/right-htpy X Y e,
+        double-counting/left-htpy X Y e))
+
+double-counting/Equiv (X Y : U) (e : Equiv (Maybe X) (Maybe Y))
+                           : Equiv X Y =
+  ( double-counting/map X Y e,
+    double-counting/is-equiv X Y e)
+
+Fin/is-inj/z : (l : Nat) -> Equiv (Fin zero) (Fin l) -> Path Nat zero l = split
+  zero -> \ _. refl Nat zero
+  suc l -> \ e. ex-falso
+                ( Path Nat zero (suc l))
+                ( Equiv/inv-map
+                  ( Fin zero)
+                  ( Fin (suc l)) e
+                  ( zero-Fin l))
+
+Fin/is-inj/s (k : Nat) (IH : (l : Nat) -> Equiv (Fin k) (Fin l) -> Path Nat k l) : (l : Nat) -> Equiv (Fin (suc k)) (Fin l) -> Path Nat (suc k) l = split
+  zero -> \ e.  ex-falso
+                ( Path Nat (suc k) zero)
+                ( Equiv/map
+                  ( Fin (suc k))
+                  ( Fin zero) e
+                  ( zero-Fin k))
+  suc l -> \ e. ap Nat Nat
+              ( \ n. suc n) k l
+              ( IH l
+                ( double-counting/Equiv
+                  ( Fin k)
+                  ( Fin l) e))
+
+Fin/is-inj : (k l : Nat) -> Equiv (Fin k) (Fin l) -> Path Nat k l = split
+  zero -> Fin/is-inj/z
+  suc k -> Fin/is-inj/s k
+            ( Fin/is-inj k)
+
+double-counting/sg (A B : U) (k : Nat) (eK : Equiv (Fin k) A) (l : Nat) (eL : Equiv (Fin l) B) (e : Equiv A B)
+                        : Path Nat k l =
+  Fin/is-inj k l
+    ( Equiv/trans (Fin k) A (Fin l) eK
+      ( Equiv/trans A B (Fin l) e
+        ( Equiv/sym (Fin l) B eL)))
+
+double-counting (A B : U) (count-A : count A) (count-B : count B) (e : Equiv A B)
+                     : Path Nat (number-of-elements A count-A) (number-of-elements B count-B) =
+  double-counting/sg A B
+    ( number-of-elements A count-A)
+    ( count/Equiv A count-A)
+    ( number-of-elements B count-B)
+    ( count/Equiv B count-B) e
+
+double-counting' (A : U) (c c' : count A)
+                    : Path Nat (number-of-elements A c) (number-of-elements A c') =
+  double-counting A A c c'
+    ( Equiv/refl A)
+
+unlock has-inverse/is-equiv

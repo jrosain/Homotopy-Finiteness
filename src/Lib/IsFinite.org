@@ -7,11 +7,194 @@
   module Lib.IsFinite where
 #+end_src
 
-Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[src/Lib/PropTrunc.org][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
+Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[PropTrunc.org][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
 
 ** Packages imports
 
 #+begin_src ctt
   import Lib.PropTrunc
   import Lib.Counting
+  import Lib.Prop.Nat
 #+end_src
+
+** Definition
+Definition using propositional truncation.
+   #+begin_src ctt
+  is-finite (X : U) : U =
+    Prop-trunc
+      ( count X)
+   #+end_src
+Some shortcuts.
+#+begin_src ctt
+  is-finite/is-prop (X : U) : is-prop (is-finite X) =
+    Prop-trunc/is-prop
+      ( count X)
+
+  is-finite/Prop (X : U) : UU-Prop =
+    ( is-finite X,
+      is-finite/is-prop X)
+#+end_src
+
+** Properties
+
+*** A type that has a count is finite
+#+begin_src ctt
+  count/is-finite (X : U) (c : count X) : is-finite X =
+    Prop-trunc/unit c
+#+end_src
+*** Unit is finite
+    #+begin_src ctt
+  Unit/is-finite : is-finite Unit =
+    count/is-finite Unit
+      ( count/Unit)
+    #+end_src
+*** Fin is finite
+#+begin_src ctt
+  Fin/is-finite (k : Nat) : is-finite (Fin k) =
+    count/is-finite
+      ( Fin k)
+      ( count/fin-count k)
+#+end_src
+*** Closure under equivalence
+Of course, if =Equiv X Y= and one of them is finite, the other one is also finite.
+#+begin_src ctt
+  is-finite/closed-equiv (A B : U) (e : Equiv A B) (is-finite-B : is-finite B) : is-finite A =
+    Prop-trunc/map
+      ( count B)
+      ( count A)
+      ( count/closed-equiv A B e) is-finite-B    
+
+  is-finite/closed-equiv' (A B : U) (e : Equiv A B) (is-finite-A : is-finite A) : is-finite B =
+    is-finite/closed-equiv B A (Equiv/sym A B e) is-finite-A
+#+end_src
+** Cardinality
+We define the notion of having a cardinality and its equivalence to the notion of =is-finite=.
+#+begin_src ctt
+  has-cardinality (X : U) : U =
+    Sg Nat
+      ( \ k. mere-equiv (Fin k) X)
+#+end_src
+Of course, =has-cardinality= is a proposition.
+#+begin_src ctt
+  has-cardinality/is-prop/sg (X : U) (k : Nat) (h : mere-equiv (Fin k) X) (k' : Nat) (h' : mere-equiv (Fin k') X)
+                                : Path (has-cardinality X) (k, h) (k', h') =
+    SgPath-prop Nat
+      ( \ n. mere-equiv (Fin n) X)
+      ( \ n. mere-equiv/is-prop (Fin n) X)
+      ( k, h)
+      ( k', h')
+      ( rec-Prop-trunc
+        ( Equiv (Fin k) X)
+        ( Nat/eq/Prop k k')
+        ( \ e. rec-Prop-trunc
+                ( Equiv (Fin k') X)
+                ( Nat/eq/Prop k k')
+                ( \ e'. Fin/is-inj k k'
+                         ( Equiv/trans
+                            ( Fin k) X
+                            ( Fin k') e
+                            ( Equiv/sym (Fin k') X e'))) h') h)
+
+  has-cardinality/is-prop (X : U) : is-prop (has-cardinality X) =
+    \ h h'. has-cardinality/is-prop/sg X h.1 h.2 h'.1 h'.2
+
+  has-cardinality/Prop (X : U) : UU-Prop =
+    ( has-cardinality X,
+      has-cardinality/is-prop X)
+#+end_src
+Thus, there is an equivalence between having a cardinality and being finite.
+#+begin_src ctt
+  is-finite/has-cardinality (X : U) : is-finite X -> has-cardinality X =
+    rec-Prop-trunc
+      ( count X)
+      ( has-cardinality/Prop X)
+      ( \ c. ( number-of-elements X c,
+              Prop-trunc/unit (count/Equiv X c)))
+
+  has-cardinality/is-finite' (X : U) (k : Nat) (e : mere-equiv (Fin k) X) : is-finite X =
+    rec-Prop-trunc
+      ( Equiv (Fin k) X)
+      ( is-finite/Prop X)
+      ( \ e'. Prop-trunc/unit (k, e')) e    
+
+  has-cardinality/is-finite (X : U) : has-cardinality X -> is-finite X =
+    \ t. has-cardinality/is-finite' X t.1 t.2
+#+end_src
+Some shortcuts.
+#+begin_src ctt
+  has-cardinality/card (X : U) (h : has-cardinality X) : Nat = h.1
+
+  has-cardinality/Equiv (X : U) (h : has-cardinality X) : mere-equiv (Fin (has-cardinality/card X h)) X = h.2
+
+  card (X : U) (i : is-finite X) : Nat =
+    has-cardinality/card X
+      ( is-finite/has-cardinality X i)
+#+end_src
+
+** Some immediate consequences
+=X= and =Y= are finite iff their coproduct is finite.
+   #+begin_src ctt
+  is-finite/closed-Coprod (A B : U) (is-finite-A : is-finite A) (is-finite-B : is-finite B) : is-finite (Coprod A B) =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop (Coprod A B))
+      ( \ c. rec-Prop-trunc
+              ( count B)
+              ( is-finite/Prop (Coprod A B))
+              ( \ c'. Prop-trunc/unit (count/closed-Coprod A B c c'))
+              is-finite-B)
+      is-finite-A
+
+  is-finite/closed-Coprod-left (A B : U) (is-finite-copr : is-finite (Coprod A B)) : is-finite A =
+    rec-Prop-trunc
+      ( count (Coprod A B))
+      ( is-finite/Prop A)
+      ( \ c. Prop-trunc/unit (count/closed-Coprod-left A B c))
+      is-finite-copr
+
+  is-finite/closed-Coprod-right (A B : U) (is-finite-copr : is-finite (Coprod A B)) : is-finite B =
+    rec-Prop-trunc
+      ( count (Coprod A B))
+      ( is-finite/Prop B)
+      ( \ c. Prop-trunc/unit (count/closed-Coprod-right A B c))
+      is-finite-copr
+   #+end_src
+If =X= and =Y= are finite, then =X * Y= is also finite.
+#+begin_src ctt
+  is-finite/closed-Prod (A B : U) (is-finite-A : is-finite A) (is-finite-B : is-finite B) : is-finite (A * B) =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop (A * B))
+      ( \ c. rec-Prop-trunc
+              ( count B)
+              ( is-finite/Prop (A * B))
+              ( \ c'. Prop-trunc/unit (count/closed-Prod A B c c'))
+              is-finite-B)
+      is-finite-A
+#+end_src
+
+** Cardinal of Bool * Bool
+   #+begin_src ctt
+  Bool : U = Coprod Unit Unit
+
+  true : Bool = inl star
+  false : Bool = inr star
+
+  Bool/is-finite : is-finite Bool =
+    is-finite/closed-Coprod
+      Unit
+      Unit
+      Unit/is-finite
+      Unit/is-finite
+
+  BoolBool/card : Nat =
+    card
+      ( Bool * Bool)
+      ( is-finite/closed-Prod Bool Bool Bool/is-finite Bool/is-finite)
+
+  BoolBool/card/isFour : Path Nat four-Nat BoolBool/card =
+    refl Nat four-Nat
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

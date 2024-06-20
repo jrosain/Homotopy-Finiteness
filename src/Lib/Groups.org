@@ -676,6 +676,8 @@ Then, we can show the desired property.
             ( \ H. Semi-Group/Iso/Equiv G H))
         ( Semi-Group/iso-eq/is-contr-Equiv-type G))
 
+  lock Semi-Group/hom/htpy/is-equiv
+
   Semi-Group/iso-eq/is-equiv (G : Semi-Group) : (H : Semi-Group) -> is-equiv (Path Semi-Group G H) (Semi-Group/Iso G H) (Semi-Group/iso-eq G H) =
     fundamental-theorem-id
       Semi-Group
@@ -683,6 +685,7 @@ Then, we can show the desired property.
       ( Semi-Group/iso-eq G)
       ( Semi-Group/iso-eq/contr-Iso G)
 #+end_src
+
 Thus, isomorphic semi-groups are identifiable.
 #+begin_src ctt
   Semi-Group/eq-iso (G H : Semi-Group) : Semi-Group/Iso G H -> Path Semi-Group G H =
