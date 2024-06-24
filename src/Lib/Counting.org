@@ -107,10 +107,12 @@ First, assume that =A= has one element, that is, there is an equivalence between
                   (\ e'. is-contr/is-contr-equiv' (Fin one-Nat) A e' Fin/fin-one-is-contr)
                   (number-of-elements A c) p (count/Equiv A c)
 
-  -- count/contr-count (A : U) (c : is-contr A) : count A =
-  --   (one-Nat, count/closed-equiv A (Fin one-Nat) () count/one-count)
+  count/contr-count (A : U) (c : is-contr A) : count A =
+    ( one-Nat,
+      ( is-contr/Equiv
+        ( Fin one-Nat) A
+        ( Fin/fin-one-is-contr) c))
 #+end_src
-TODO: last thing needs the last lemma of 3-for-2 property.
 
 *** A proposition is countable iff it is decidable
 First, if a type =X= is countable, then it is decidable as can be shown by a quick induction on the number of elements of =X=.

@@ -62,6 +62,12 @@ Of course, as it is an inductive type, it has a recurrence principle.
         ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y p)
         ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y q)) i j      
 #+end_src
+The recurrence principle can also be expressed using propositions.
+#+begin_src ctt
+  rec-Set-trunc/Prop (A : U) (B : UU-Prop) (f : A -> Prop/type B) : Set-trunc A -> Prop/type B =
+    rec-Set-trunc A
+      ( Prop/Set B) f
+#+end_src
 Moreover, =Set-trunc/unit= satisfies set truncation.
 #+begin_src ctt
   -- is-set-trunc/unit (X : U) : is-set-trunc X (Set-trunc X) (\ x. Set-trunc/unit x) =
@@ -92,7 +98,6 @@ If there is a map between A and B, then there is a map between the set truncatio
       ( Prop/Set X)
    #+end_src
 
-
 ** Mere eq and set truncation
 Mere equality corresponds to equality on set truncation. Indeed, the equality on a set truncation is a proposition and we have a back-and-forth map between |x|_0 = |y|_0 and ||x = y||.
 #+begin_src ctt
@@ -110,7 +115,6 @@ Mere equality corresponds to equality on set truncation. Indeed, the equality on
 
 #+RESULTS:
 : Typecheck has succeeded.
-
 
 ** Connected type
 A type is connected whenever its set truncation is contractible.

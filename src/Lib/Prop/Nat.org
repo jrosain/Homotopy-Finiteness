@@ -107,3 +107,6 @@ Using the observational equality, we show that =Nat= has a decidable equality.
     ( Path Nat m n,
       Nat/is-set m n)
    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

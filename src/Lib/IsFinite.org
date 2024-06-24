@@ -58,15 +58,16 @@ Some shortcuts.
 *** Closure under equivalence
 Of course, if =Equiv X Y= and one of them is finite, the other one is also finite.
 #+begin_src ctt
-  is-finite/closed-equiv (A B : U) (e : Equiv A B) (is-finite-B : is-finite B) : is-finite A =
+  is-finite/closed-Equiv (A B : U) (e : Equiv A B) (is-finite-B : is-finite B) : is-finite A =
     Prop-trunc/map
       ( count B)
       ( count A)
       ( count/closed-equiv A B e) is-finite-B    
 
-  is-finite/closed-equiv' (A B : U) (e : Equiv A B) (is-finite-A : is-finite A) : is-finite B =
-    is-finite/closed-equiv B A (Equiv/sym A B e) is-finite-A
+  is-finite/closed-Equiv' (A B : U) (e : Equiv A B) (is-finite-A : is-finite A) : is-finite B =
+    is-finite/closed-Equiv B A (Equiv/sym A B e) is-finite-A
 #+end_src
+
 ** Cardinality
 We define the notion of having a cardinality and its equivalence to the notion of =is-finite=.
 #+begin_src ctt
@@ -191,9 +192,6 @@ If =X= and =Y= are finite, then =X * Y= is also finite.
     card
       ( Bool * Bool)
       ( is-finite/closed-Prod Bool Bool Bool/is-finite Bool/is-finite)
-
-  BoolBool/card/isFour : Path Nat four-Nat BoolBool/card =
-    refl Nat four-Nat
    #+end_src
 
 #+RESULTS:

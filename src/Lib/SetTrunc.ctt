@@ -31,6 +31,12 @@ rec-Set-trunc (A : U) (B : UU-Set) (f : A -> Set/type B) : Set-trunc A -> Set/ty
       ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y p)
       ( ap ( Set-trunc A) ( Set/type B) ( rec-Set-trunc A B f) x y q)) i j
 
+rec-Set-trunc/Prop (A : U) (B : UU-Prop) (f : A -> Prop/type B) : Set-trunc A -> Prop/type B =
+  rec-Set-trunc A
+    ( Prop/Set B) f
+
+-- is-set-trunc/unit (X : U) : is-set-trunc X (Set-trunc X) (\ x. Set-trunc/unit x) =
+
 Set-trunc/map (A B : U) (f : A -> B) : (Set-trunc A) -> Set-trunc B =
   rec-Set-trunc A
     ( Set-trunc/Set B)
@@ -58,13 +64,6 @@ Set-trunc/mere-eq/eq (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) 
     ( J X x
       ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
       ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
-
-Set-trunc/eq/map (X : U) (x y : X) : Set-trunc (Prop-trunc (Path X x y)) -> Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
-  \ p. Set-trunc/mere-eq/eq X x y
-        ( Prop/Set-trunc/map
-          ( Prop-trunc/Prop (Path X x y)) p)
-
--- Set-trunc/eq/mere-eq (X : U) (x y : Set-trunc X) (Path (Set-trunc X) x y) : mere-eq X x y =
 
 is-conn (A : U) : U =
   is-contr (Set-trunc A)

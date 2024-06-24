@@ -1,0 +1,96 @@
+#+NAME: Homotopy Finiteness
+#+AUTHOR: Johann Rosain
+
+* Homotopy Finiteness
+
+  #+begin_src ctt
+  module HomotopyFiniteness where
+  #+end_src
+
+This file is a formalization of the proof presented by Rijke in his [[https://www.cirm-math.fr/RepOrga/2689/Slides/s_rijke_3.pdf][CIRM talk]] about the finiteness of groups of finite order /k/.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.IsFinite
+  import Lib.SetTrunc
+  import Lib.Prop.Empty
+  import Lib.Prop.Coprod
+   #+end_src
+
+** Homotopy finite
+A type =A= is said n^th-/homotopy finite/ if it has finitely many connected components and all its homotopy groups \pi_i(A, x) are finite, for every i \le n and /x : A/.
+#+begin_src ctt
+  is-htpy-finite' (A : U) : Nat -> U = split
+    zero ->  is-finite
+              ( Set-trunc A)
+    suc k -> is-finite
+              ( Set-trunc A) *
+              ( (x y : A) -> is-htpy-finite' (Path A x y) k)
+
+  is-htpy-finite (n : Nat) (A : U) : U =
+    is-htpy-finite' A n
+#+end_src
+
+** Closure under \Pi-types
+In this section, we show that if =B= is a family of \pi_n finite types over a finite type =A=, then the product \Pi_{x: A}B(x) is also \pi_{n}-finite.
+
+*** Finite family over =Fin k=
+First, we start by showing that if =B= is a finite family over =Fin k=, then \Pi_{x: Fin k}B(x) is also finite. This proof is by induction on =k=. 
+The case =k = 0= is trivial: a family over the empty type is contractible thus it has a count and it is finite. 
+The case =k > 0= is done using the dependent universal property of coproduct. By induction hypothesis, \Pi_{x: Fin k}B(x) is finite and by hypothesis, B(inr star) is also finite. Finally, a product of finite things is finite.
+#+begin_src ctt
+  is-finite/pi' : (k : Nat) -> (B : Fin k -> U) -> ((x : Fin k) -> is-finite (B x)) -> is-finite ((x : Fin k) -> B x) = split
+    zero ->
+      \ B _.
+        count/is-finite
+          ( (x : Fin zero) -> B x)
+          ( count/contr-count
+            ( (x : Fin zero) -> B x)
+            ( Empty/universal-dependent-property
+              ( Fin zero) B
+              ( Equiv/refl (Fin zero))))
+    suc k ->
+      \ B is-fin-B.
+        is-finite/closed-Equiv
+          ( (x : Fin (suc k)) -> B x)
+          ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+          ( Equiv/trans
+            ( (x : Fin (suc k)) -> B x)
+            ( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
+            ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+            ( Coprod/dependent-universal-property
+              ( Fin k) Unit B)
+            ( Equiv/prod'
+              ( (x : Fin k) -> B (inl x))
+              ( (u : Unit) -> B (inr u))
+              ( B (inr star))
+              ( Equiv/pi-Unit
+                ( \ u. B (inr u)))))
+          ( is-finite/closed-Prod
+            ( (x : Fin k) -> B (inl x))
+            ( B (inr star))
+            ( is-finite/pi k
+              ( \ x. B (inl x))
+              ( \ x. is-fin-B (inl x)))
+            ( is-fin-B (inr star)))
+#+end_src
+
+*** Finite family over finite type
+Let =A= be a finite type. As =is-finite= is a proposition, by the induction principle of the propositional truncation, we assume that we have a count of =A=; that is, an equivalence from Fin k to A for some k. Then, as =is-finite= is closed under equivalence, for any finite family =B= over a finite type =A=, \Pi_{x: A}B(x) is also finite.
+#+begin_src ctt
+  is-finite/pi (A : U) (B : A -> U) (is-finite-A : is-finite A) (is-finite-B : (x : A) -> is-finite (B x))
+                  : is-finite ((x : A) -> B x) =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop ((x : A) -> B x))
+      ( \ c.
+        is-finite/closed-Equiv
+          ( (x : A) -> B x)
+          ( (x : Fin (number-of-elements A c)) -> B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
+          ?
+          ( is-finite/pi'
+            ( number-of-elements A c)
+            ( \ x. B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
+            ( \ x. is-finite-B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))))
+#+end_src

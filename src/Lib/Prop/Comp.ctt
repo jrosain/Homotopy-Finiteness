@@ -27,3 +27,22 @@ refl/sym (A : U) (x : A) : Path (Path A x x) (refl A x) (inv A x x (refl A x)) =
 comp/assoc' (A : U) (x y : A) (p : Path A x y) (z : A) (q : Path A y z) (w : A) (r : Path A z w)
                : Path (Path A x w) (comp A x y p w (comp A y z q w r)) (comp A x z (comp A x y p z q) w r) =
   inv (Path A x w) (comp A x z (comp A x y p z q) w r) (comp A x y p w (comp A y z q w r)) (comp/assoc A x y p z q w r)
+
+inv/concat/refl (A : U) (x : A) (z : A) (q : Path A x z) (r : Path A x z) (s : Path (Path A x z) (comp A x x (refl A x) z q) r)
+                   : Path (Path A x z) q (comp A x x (inv A x x (refl A x)) z r) =
+  comp-n
+    ( Path A x z) four-Nat q
+    ( comp A x x (refl A x) z q)
+    ( comp/ident-l' A x z q) r s
+    ( comp A x x (refl A x) z r)
+    ( comp/ident-l' A x z r)
+    ( comp A x x (inv A x x (refl A x)) z r)
+    ( ap (Path A x x) (Path A x z) (\ p. comp A x x p z r) (refl A x) (inv A x x (refl A x))
+      ( refl/sym A x))
+
+
+inv/concat (A : U) (x y : A) (p : Path A x y) (z : A) (q : Path A y z) (r : Path A x z) (s : Path (Path A x z) (comp A x y p z q) r)
+              : Path (Path A y z) q (comp A y x (inv A x y p) z r) =
+  J A x
+    ( \ y' p'. (q' : Path A y' z) -> (s' : Path (Path A x z) (comp A x y' p' z q') r) -> Path (Path A y' z) q' (comp A y' x (inv A x y' p') z r))
+    ( \ q' s'. inv/concat/refl A x z q' r s') y p q s

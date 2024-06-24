@@ -5,6 +5,7 @@ import Stdlib.Prelude
 import Lib.Prop.Htpy
 import Lib.Prop.Equiv
 import Lib.FundamentalTheorem
+import Lib.FunExt
 
 Coprod/id-htpy (A B : U) : Htpy' (Coprod A B) (Coprod A B) (Coprod/map A B A B (id A) (id B)) (id (Coprod A B)) = split
   inl x -> refl (Coprod A B) (inl x)
@@ -159,3 +160,58 @@ Coprod/inl-inj (A B : U) (x y : A) (p : Path (Coprod A B) (inl x) (inl y)) : Pat
 
 Coprod/inr-inj (A B : U) (x y : B) (p : Path (Coprod A B) (inr x) (inr y)) : Path B x y =
   Coprod/Eq/eq-map A B (inr x) (inr y) p
+
+Coprod/dependent-universal-property/map (A B : U) (P : Coprod A B -> U) : ((z : Coprod A B) -> P z) -> ((x : A) -> P (inl x)) * ((y : B) -> P (inr y)) =
+  \ f. (\ x. f (inl x), \ y. f (inr y))
+
+Coprod/dependent-universal-property/inv-map (A B : U) (P : Coprod A B -> U) (t : ((x : A) -> P (inl x)) * ((y : B) -> P (inr y))) : (z : Coprod A B) -> P z = split
+  inl x -> t.1 x
+  inr y -> t.2 y
+
+Coprod/dependent-universal-property/right-htpy' (A B : U) (P : Coprod A B -> U) (f : ((x : A) -> P (inl x))) (g : ((y : B) -> P (inr y))) 
+                                                     : Path (((x : A) -> P (inl x)) * ((y : B) -> P (inr y)))
+                                                            (Coprod/dependent-universal-property/map A B P (Coprod/dependent-universal-property/inv-map A B P (f, g))) (f, g) =
+  let u : ((x : A) -> P (inl x)) * ((y : B) -> P (inr y)) = Coprod/dependent-universal-property/map A B P (Coprod/dependent-universal-property/inv-map A B P (f, g)) in
+  Eq-prod/eq
+    ( (x : A) -> P (inl x))
+    ( (y : B) -> P (inr y))
+    ( Coprod/dependent-universal-property/map A B P (Coprod/dependent-universal-property/inv-map A B P (f, g))) (f, g)
+    ( eq-htpy A
+      ( \ x. P (inl x)) u.1 f
+      ( \ x. refl (P (inl x)) (f x)),
+      eq-htpy B
+      ( \ y. P (inr y)) u.2 g
+      ( \ y. refl (P (inr y)) (g y)))      
+
+Coprod/dependent-universal-property/right-htpy (A B : U) (P : Coprod A B -> U) (t : ((x : A) -> P (inl x)) * ((y : B) -> P (inr y)))
+                                                    : Path (((x : A) -> P (inl x)) * ((y : B) -> P (inr y)))
+                                                           (Coprod/dependent-universal-property/map A B P (Coprod/dependent-universal-property/inv-map A B P t)) t =
+  Coprod/dependent-universal-property/right-htpy' A B P t.1 t.2
+
+Coprod/dependent-universal-property/left-htpy/Coprod (A B : U) (P : Coprod A B -> U) (f : (z : Coprod A B) -> P z)
+                                                          : (z : Coprod A B)
+                                                          -> Path (P z) (Coprod/dependent-universal-property/inv-map A B P (Coprod/dependent-universal-property/map A B P f) z) (f z) = split
+  inl x -> refl (P (inl x)) (f (inl x))
+  inr y -> refl (P (inr y)) (f (inr y))
+
+Coprod/dependent-universal-property/left-htpy (A B : U) (P : Coprod A B -> U) (f : (z : Coprod A B) -> P z)
+                                                    : Path ((z : Coprod A B) -> P z)
+                                                           (Coprod/dependent-universal-property/inv-map A B P (Coprod/dependent-universal-property/map A B P f)) f =
+  eq-htpy
+    ( Coprod A B) P
+    ( Coprod/dependent-universal-property/inv-map A B P (Coprod/dependent-universal-property/map A B P f)) f
+    ( Coprod/dependent-universal-property/left-htpy/Coprod A B P f)
+
+Coprod/dependent-universal-property/is-equiv (A B : U) (P : Coprod A B -> U)
+                                                  : is-equiv ((z : Coprod A B) -> P z) (((x : A) -> P (inl x)) * ((y : B) -> P (inr y))) (Coprod/dependent-universal-property/map A B P) =
+  has-inverse/is-equiv
+    ( (z : Coprod A B) -> P z)
+    ( ((x : A) -> P (inl x)) * ((y : B) -> P (inr y)))
+    ( Coprod/dependent-universal-property/map A B P)
+    ( Coprod/dependent-universal-property/inv-map A B P,
+      ( Coprod/dependent-universal-property/right-htpy A B P,
+        Coprod/dependent-universal-property/left-htpy A B P))
+
+Coprod/dependent-universal-property (A B : U) (P : Coprod A B -> U) : Equiv ((z : Coprod A B) -> P z) (((x : A) -> P (inl x)) * ((y : B) -> P (inr y))) =
+  ( Coprod/dependent-universal-property/map A B P,
+    Coprod/dependent-universal-property/is-equiv A B P)

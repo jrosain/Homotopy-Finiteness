@@ -60,8 +60,11 @@ count/one-element-is-contr (A : U) (c : count A) (p : Path Nat one-Nat (number-o
                 (\ e'. is-contr/is-contr-equiv' (Fin one-Nat) A e' Fin/fin-one-is-contr)
                 (number-of-elements A c) p (count/Equiv A c)
 
--- count/contr-count (A : U) (c : is-contr A) : count A =
---   (one-Nat, count/closed-equiv A (Fin one-Nat) () count/one-count)
+count/contr-count (A : U) (c : is-contr A) : count A =
+  ( one-Nat,
+    ( is-contr/Equiv
+      ( Fin one-Nat) A
+      ( Fin/fin-one-is-contr) c))
 
 count/countable-is-decidable (X : U) (c : count X) : is-decidable X =
   ind-Sg Nat (\ k. Equiv (Fin k) X)
