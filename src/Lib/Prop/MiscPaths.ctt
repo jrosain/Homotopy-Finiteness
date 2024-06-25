@@ -6,6 +6,12 @@ import Lib.Data.Nat
 tr/refl-path (A : U) (x : A) (P : A -> U) (u : P x) : Path (P x) (tr A x x (refl A x) P u) u =
   \ i. tr/refl A x P i u
 
+tr/refl-path' (A : U) (x : A) (P : A -> U) (u : P x) : Path (P x) u (tr A x x (refl A x) P u) =
+  inv
+    ( P x)
+    ( tr A x x (refl A x) P u) u
+    ( tr/refl-path A x P u)
+
 tr/path (A : U) (x y : A) (p : Path A x y) (P : U) (u : P) : Path P (tr A x y p (\ _. P) u) u =
   J A x (\ z q. Path P (tr A x z q (\ _. P) u) u) (tr/refl-path A x (\ _. P) u) y p
 

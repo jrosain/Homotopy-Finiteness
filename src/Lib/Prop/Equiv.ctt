@@ -7,7 +7,7 @@ import Lib.Data.Empty
 import Lib.Data.Decidability  
 import Lib.QInv
 import Lib.ContrMap
-import Lib.Prop.ActionPaths
+import Lib.Prop.Paths
 import Lib.Prop.Unit
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
@@ -561,26 +561,63 @@ Equiv/dependent/map (A B : U) (P : B -> U) (e : Equiv A B) : ((y : B) -> P y) ->
 Equiv/dependent/inv-map (A B : U) (P : B -> U) (e : Equiv A B) : ((x : A) -> P (Equiv/map A B e x)) -> (y : B) -> P y =
   \ h y. tr B
     ( Equiv/map A B e (Equiv/inv-map A B e y)) y
-    ( Equiv/inv-right-htpy A B e y) P
+    ( htpy/half-adjoint/htpy A B
+      ( Equiv/map A B e)
+      ( Equiv/inv-map A B e)
+      ( Equiv/inv-right-htpy A B e)
+      ( Equiv/inv-left-htpy A B e) y) P
     ( h (Equiv/inv-map A B e y))
 
--- Equiv/dependent/inv-right-htpy (A B : U) (P : B -> U) (e : Equiv A B) (f : (x : A) -> P (Equiv/map A B e x))
---                                     : Path ((x : A) -> P (Equiv/map A B e x))
---                                            (Equiv/dependent/map A B P e (Equiv/dependent/inv-map A B P e f)) f =
+Equiv/dependent/right-htpy (A B : U) (P : B -> U) (e : Equiv A B) (h : (x : A) -> P (Equiv/map A B e x)) 
+                                : Path ((x : A) -> P (Equiv/map A B e x))
+                                       (Equiv/dependent/map A B P e (Equiv/dependent/inv-map A B P e h)) h =
+  let f : A -> B = Equiv/map A B e
+      g : B -> A = Equiv/inv-map A B e
+      G : Htpy' B B (\ x. f (g x)) (id B) = Equiv/inv-right-htpy A B e
+      H : Htpy' A A (\ x. g (f x)) (id A) = Equiv/inv-left-htpy A B e
+      G' : Htpy' B B (\ y. f (g y)) (id B) = htpy/half-adjoint/htpy A B f g G H
+  in
+  eq-htpy A
+    ( \ x. P (f x))
+    ( Equiv/dependent/map A B P e (Equiv/dependent/inv-map A B P e h)) h
+    ( \ x. comp-n 
+        ( P (f x)) three-Nat
+        ( tr B (f (g (f x))) (f x) (G' (f x)) P (h (g (f x))))
+        ( tr B (f (g (f x))) (f x) (ap A B f (g (f x)) x (H x)) P (h (g (f x))))
+        ( ap (Path B (f (g (f x))) (f x)) (P (f x)) (\ p. tr B (f (g (f x))) (f x) p P (h (g (f x)))) (G' (f x)) (ap A B f (g (f x)) x (H x))
+          ( htpy/half-adjoint' A B f g G H x))
+        ( tr A (g (f x)) x (H x) (\ z. P (f z)) (h (g (f x))))
+        ( tr/ap A B f P (g (f x)) x (H x) (h (g (f x))))
+        ( h x)
+        ( apd A
+          ( \ z. P (f z)) h
+          ( g (f x)) x
+          ( H x)))
 
-
-Equiv/dependent/left-htpy (A B : U) (P : B -> U) (e : Equiv A B) (f : (y : B) -> P y)
+Equiv/dependent/left-htpy (A B : U) (P : B -> U) (e : Equiv A B) (h : (y : B) -> P y)
                                  : Path ((y : B) -> P y)
-                                        (Equiv/dependent/inv-map A B P e (Equiv/dependent/map A B P e f)) f =
+                                        (Equiv/dependent/inv-map A B P e (Equiv/dependent/map A B P e h)) h =
+  let f : A -> B = Equiv/map A B e
+      g : B -> A = Equiv/inv-map A B e
+      G : Htpy' B B (\ x. f (g x)) (id B) = Equiv/inv-right-htpy A B e
+      H : Htpy' A A (\ x. g (f x)) (id A) = Equiv/inv-left-htpy A B e
+      G' : Htpy' B B (\ y. f (g y)) (id B) = htpy/half-adjoint/htpy A B f g G H
+  in
   eq-htpy B P
-    ( Equiv/dependent/inv-map A B P e (Equiv/dependent/map A B P e f)) f
-    ( \ y. apd B P f
-          ( Equiv/map A B e (Equiv/inv-map A B e y)) y
-          ( Equiv/inv-right-htpy A B e y))
+    ( Equiv/dependent/inv-map A B P e (Equiv/dependent/map A B P e h)) h
+    ( \ y. apd B P h
+          ( f (g y)) y
+          ( G' y))
 
--- Equiv/dependent (A A' : U) (B : A -> U) (e : Equiv A A')
---                       : Equiv ((x : A) -> B x) ((x : A') -> B (Equiv/inv-map A A' e x)) =
---   let f : A' -> A = Equiv/inv-map A A' e in
+Equiv/dependent (A B : U) (P : B -> U) (e : Equiv A B)
+                     : Equiv ((y : B) -> P y) ((x : A) -> P (Equiv/map A B e x)) =
+  has-inverse/Equiv
+    ( (y : B) -> P y)
+    ( (x : A) -> P (Equiv/map A B e x))
+    ( Equiv/dependent/map A B P e)
+    ( Equiv/dependent/inv-map A B P e,
+      ( Equiv/dependent/right-htpy A B P e,
+        Equiv/dependent/left-htpy A B P e))
 
 Equiv/pi-Unit/map (B : Unit -> U) : ((u : Unit) -> B u) -> B star =
   \ f. f star

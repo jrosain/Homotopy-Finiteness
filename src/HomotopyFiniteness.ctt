@@ -2,8 +2,6 @@ module HomotopyFiniteness where
 
 import Lib.IsFinite
 import Lib.SetTrunc
-import Lib.Prop.Empty
-import Lib.Prop.Coprod
 
 is-htpy-finite' (A : U) : Nat -> U = split
   zero ->  is-finite
@@ -15,37 +13,29 @@ is-htpy-finite' (A : U) : Nat -> U = split
 is-htpy-finite (n : Nat) (A : U) : U =
   is-htpy-finite' A n
 
-is-finite/pi : (k : Nat) -> (B : Fin k -> U) -> ((x : Fin k) -> is-finite (B x)) -> is-finite ((x : Fin k) -> B x) = split
-  zero ->
-    \ B _.
-      count/is-finite
-        ( (x : Fin zero) -> B x)
-        ( count/contr-count
-          ( (x : Fin zero) -> B x)
-          ( Empty/universal-dependent-property
-            ( Fin zero) B
-            ( Equiv/refl (Fin zero))))
-  suc k ->
-    \ B is-fin-B.
-      is-finite/closed-Equiv
-        ( (x : Fin (suc k)) -> B x)
-        ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
-        ( Equiv/trans
-          ( (x : Fin (suc k)) -> B x)
-          ( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
-          ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
-          ( Coprod/dependent-universal-property
-            ( Fin k) Unit B)
-          ( Equiv/prod'
-            ( (x : Fin k) -> B (inl x))
-            ( (u : Unit) -> B (inr u))
-            ( B (inr star))
-            ( Equiv/pi-Unit
-              ( \ u. B (inr u)))))
-        ( is-finite/closed-Prod
-          ( (x : Fin k) -> B (inl x))
-          ( B (inr star))
-          ( is-finite/pi k
-            ( \ x. B (inl x))
-            ( \ x. is-fin-B (inl x)))
-          ( is-fin-B (inr star)))
+is-htpy-finite/closed-Equiv/aux : (n : Nat) -> (A B : U) -> Equiv A B -> is-htpy-finite n B -> is-htpy-finite n A = split
+  zero -> \ A B e.
+    is-finite/closed-Equiv
+      ( Set-trunc A)
+      ( Set-trunc B)
+      ( Set-trunc/Equiv A B e)
+  suc n -> \ A B e is-htpy-finite-B.
+    ( is-finite/closed-Equiv
+        ( Set-trunc A)
+        ( Set-trunc B)
+        ( Set-trunc/Equiv A B e)
+        ( is-htpy-finite-B.1),
+      \ x y.
+        is-htpy-finite/closed-Equiv/aux n
+        ( Path A x y)
+        ( Path B (Equiv/map A B e x) (Equiv/map A B e y))
+        ( Equiv/Equiv-id A B e x y)
+        ( is-htpy-finite-B.2
+          ( Equiv/map A B e x)
+          ( Equiv/map A B e y)))
+
+is-htpy-finite/closed-Equiv (A B : U) (e : Equiv A B) (n : Nat) (is-htpy-finite-B : is-htpy-finite n B) : is-htpy-finite n A =
+  is-htpy-finite/closed-Equiv/aux n A B e is-htpy-finite-B
+
+is-htpy-finite/closed-Equiv' (A B : U) (e : Equiv A B) (n : Nat) (is-htpy-finite-A : is-htpy-finite n A) : is-htpy-finite n B =
+  is-htpy-finite/closed-Equiv B A (Equiv/sym A B e) n is-htpy-finite-A

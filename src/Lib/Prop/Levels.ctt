@@ -40,3 +40,24 @@ is-set/is-prop (A : U) : is-prop (is-set A) =
           ( \ _. A)
           ( \ x y. is-prop (Path A x y))
           ( \ x y. is-prop/is-prop (Path A x y)))
+
+Set/closed-Prod/is-set (A B : UU-Set) : is-set ((Set/type A) * (Set/type B)) =
+  \ t u.
+    is-prop/closed-equiv
+      ( Path ((Set/type A) * (Set/type B)) t u)
+      ( Eq-prod
+        ( Set/type A)
+        ( Set/type B) t u)
+      ( Eq-prod/Equiv
+        ( Set/type A)
+        ( Set/type B) t u)
+      ( is-prop/prod
+        ( Path (Set/type A) t.1 u.1)
+        ( Path (Set/type B) t.2 u.2)
+        ( Set/is-set A t.1 u.1)
+        ( Set/is-set B t.2 u.2))
+
+
+Set/closed-Prod (A B : UU-Set) : UU-Set =
+  ( (Set/type A) * (Set/type B),
+    Set/closed-Prod/is-set A B)

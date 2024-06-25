@@ -1,0 +1,37 @@
+#+NAME: Paths
+#+AUTHOR: Johann Rosain
+
+* Paths properties
+
+  #+begin_src ctt
+  module Lib.Prop.Paths where
+  #+end_src
+
+This file contains properties on paths. In fact, it is a public export of the files [[MiscPaths.org][Lib.Prop.MiscPaths]], [[ActionPaths.org][Lib.Prop.ActionPaths]] and [[Comp.org][Lib.Prop.Comp]], furthered by some properties.
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Prop.ActionPaths
+  import Lib.Prop.Comp
+  import Lib.Prop.MiscPaths    
+   #+end_src
+
+** Transport of =ap=
+We show that tr_P(ap_f(p)) \sim tr_{P \circ f}(p).
+#+begin_src ctt
+  tr/ap/refl (A B : U) (f : A -> B) (P : B -> U) (x : A) (u : P (f x))
+                  : Path (P (f x)) (tr B (f x) (f x) (ap A B f x x (refl A x)) P u) (tr A x x (refl A x) (\ z. P (f z)) u) =
+    comp
+      ( P (f x)) 
+      ( tr B (f x) (f x) (ap A B f x x (refl A x)) P u) u
+      ( tr/refl-path B (f x) P u)
+      ( tr A x x (refl A x) (\ z. P (f z)) u)
+      ( tr/refl-path' A x (\ z. P (f z)) u)
+
+  tr/ap (A B : U) (f : A -> B) (P : B -> U) (x y : A) (p : Path A x y) (u : P (f x))
+             : Path (P (f y)) (tr B (f x) (f y) (ap A B f x y p) P u) (tr A x y p (\ z. P (f z)) u) =
+    J A x
+      ( \ z q. Path (P (f z)) (tr B (f x) (f z) (ap A B f x z q) P u) (tr A x z q (\ z'. P (f z')) u))
+      ( tr/ap/refl A B f P x u) y p
+#+end_src

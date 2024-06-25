@@ -180,3 +180,11 @@ htpy/half-adjoint (A B : U) (f : A -> B) (g : B -> A) (G : Htpy' B B (\ y. f (g 
           ( nat-htpy' A (\ z. g (f z)) H x)))
         ( G (f x))
         ( naturality A B (\ z. f (g (f z))) f (\ z. G (f z)) (g (f x)) x (H x)))
+
+htpy/half-adjoint' (A B : U) (f : A -> B) (g : B -> A) (G : Htpy' B B (\ y. f (g y)) (id B)) (H : Htpy' A A (\ x. g (f x)) (id A)) (x : A)
+                        : Path (Path B (f (g (f x))) (f x)) (htpy/half-adjoint/htpy A B f g G H (f x)) (ap A B f (g (f x)) x (H x)) =
+  inv 
+    ( Path B (f (g (f x))) (f x))
+    ( ap A B f (g (f x)) x (H x))
+    ( htpy/half-adjoint/htpy A B f g G H (f x))
+    ( htpy/half-adjoint A B f g G H x)

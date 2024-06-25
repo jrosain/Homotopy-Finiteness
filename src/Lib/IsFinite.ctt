@@ -1,8 +1,11 @@
 module Lib.IsFinite where
 
 import Lib.PropTrunc
+import Lib.SetTrunc
 import Lib.Counting
 import Lib.Prop.Nat
+import Lib.Prop.Coprod
+import Lib.Prop.Empty
 
 is-finite (X : U) : U =
   Prop-trunc
@@ -143,3 +146,55 @@ BoolBool/card : Nat =
   card
     ( Bool * Bool)
     ( is-finite/closed-Prod Bool Bool Bool/is-finite Bool/is-finite)
+
+is-finite/pi' : (k : Nat) -> (B : Fin k -> U) -> ((x : Fin k) -> is-finite (B x)) -> is-finite ((x : Fin k) -> B x) = split
+  zero ->
+    \ B _.
+      count/is-finite
+        ( (x : Fin zero) -> B x)
+        ( count/contr-count
+          ( (x : Fin zero) -> B x)
+          ( Empty/universal-dependent-property
+            ( Fin zero) B
+            ( Equiv/refl (Fin zero))))
+  suc k ->
+    \ B is-fin-B.
+      is-finite/closed-Equiv
+        ( (x : Fin (suc k)) -> B x)
+        ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+        ( Equiv/trans
+          ( (x : Fin (suc k)) -> B x)
+          ( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
+          ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+          ( Coprod/dependent-universal-property
+            ( Fin k) Unit B)
+          ( Equiv/prod'
+            ( (x : Fin k) -> B (inl x))
+            ( (u : Unit) -> B (inr u))
+            ( B (inr star))
+            ( Equiv/pi-Unit
+              ( \ u. B (inr u)))))
+        ( is-finite/closed-Prod
+          ( (x : Fin k) -> B (inl x))
+          ( B (inr star))
+          ( is-finite/pi' k
+            ( \ x. B (inl x))
+            ( \ x. is-fin-B (inl x)))
+          ( is-fin-B (inr star)))
+
+is-finite/Pi (A : U) (B : A -> U) (is-finite-A : is-finite A) (is-finite-B : (x : A) -> is-finite (B x))
+                : is-finite ((x : A) -> B x) =
+  rec-Prop-trunc
+    ( count A)
+    ( is-finite/Prop ((x : A) -> B x))
+    ( \ c.
+      is-finite/closed-Equiv
+        ( (x : A) -> B x)
+        ( (x : Fin (number-of-elements A c)) -> B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
+        ( Equiv/dependent
+          ( Fin (number-of-elements A c)) A B
+          ( count/Equiv A c))
+        ( is-finite/pi'
+          ( number-of-elements A c)
+          ( \ x. B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
+          ( \ x. is-finite-B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x)))) is-finite-A

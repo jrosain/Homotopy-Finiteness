@@ -1,6 +1,7 @@
 module Lib.Prop.Proposition where
 
 import Stdlib.Prelude
+import Lib.Data.Decidability
 import Lib.Data.Map
 import Lib.Data.Unit
 import Lib.Prop.Contr

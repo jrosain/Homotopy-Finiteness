@@ -68,10 +68,42 @@ The recurrence principle can also be expressed using propositions.
     rec-Set-trunc A
       ( Prop/Set B) f
 #+end_src
-Moreover, =Set-trunc/unit= satisfies set truncation.
+
+** TODO Induction principle
 #+begin_src ctt
-  -- is-set-trunc/unit (X : U) : is-set-trunc X (Set-trunc X) (\ x. Set-trunc/unit x) =
+  -- ind-Set-trunc (A : U) (B : (x : Set-trunc A) -> UU-Set) (f : (x : A) -> Set/type (B (Set-trunc/unit x))) : (x : Set-trunc A) -> Set/type (B x) = split
+  --   Set-trunc/unit a -> f a
+  --   Set-trunc/squash x y p q i j ->
+  --     Set/is-set
+  --       ( B y)
+  --       ( tr (Set-trunc A) x y p (\ z. Set/type (B z)) (ind-Set-trunc A B f x))
+  --       ( ind-Set-trunc A B f y)
+  --       ( apd (Set-trunc A) (\ z. Set/type (B z)) (ind-Set-trunc A B f) x y p)
+  --       ( apd (Set-trunc A) (\ z. Set/type (B z)) (ind-Set-trunc A B f) x y q) i j      
 #+end_src
+
+** TODO Set-trunc/unit defines a set truncation
+#+begin_src ctt
+  Set-trunc/is-set-trunc/right-htpy (X : U) (Y : UU-Set) (h : X -> Set/type Y)
+                                       : Path (X -> Set/type Y)
+                                              (precomp-Set X (Set-trunc/Set X) (\ z. Set-trunc/unit z) Y (rec-Set-trunc X Y h)) h =
+    refl (X -> Set/type Y) h
+
+  --   rinv f i x =
+  --    elim (λ x → isProp→isSet (Bset (rec Bset (λ x → f ∣ x ∣₂) x) (f x)))
+  --         (λ _ → refl) x i
+
+  -- Set-trunc/is-set-trunc/left-htpy (X : U) (Y : UU-Set) (h : (Set-trunc X) -> Set/type Y)
+  --                                      : Path (Set-trunc X -> Set/type Y)
+  --                                             (rec-Set-trunc X Y (precomp-Set X (Set-trunc/Set X) (\ z. Set-trunc/unit z) Y h)) h =
+  --   \ i x.
+
+  -- Set-trunc/is-set-trunc (X : U) : is-set-trunc X (Set-trunc X) (\ x. Set-trunc/unit x) =
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** Map between truncations
 If there is a map between A and B, then there is a map between the set truncations of A and B.
    #+begin_src ctt
@@ -81,7 +113,7 @@ If there is a map between A and B, then there is a map between the set truncatio
       ( \ x. Set-trunc/unit (f x))
    #+end_src
 
-** Set truncation of a set is the set itself
+** TODO Set truncation of a set is the set itself
 
    #+begin_src ctt
   Set-trunc/eq/Prop (X : U) (x y : Set-trunc X) : UU-Prop =
@@ -97,6 +129,32 @@ If there is a map between A and B, then there is a map between the set truncatio
     Set/Set-trunc/map
       ( Prop/Set X)
    #+end_src
+Retraction:
+#+begin_src ctt
+  Set/Equiv-Set-trunc/left-htpy (X : UU-Set) (x : Set/type X)
+                                   : Path (Set/type X) (Set/Set-trunc/map X (Set-trunc/unit x)) x =
+    refl (Set/type X) x
+
+  Set-trunc-unit/inj (X : UU-Set) (x y : Set/type X) (p : Path (Set-trunc (Set/type X)) (Set-trunc/unit x) (Set-trunc/unit y)) : Path (Set/type X) x y =
+    ap (Set-trunc (Set/type X)) (Set/type X) (Set/Set-trunc/map X) (Set-trunc/unit x) (Set-trunc/unit y) p
+
+  -- Set/Equiv-Set-trunc/right-htpy (X : UU-Set) : (x : Set-trunc (Set/type X))
+  --                                             -> Path (Set-trunc (Set/type X)) (Set-trunc/unit (Set/Set-trunc/map X x)) x =
+  --   htpy-eq'
+  --     ( Set-trunc (Set/type X))
+  --     ( Set-trunc (Set/type X))
+  --     ( \ z. (Set-trunc/unit (Set/Set-trunc/map X z)))
+  --     ( id (Set-trunc (Set/type X)))
+  --     ( \ i.
+  --       ( ( ? -- universal property
+  --           ( \ z. Set-trunc/unit (Set/Set-trunc/map X z),
+  --             \ z. ap (Set/type X) (Set-trunc (Set/type X)) (\ y. Set-trunc/unit y) (Set/Set-trunc/map X (Set-trunc/unit x)) x (Set/Equiv-Set-trunc/left-htpy X z))
+  --           ( id (Set-trunc (Set/type X)),
+  --             Hpy'/refl (Set-trunc (Set/type X)) (Set-trunc (Set/type X)) (id (Set-trunc (Set/type X))))) i).1)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Mere eq and set truncation
 Mere equality corresponds to equality on set truncation. Indeed, the equality on a set truncation is a proposition and we have a back-and-forth map between |x|_0 = |y|_0 and ||x = y||.
@@ -112,11 +170,80 @@ Mere equality corresponds to equality on set truncation. Indeed, the equality on
         ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
 #+end_src
 
+** Closure under equivalences
+If =A= and =B= are equivalent, then ||A||_0 and ||B||_0 are, of course, also both equivalent.
+#+begin_src ctt
+  Set-trunc/Path (A B : U) (p : Path U A B) : Path U (Set-trunc A) (Set-trunc B) =
+    \ i. Set-trunc (p i)
+
+  Set-trunc/Equiv (A B : U) (e : Equiv A B) : Equiv (Set-trunc A) (Set-trunc B) =
+    path-to-equiv
+      ( Set-trunc A)
+      ( Set-trunc B)
+      ( Set-trunc/Path A B
+        ( equiv-to-path A B e))
+
+  Set-trunc/Equiv/map (A B : U) (e : Equiv A B) : (Set-trunc A) -> (Set-trunc B) =
+    Equiv/map
+      ( Set-trunc A)
+      ( Set-trunc B)
+      ( Set-trunc/Equiv A B e)
+
+  Set-trunc/Equiv/inv-map (A B : U) (e : Equiv A B) : (Set-trunc B) -> (Set-trunc A) =
+    Equiv/inv-map
+      ( Set-trunc A)
+      ( Set-trunc B)
+      ( Set-trunc/Equiv A B e)
+#+end_src
+
+** TODO Distribution over products
+We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
+#+begin_src ctt
+  Set-trunc/prod/map (A B : U) (t : (Set-trunc A) * (Set-trunc B)) : Set-trunc (A * B) =
+    rec-Set-trunc A
+      ( Set-trunc/Set (A * B))
+      ( \ x. rec-Set-trunc B
+            ( Set-trunc/Set (A * B))
+            ( \ y. Set-trunc/unit (x, y)) t.2) t.1
+
+  Set-trunc/prod/inv-map (A B : U) (t : Set-trunc (A * B)) : (Set-trunc A) * (Set-trunc B) =
+    rec-Set-trunc (A * B)
+      ( Set/closed-Prod
+        ( Set-trunc/Set A)
+        ( Set-trunc/Set B))
+      ( \ u. (Set-trunc/unit u.1, Set-trunc/unit u.2)) t
+
+  -- Set-trunc/prod/right-htpy (A B : U) (t : Set-trunc (A * B))
+  --                                : Path (Set-trunc (A * B))
+  --                                       (Set-trunc/prod/map A B (Set-trunc/prod/inv-map A B t)) t =
+#+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.
 
-** Connected type
+** TODO Closure of contractibility
+If =A= is contractible, then the set truncation of =A= is also contractible.
+#+begin_src ctt
+  Set-trunc/closed-Path (A : U) (x y : A) (p : Path A x y) : Path (Set-trunc A) (Set-trunc/unit x) (Set-trunc/unit y) =
+    \ i. Set-trunc/unit (p i)
+
+  Set-trunc/closed-contr/aux (A : U) (is-contr-A : is-contr A) (x : A) : Path (Set-trunc A) (Set-trunc/unit (center A is-contr-A)) (Set-trunc/unit x) =
+    Set-trunc/closed-Path A
+      ( center A is-contr-A) x
+      ( contraction A is-contr-A x)
+
+  -- Set-trunc/closed-contr (A : U) (is-contr-A : is-contr A) : is-contr (Set-trunc A) =
+  --   ( Set-trunc/unit (center A is-contr-A),
+  --     \ x.
+  --       rec-Set-trunc/Prop A
+  --         ( Set-trunc/eq/Prop A
+  --           ( Set-trunc/unit (center A is-contr-A)) x)
+  --  x)
+#+end_src
+#+RESULTS:
+: Typecheck has succeeded.
+
+** TODO Connected type
 A type is connected whenever its set truncation is contractible.
 #+begin_src ctt
   is-conn (A : U) : U =
@@ -158,3 +285,5 @@ is surjective:
 
 #+RESULTS:
 : Typecheck has succeeded.
+
+

@@ -14,8 +14,6 @@ This file is a formalization of the proof presented by Rijke in his [[https://ww
    #+begin_src ctt
   import Lib.IsFinite
   import Lib.SetTrunc
-  import Lib.Prop.Empty
-  import Lib.Prop.Coprod
    #+end_src
 
 ** Homotopy finite
@@ -32,65 +30,66 @@ A type =A= is said n^th-/homotopy finite/ if it has finitely many connected comp
     is-htpy-finite' A n
 #+end_src
 
-** Closure under \Pi-types
+** Closure under equivalence
+If =A= and =B= are equivalent, then whenever one of them is \pi_n finite, the other one is also \pi_n finite.
+#+begin_src ctt
+  is-htpy-finite/closed-Equiv/aux : (n : Nat) -> (A B : U) -> Equiv A B -> is-htpy-finite n B -> is-htpy-finite n A = split
+    zero -> \ A B e.
+      is-finite/closed-Equiv
+        ( Set-trunc A)
+        ( Set-trunc B)
+        ( Set-trunc/Equiv A B e)
+    suc n -> \ A B e is-htpy-finite-B.
+      ( is-finite/closed-Equiv
+          ( Set-trunc A)
+          ( Set-trunc B)
+          ( Set-trunc/Equiv A B e)
+          ( is-htpy-finite-B.1),
+        \ x y.
+          is-htpy-finite/closed-Equiv/aux n
+          ( Path A x y)
+          ( Path B (Equiv/map A B e x) (Equiv/map A B e y))
+          ( Equiv/Equiv-id A B e x y)
+          ( is-htpy-finite-B.2
+            ( Equiv/map A B e x)
+            ( Equiv/map A B e y)))
+
+  is-htpy-finite/closed-Equiv (A B : U) (e : Equiv A B) (n : Nat) (is-htpy-finite-B : is-htpy-finite n B) : is-htpy-finite n A =
+    is-htpy-finite/closed-Equiv/aux n A B e is-htpy-finite-B
+
+  is-htpy-finite/closed-Equiv' (A B : U) (e : Equiv A B) (n : Nat) (is-htpy-finite-A : is-htpy-finite n A) : is-htpy-finite n B =
+    is-htpy-finite/closed-Equiv B A (Equiv/sym A B e) n is-htpy-finite-A
+#+end_src
+** TODO Equivalence of set-truncated function type
+We show that if =A= is finite, then there is an equivalence between \Pi_{x: A}||B x||_0 and ||\Pi_{x: A} B x||_0. First, we show this result for =A = Fin k= by induction on /k/.
+   * if /k = 0/, then both types are contractible. By the 3-for-2 property of contractibility, they are equivalent.
+   * if /k > 0/, there is the following chain of equivalences:
+     \Pi_{x: Fin (k + 1)}||B x||_0 \simeq \Pi_{x: Fin k}||B (inl x)||_0 \times ||B (inr star)||_0
+                        \simeq ||\Pi_{x: Fin k} B (inl x)||_0 \times ||B (inr star)||_0
+                        \simeq ||\Pi_{x: Fin (k + 1)}B x||_0
+#+begin_src ctt
+  Fin/Equiv-Pi-Set-trunc : (k : Nat) -> (B : Fin k -> U) -> Equiv ((x : Fin k) -> Set-trunc (B x)) (Set-trunc ((x : Fin k) -> B x)) = split
+    zero -> 
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+
+** TODO Closure under \Pi-types
 In this section, we show that if =B= is a family of \pi_n finite types over a finite type =A=, then the product \Pi_{x: A}B(x) is also \pi_{n}-finite.
-
-*** Finite family over =Fin k=
-First, we start by showing that if =B= is a finite family over =Fin k=, then \Pi_{x: Fin k}B(x) is also finite. This proof is by induction on =k=. 
-The case =k = 0= is trivial: a family over the empty type is contractible thus it has a count and it is finite. 
-The case =k > 0= is done using the dependent universal property of coproduct. By induction hypothesis, \Pi_{x: Fin k}B(x) is finite and by hypothesis, B(inr star) is also finite. Finally, a product of finite things is finite.
+We proceed by induction over =n=. 
+   * If =n= is zero, then by is-finite/\Pi, is-finite (\Pi_{x: A}||B x||_0). Moreover, \Pi_{x: A}||B x||_0 is equivalent to ||\Pi_{x: A}B(x)||_0 and as is-finite is closed by equivalences, the result follows.
+   * If =n > 0=, then it suffices to show that f \sim g is \pi_n finite by function extensionality and \pi_n-finiteness closure under equivalence. It then suffices to use the induction hypothesis.
 #+begin_src ctt
-  is-finite/pi' : (k : Nat) -> (B : Fin k -> U) -> ((x : Fin k) -> is-finite (B x)) -> is-finite ((x : Fin k) -> B x) = split
-    zero ->
-      \ B _.
-        count/is-finite
-          ( (x : Fin zero) -> B x)
-          ( count/contr-count
-            ( (x : Fin zero) -> B x)
-            ( Empty/universal-dependent-property
-              ( Fin zero) B
-              ( Equiv/refl (Fin zero))))
-    suc k ->
-      \ B is-fin-B.
-        is-finite/closed-Equiv
-          ( (x : Fin (suc k)) -> B x)
-          ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
-          ( Equiv/trans
-            ( (x : Fin (suc k)) -> B x)
-            ( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
-            ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
-            ( Coprod/dependent-universal-property
-              ( Fin k) Unit B)
-            ( Equiv/prod'
-              ( (x : Fin k) -> B (inl x))
-              ( (u : Unit) -> B (inr u))
-              ( B (inr star))
-              ( Equiv/pi-Unit
-                ( \ u. B (inr u)))))
-          ( is-finite/closed-Prod
-            ( (x : Fin k) -> B (inl x))
-            ( B (inr star))
-            ( is-finite/pi k
-              ( \ x. B (inl x))
-              ( \ x. is-fin-B (inl x)))
-            ( is-fin-B (inr star)))
+  is-htpy-finite/closed-Pi (A : U) (B : A -> U) (is-finite-A : is-finite A)
+                              : (n : Nat) -> (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n ((x : A) -> B x) = split
+  --  zero -> \ is-finite-B.
+  --    is-finite/Pi A
+  --      ( \ x. Set-trunc (B x)) is-finite-A is-finite-B
+
 #+end_src
 
-*** Finite family over finite type
-Let =A= be a finite type. As =is-finite= is a proposition, by the induction principle of the propositional truncation, we assume that we have a count of =A=; that is, an equivalence from Fin k to A for some k. Then, as =is-finite= is closed under equivalence, for any finite family =B= over a finite type =A=, \Pi_{x: A}B(x) is also finite.
-#+begin_src ctt
-  is-finite/pi (A : U) (B : A -> U) (is-finite-A : is-finite A) (is-finite-B : (x : A) -> is-finite (B x))
-                  : is-finite ((x : A) -> B x) =
-    rec-Prop-trunc
-      ( count A)
-      ( is-finite/Prop ((x : A) -> B x))
-      ( \ c.
-        is-finite/closed-Equiv
-          ( (x : A) -> B x)
-          ( (x : Fin (number-of-elements A c)) -> B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
-          ?
-          ( is-finite/pi'
-            ( number-of-elements A c)
-            ( \ x. B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
-            ( \ x. is-finite-B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))))
-#+end_src
+#+RESULTS:
+: Typecheck has succeeded.
+
