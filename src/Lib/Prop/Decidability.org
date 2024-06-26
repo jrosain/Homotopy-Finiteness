@@ -1,0 +1,66 @@
+#+NAME: Decidability
+#+AUTHOR: Johann Rosain
+
+* Decidability properties
+
+  #+begin_src ctt
+  module Lib.Prop.Decidability where
+  #+end_src
+
+This file contains the proof of some properties on decidability. 
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Data.Decidability
+  import Lib.Prop.Proposition
+   #+end_src
+
+** Closure under equivalence
+If =A= and =B= are equivalent, then whenever one of them is decidable, the other is also decidable.
+#+begin_src ctt
+  is-decidable/closed-Equiv (A B : U) (e : Equiv A B) : is-decidable B -> is-decidable A = split
+    inl y -> inl (Equiv/inv-map A B e y)
+    inr f -> inr (\ y. f (Equiv/map A B e y))
+
+  is-decidable/closed-Equiv' (A B : U) (e : Equiv A B) : is-decidable A -> is-decidable B = split
+    inl x -> inl (Equiv/map A B e x)
+    inr f -> inr (\ x. f (Equiv/inv-map A B e x))
+#+end_src
+
+** =is-decidable= is a proposition
+Whenever =A= is a proposition, =is-decidable A= is a proposition.
+    #+begin_src ctt
+  is-decidable/is-prop/inl (A : U) (is-prop-A : is-prop A) (a : A) : (d : Coprod A (neg A)) -> Path (Coprod A (neg A)) (inl a) d = split
+    inl x -> Coprod/Eq/map A (neg A) (inl a) (inl x) (is-prop-A a x)
+    inr f -> ex-falso (Path (Coprod A (neg A)) (inl a) (inr f)) (f a)
+
+  is-decidable/is-prop/inr (A : U) (is-prop-A : is-prop A) (f : neg A) : (d : Coprod A (neg A)) -> Path (Coprod A (neg A)) (inr f) d = split
+    inl a -> ex-falso (Path (Coprod A (neg A)) (inr f) (inl a)) (f a)
+    inr g -> Coprod/Eq/map A (neg A) (inr f) (inr g) (is-prop/pi A (\ _. Empty) (\ _. Empty/is-prop) f g)
+
+  is-decidable/is-prop (A : U) (is-prop-A : is-prop A) : is-prop (is-decidable A) = split
+    inl a -> is-decidable/is-prop/inl A is-prop-A a
+    inr f -> is-decidable/is-prop/inr A is-prop-A f
+
+  is-decidable/Prop (A : U) (is-prop-A : is-prop A) : UU-Prop =
+    ( is-decidable A,
+      is-decidable/is-prop A is-prop-A)
+    #+end_src
+The same holds for decidable equality.
+#+begin_src ctt
+  has-decidable-equality/is-prop (A : U) (H : (x y : A) -> is-prop (Path A x y)) : is-prop (has-decidable-equality A) =
+    is-prop/pi-2 A 
+      ( \ _. A)
+      ( \ x y. is-decidable (Path A x y))
+      ( \ x y. is-decidable/is-prop
+                ( Path A x y)
+                ( H x y))
+
+  has-decidable-equality/Prop (A : U) (H : (x y : A) -> is-prop (Path A x y)) : UU-Prop =
+    ( has-decidable-equality A,
+      has-decidable-equality/is-prop A H)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

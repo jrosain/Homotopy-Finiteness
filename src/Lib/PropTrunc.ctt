@@ -111,3 +111,34 @@ mere-equiv/trans (X Y : U) (e : mere-equiv X Y) (Z : U) (e' : mere-equiv Y Z) : 
           ( mere-equiv/Prop X Z)
           ( \ eY. Prop-trunc/unit
                   ( Equiv/trans X Y Z eX eY)) e') e
+
+Prop-trunc/closed-Prod/map (A B : U) : (Prop-trunc A * Prop-trunc B) -> Prop-trunc (A * B) =
+  \ t.
+    rec-Prop-trunc A
+      ( Prop-trunc/Prop (A * B))
+      ( \ x. rec-Prop-trunc B
+            ( Prop-trunc/Prop (A * B))
+            ( \ y. Prop-trunc/unit (x, y)) t.2) t.1
+
+Prop-trunc/closed-Prod/inv-map (A B : U) : Prop-trunc (A * B) -> Prop-trunc A * Prop-trunc B =
+  rec-Prop-trunc
+    ( A * B)
+    ( Prop/Prod
+      ( Prop-trunc/Prop A)
+      ( Prop-trunc/Prop B))
+    ( \ u. (Prop-trunc/unit u.1, Prop-trunc/unit u.2))  
+
+Prop-trunc/closed-Prod (A B : U) : Equiv (Prop-trunc A * Prop-trunc B) (Prop-trunc (A * B)) =
+  Prop/Equiv
+    ( Prop/Prod
+      ( Prop-trunc/Prop A)
+      ( Prop-trunc/Prop B))
+    ( Prop-trunc/Prop (A * B))
+    ( Prop-trunc/closed-Prod/map A B)
+    ( Prop-trunc/closed-Prod/inv-map A B)
+
+Prop-trunc/Pi/map-out (A : U) (B : A -> U) (g : Prop-trunc ((x : A) -> B x)) (x : A) : Prop-trunc (B x) =
+  rec-Prop-trunc
+    ( (y : A) -> B y)
+    ( Prop-trunc/Prop (B x))
+    ( \ f. Prop-trunc/unit (f x)) g

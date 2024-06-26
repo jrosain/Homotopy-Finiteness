@@ -110,6 +110,14 @@ has-decidable-equality/Equiv' (A B : U) (e : Equiv A B) (dA : has-decidable-equa
 Equiv/Equiv-id (A B : U) (e : Equiv A B) (x y : A) : Equiv (Path A x y) (Path B (Equiv/map A B e x) (Equiv/map A B e y)) =
   (ap A B (Equiv/map A B e) x y, Equiv/is-inj A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
 
+Equiv/comp/type (A : U) : Nat -> U -> U = split
+  zero -> \ B. Equiv A B
+  suc n -> \ B. (C : U) (e : Equiv B C) -> Equiv/comp/type A n C  
+
+Equiv/comp : (n : Nat) (A : U) (B : U) (e : Equiv A B) -> Equiv/comp/type A n B = split
+  zero -> \ _ _ e. e
+  suc n -> \ A B e C e'. Equiv/comp n A C (Equiv/trans A B C e e')
+
 is-equiv/comp-is-equiv (A B C : U) (f : A -> B) (g : B -> C) (e : is-equiv A B f) (e' : is-equiv B C g)
                               : is-equiv A C (\ z. g (f z)) =
   is-bi-inv/is-equiv A C

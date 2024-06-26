@@ -67,7 +67,15 @@ TODO: the thing above has really long eval time, find out why.
             ( \ _. A)
             ( \ x y. is-prop (Path A x y))
             ( \ x y. is-prop/is-prop (Path A x y)))
+
+  is-set/Prop (A : U) : UU-Prop =
+    ( is-set A,
+      is-set/is-prop A)
    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** Closed of set under product
 If =A= and =B= are both sets, then =A * B= is also a set.
 #+begin_src ctt

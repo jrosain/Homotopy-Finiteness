@@ -7,6 +7,7 @@ import Lib.Data.Unit
 import Lib.Prop.Contr
 import Lib.Prop.Unit
 import Lib.Prop.Equiv
+import Lib.Prop.Coprod
 
 is-proof-irrelevant (A : U) : U =
   A -> is-contr A
@@ -92,6 +93,13 @@ Prop/is-prop (A : UU-Prop) : is-prop (Prop/type A) = A.2
 
 Prop/hom (A B : UU-Prop) : U = (Prop/type A) -> (Prop/type B)
 
+Empty/is-prop : is-prop (Empty) =
+  \ x y. ex-falso (Path Empty x y) x
+
+Empty/Prop : UU-Prop =
+  ( Empty,
+    Empty/is-prop)
+
 Prop/is-equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : is-equiv (Prop/type A) (Prop/type B) f =
   let H : Htpy' (Prop/type B) (Prop/type B) (\ z. f (g z)) (id (Prop/type B)) = \ x. Prop/is-prop B (f (g x)) x
       K : Htpy' (Prop/type A) (Prop/type A) (\ z. g (f z)) (id (Prop/type A)) = \ x. Prop/is-prop A (g (f x)) x
@@ -103,6 +111,20 @@ Prop/Equiv (A B : UU-Prop) (f : Prop/hom A B) (g : Prop/hom B A) : Equiv (Prop/t
 
 is-prop/prod (A B : U) (p : is-prop A) (q : is-prop B) : is-prop (A * B) =
   is-prop/sg A (\ _. B) p (\ _. q)
+
+Prop/Prod (A B : UU-Prop) : UU-Prop =
+  ( Prop/type A * Prop/type B,
+    is-prop/prod
+    ( Prop/type A)
+    ( Prop/type B)
+    ( Prop/is-prop A)
+    ( Prop/is-prop B))
+
+Prop/Pi (A : U) (B : A -> UU-Prop) : UU-Prop =
+  ( (x : A) -> Prop/type (B x),
+    is-prop/pi A
+    ( \ x. Prop/type (B x))
+    ( \ x. Prop/is-prop (B x)))
 
 is-prop/path (A : UU-Prop) (x y : Prop/type A) : is-prop (Path (Prop/type A) x y) =
   is-contr->is-prop

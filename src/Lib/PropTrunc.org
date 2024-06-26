@@ -72,7 +72,7 @@ Of course, as it is an inductive type, it has a recurrence principle.
     Prop-trunc/squash x y i -> (Prop/is-prop P) (rec-Prop-trunc A P f x) (rec-Prop-trunc A P f y) i
 #+end_src
 
-** TODO =unit= is a propositional truncation
+** =unit= is a propositional truncation
 Of course, the =unit= constructor of =Prop-trunc= satisfies the =is-prop-trunc= property.
 #+begin_src ctt
   Prop-trunc/is-prop-trunc (A : U) : is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) =
@@ -177,9 +177,44 @@ Of course, it satisfies the equivalence properties of equivalence.
                     ( Equiv/trans X Y Z eX eY)) e') e          
 #+end_src
 
+** Closure under product
+The following equivalence holds: ||A|| \times ||B|| \simeq ||A \times B||.
+#+begin_src ctt
+  Prop-trunc/closed-Prod/map (A B : U) : (Prop-trunc A * Prop-trunc B) -> Prop-trunc (A * B) =
+    \ t.
+      rec-Prop-trunc A
+        ( Prop-trunc/Prop (A * B))
+        ( \ x. rec-Prop-trunc B
+              ( Prop-trunc/Prop (A * B))
+              ( \ y. Prop-trunc/unit (x, y)) t.2) t.1
+
+  Prop-trunc/closed-Prod/inv-map (A B : U) : Prop-trunc (A * B) -> Prop-trunc A * Prop-trunc B =
+    rec-Prop-trunc
+      ( A * B)
+      ( Prop/Prod
+        ( Prop-trunc/Prop A)
+        ( Prop-trunc/Prop B))
+      ( \ u. (Prop-trunc/unit u.1, Prop-trunc/unit u.2))  
+
+  Prop-trunc/closed-Prod (A B : U) : Equiv (Prop-trunc A * Prop-trunc B) (Prop-trunc (A * B)) =
+    Prop/Equiv
+      ( Prop/Prod
+        ( Prop-trunc/Prop A)
+        ( Prop-trunc/Prop B))
+      ( Prop-trunc/Prop (A * B))
+      ( Prop-trunc/closed-Prod/map A B)
+      ( Prop-trunc/closed-Prod/inv-map A B)
+#+end_src
+
+** Map out of \Pi-type
+
+   #+begin_src ctt
+  Prop-trunc/Pi/map-out (A : U) (B : A -> U) (g : Prop-trunc ((x : A) -> B x)) (x : A) : Prop-trunc (B x) =
+    rec-Prop-trunc
+      ( (y : A) -> B y)
+      ( Prop-trunc/Prop (B x))
+      ( \ f. Prop-trunc/unit (f x)) g
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.
-
-
-
-

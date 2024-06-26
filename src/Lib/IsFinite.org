@@ -13,11 +13,11 @@ Finite types are types that can be counted. However, when defining finite types,
 
 #+begin_src ctt
   import Lib.PropTrunc
-  import Lib.SetTrunc
   import Lib.Counting
   import Lib.Prop.Nat
   import Lib.Prop.Coprod
   import Lib.Prop.Empty  
+  import Lib.Prop.Decidability
 #+end_src
 
 ** Definition
@@ -259,6 +259,124 @@ Let =A= be a finite type. As =is-finite= is a proposition, by the induction prin
             ( number-of-elements A c)
             ( \ x. B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x))
             ( \ x. is-finite-B (Equiv/map (Fin (number-of-elements A c)) A (count/Equiv A c) x)))) is-finite-A
+#+end_src
+
+** A finite type is a set
+   #+begin_src ctt
+  is-finite/is-set (A : U) : is-finite A -> is-set A =
+    rec-Prop-trunc
+      ( count A)
+      ( is-set/Prop A)
+      ( \ c. count/is-set A c)
+   #+end_src
+** A finite type has decidable equality
+If a type is finite, then it is a set. In particular, =has-decidable-equality= is a proposition on this type, so it follows by the recursion principle of propositional truncation that a finite type has decidable equality.
+   #+begin_src ctt
+  is-finite/has-decidable-equality (A : U) (is-finite-A : is-finite A) : has-decidable-equality A =
+    rec-Prop-trunc
+      ( count A)
+      ( has-decidable-equality/Prop A
+        ( is-finite/is-set A is-finite-A))
+      ( count/has-decidable-eq A) is-finite-A
+   #+end_src
+** Finite choice
+There is a finite choice map (\Pi_{x: A}||B x||) \to ||\Pi_{x: A}B(x)|| for any finite type A and family over this finite type B.
+#+begin_src ctt
+  Fin/choice : (k : Nat) (B : Fin k -> U) (H : (x : Fin k) -> Prop-trunc (B x)) -> Prop-trunc ((x : Fin k) -> B x) = split
+    zero -> \ B _.
+      Prop-trunc/unit
+        ( center ((x : Fin zero) -> B x)
+          ( Empty/universal-dependent-property
+            ( Fin zero) B
+            ( Equiv/refl (Fin zero))))
+    suc k -> \ B.
+      Equiv/map
+        ( (x : Fin (suc k)) -> Prop-trunc (B x))
+        ( Prop-trunc ((x : Fin (suc k)) -> B x))
+        ( Equiv/comp five-Nat
+          ( (x : Fin (suc k)) -> Prop-trunc (B x))
+          ( ((x : Fin k) -> Prop-trunc (B (inl x))) * ((x : Unit) -> Prop-trunc (B (inr x))))
+          ( Coprod/dependent-universal-property
+            ( Fin k) Unit (\ x. Prop-trunc (B x)))
+          ( ((x : Fin k) -> Prop-trunc (B (inl x))) * (Prop-trunc (B (inr star))))
+          ( Equiv/prod'
+            ( (x : Fin k) -> Prop-trunc (B (inl x)))
+            ( (x : Unit) -> Prop-trunc (B (inr x)))
+            ( Prop-trunc (B (inr star)))
+            ( Equiv/pi-Unit
+              ( \ x. Prop-trunc (B (inr x)))))
+          ( (Prop-trunc ((x : Fin k) -> B (inl x))) * (Prop-trunc (B (inr star))))
+          ( Equiv/prod
+            ( (x : Fin k) -> Prop-trunc (B (inl x)))
+            ( Prop-trunc ((x : Fin k) -> B (inl x)))
+            ( Prop-trunc (B (inr star)))
+            ( Prop/Equiv
+              ( Prop/Pi (Fin k) (\ x. Prop-trunc/Prop (B (inl x))))
+              ( Prop-trunc/Prop ((x : Fin k) -> B (inl x)))
+              ( Fin/choice k (\ x. B (inl x)))
+              ( Prop-trunc/Pi/map-out
+                ( Fin k)
+                ( \ x. B (inl x)))))
+          ( Prop-trunc (((x : Fin k) -> B (inl x)) * (B (inr star))))
+          ( Prop-trunc/closed-Prod
+            ( (x : Fin k) -> B (inl x))
+            ( B (inr star)))
+          ( Prop-trunc (((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x))))
+          ( Equiv/Prop-trunc
+            (((x : Fin k) -> B (inl x)) * (B (inr star)))
+            (((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+            ( Equiv/prod'
+              ( (x : Fin k) -> B (inl x))
+              ( B (inr star))
+              ( (x : Unit) -> B (inr x))
+              ( Equiv/sym
+                ( (x : Unit) -> B (inr x))
+                ( B (inr star))
+                ( Equiv/pi-Unit (\ x. B (inr x))))))
+          ( Prop-trunc ((x : Fin (suc k)) -> B x))
+          ( Equiv/Prop-trunc
+            ( ((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+            ( (x : Fin (suc k)) -> B x)
+            ( Equiv/sym
+              ( (x : Fin (suc k)) -> B x)
+              ( ((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+              ( Coprod/dependent-universal-property
+                ( Fin k) Unit B))))
+
+  is-finite/choice (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -> Prop-trunc (B x)) : Prop-trunc ((x : A) -> B x) =
+    rec-Prop-trunc
+      ( count A)
+      ( Prop-trunc/Prop
+        ( (x : A) -> B x))
+      ( \ c. 
+          let k : Nat = number-of-elements A c
+              f : Fin k -> A = Equiv/map (Fin k) A (count/Equiv A c)
+              g : A -> Fin k = Equiv/inv-map (Fin k) A (count/Equiv A c)
+           in
+          rec-Prop-trunc
+            ( (x : (Fin k)) -> B (f x))
+            ( Prop-trunc/Prop ((x : A) -> B x))
+            ( \ h. Prop-trunc/unit
+                  ( \ x. tr A (f (g x)) x (Equiv/inv-right-htpy (Fin k) A (count/Equiv A c) x) B (h (g x))))
+            ( Fin/choice k
+              ( \ x. B (f x))
+              ( \ x. H (f x)))) is-finite-A
+#+end_src
+
+** Closure under \Sigma-types
+Given a finite type =A= and a family of finite types =B= over =A=, \Sigma A B is also finite.
+#+begin_src ctt
+  is-finite/closed-Sg (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -> is-finite (B x)) : is-finite (Sg A B) =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop
+          ( Sg A B))
+      ( \ c. rec-Prop-trunc
+              ( (x : A) -> count (B x))
+              ( is-finite/Prop
+                ( Sg A B))
+              ( \ H'. Prop-trunc/unit (count/closed-Sg A B c H'))
+              ( is-finite/choice A (\ x. count (B x)) is-finite-A H)) is-finite-A
 #+end_src
 
 #+RESULTS:

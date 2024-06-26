@@ -179,6 +179,18 @@ If =A= and =B= are two equivalent types, then there is also an equivalence betwe
     (ap A B (Equiv/map A B e) x y, Equiv/is-inj A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
 #+end_src
 
+** Chain of equivalences
+A comp-like chaining of equivalences.
+#+begin_src ctt
+  Equiv/comp/type (A : U) : Nat -> U -> U = split
+    zero -> \ B. Equiv A B
+    suc n -> \ B. (C : U) (e : Equiv B C) -> Equiv/comp/type A n C  
+
+  Equiv/comp : (n : Nat) (A : U) (B : U) (e : Equiv A B) -> Equiv/comp/type A n B = split
+    zero -> \ _ _ e. e
+    suc n -> \ A B e C e'. Equiv/comp n A C (Equiv/trans A B C e e')
+#+end_src
+
 ** 3-for-2 properties
 
 *** 3-for-2 property of equiv closure under composition

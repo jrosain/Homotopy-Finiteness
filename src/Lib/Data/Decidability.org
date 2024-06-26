@@ -90,7 +90,3 @@ An immediate consequence is that if =A= is decidable, then =neg A= is also decid
   is-decidable/neg (A : U) (d : is-decidable A) : is-decidable (neg A) =
     is-decidable/map A Empty d is-decidable/Empty
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
-

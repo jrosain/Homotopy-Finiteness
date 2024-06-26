@@ -2,7 +2,8 @@ module Lib.Prop.Paths where
 
 import Lib.Prop.ActionPaths
 import Lib.Prop.Comp
-import Lib.Prop.MiscPaths
+import Lib.Prop.MiscPaths    
+import Lib.Prop.Set
 
 tr/ap/refl (A B : U) (f : A -> B) (P : B -> U) (x : A) (u : P (f x))
                 : Path (P (f x)) (tr B (f x) (f x) (ap A B f x x (refl A x)) P u) (tr A x x (refl A x) (\ z. P (f z)) u) =
@@ -18,3 +19,17 @@ tr/ap (A B : U) (f : A -> B) (P : B -> U) (x y : A) (p : Path A x y) (u : P (f x
   J A x
     ( \ z q. Path (P (f z)) (tr B (f x) (f z) (ap A B f x z q) P u) (tr A x z q (\ z'. P (f z')) u))
     ( tr/ap/refl A B f P x u) y p
+
+square/dependent-fill/refl (A : U) (B : A -> UU-Set) (x : A) (x' : A) (p : Path A x x') (y : Set/type (B x)) (y' : Set/type (B x'))
+                           (p' q' : PathP (i. Set/type (B (p i))) y y') : Path (PathP (i. Set/type (B (p i))) y y') p' q' =
+  J A x
+    ( \ x0 q. (y0 : Set/type (B x)) -> (y1 : Set/type (B x0)) -> (p0 q0 : PathP (i. Set/type (B (q i))) y0 y1) -> Path (PathP (i. Set/type (B (q i))) y0 y1) p0 q0)
+    ( Set/is-set (B x)) x' p y y' p' q'
+
+square/dependent-fill (A : U) (B : A -> UU-Set) (x x' : A) (p : Path A x x') : (q : Path A x x') -> (spq : Path (Path A x x') p q) ->
+                      (y : Set/type (B x)) -> (y' : Set/type (B x')) -> (p' : PathP (i. Set/type (B (p i))) y y') -> (q' : PathP (i. Set/type (B (q i))) y y')
+                      -> PathP (i. PathP (j. Set/type (B (spq i j))) y y') p' q' =
+  J ( Path A x x') p
+    ( \ q'' spq0. (y0 : Set/type (B x)) -> (y1 : Set/type (B x')) -> (p0 : PathP (i. Set/type (B (p i))) y0 y1) -> (q0 : PathP (i. Set/type (B (q'' i))) y0 y1)
+                 -> PathP (i. PathP (j. Set/type (B (spq0 i j))) y0 y1) p0 q0)
+    ( square/dependent-fill/refl A B x x' p)

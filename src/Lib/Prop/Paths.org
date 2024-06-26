@@ -15,6 +15,7 @@ This file contains properties on paths. In fact, it is a public export of the fi
   import Lib.Prop.ActionPaths
   import Lib.Prop.Comp
   import Lib.Prop.MiscPaths    
+  import Lib.Prop.Set
    #+end_src
 
 ** Transport of =ap=
@@ -35,3 +36,25 @@ We show that tr_P(ap_f(p)) \sim tr_{P \circ f}(p).
       ( \ z q. Path (P (f z)) (tr B (f x) (f z) (ap A B f x z q) P u) (tr A x z q (\ z'. P (f z')) u))
       ( tr/ap/refl A B f P x u) y p
 #+end_src
+
+** Filling of dependent square of a set
+Let a_0, a_1 : A and p, q : a_0 = a_1 such that \alpha : p = q. We have a full square with sides (refl a_0), (refl a_1), p, q. Assume now that B : A -> Set, and b_0 : B a_0, b_1 : B a_1 with p', q' : b_0 = b_1 (dependent paths). Then we can fill the square in B, that is, p' = q'.
+#+begin_src ctt
+  square/dependent-fill/refl (A : U) (B : A -> UU-Set) (x : A) (x' : A) (p : Path A x x') (y : Set/type (B x)) (y' : Set/type (B x'))
+                             (p' q' : PathP (i. Set/type (B (p i))) y y') : Path (PathP (i. Set/type (B (p i))) y y') p' q' =
+    J A x
+      ( \ x0 q. (y0 : Set/type (B x)) -> (y1 : Set/type (B x0)) -> (p0 q0 : PathP (i. Set/type (B (q i))) y0 y1) -> Path (PathP (i. Set/type (B (q i))) y0 y1) p0 q0)
+      ( Set/is-set (B x)) x' p y y' p' q'
+
+  square/dependent-fill (A : U) (B : A -> UU-Set) (x x' : A) (p : Path A x x') : (q : Path A x x') -> (spq : Path (Path A x x') p q) ->
+                        (y : Set/type (B x)) -> (y' : Set/type (B x')) -> (p' : PathP (i. Set/type (B (p i))) y y') -> (q' : PathP (i. Set/type (B (q i))) y y')
+                        -> PathP (i. PathP (j. Set/type (B (spq i j))) y y') p' q' =
+    J ( Path A x x') p
+      ( \ q'' spq0. (y0 : Set/type (B x)) -> (y1 : Set/type (B x')) -> (p0 : PathP (i. Set/type (B (p i))) y0 y1) -> (q0 : PathP (i. Set/type (B (q'' i))) y0 y1)
+                   -> PathP (i. PathP (j. Set/type (B (spq0 i j))) y0 y1) p0 q0)
+      ( square/dependent-fill/refl A B x x' p)
+
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

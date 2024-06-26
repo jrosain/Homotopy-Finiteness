@@ -19,6 +19,7 @@ This file shows some properties related to the fact that a type =A= is a proposi
   import Lib.Prop.Contr
   import Lib.Prop.Unit
   import Lib.Prop.Equiv
+  import Lib.Prop.Coprod
    #+end_src
 
 ** Equivalent statements for =is-prop=
@@ -158,6 +159,16 @@ Thus, we can define back-and-forth maps between all the conditions.
   Prop/hom (A B : UU-Prop) : U = (Prop/type A) -> (Prop/type B)
    #+end_src
 
+** Empty is a proposition
+   #+begin_src ctt
+  Empty/is-prop : is-prop (Empty) =
+    \ x y. ex-falso (Path Empty x y) x
+
+  Empty/Prop : UU-Prop =
+    ( Empty,
+      Empty/is-prop)
+   #+end_src
+
 ** Equiv when inverse
 A map between two propositions is an equivalence as soon as there is a map back and forth between these two propositions.
 #+begin_src ctt
@@ -171,12 +182,31 @@ A map between two propositions is an equivalence as soon as there is a map back 
     (f, Prop/is-equiv A B f g)
 #+end_src
 
-** Product of propositions is proposition
-
+** Closure under type-formers
+The product of propositions is a proposition
    #+begin_src ctt
   is-prop/prod (A B : U) (p : is-prop A) (q : is-prop B) : is-prop (A * B) =
     is-prop/sg A (\ _. B) p (\ _. q)
+
+  Prop/Prod (A B : UU-Prop) : UU-Prop =
+    ( Prop/type A * Prop/type B,
+      is-prop/prod
+      ( Prop/type A)
+      ( Prop/type B)
+      ( Prop/is-prop A)
+      ( Prop/is-prop B))
    #+end_src
+The dependent product of propositions is a proposition
+#+begin_src ctt
+  Prop/Pi (A : U) (B : A -> UU-Prop) : UU-Prop =
+    ( (x : A) -> Prop/type (B x),
+      is-prop/pi A
+      ( \ x. Prop/type (B x))
+      ( \ x. Prop/is-prop (B x)))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Path of proposition is proposition
 
@@ -195,3 +225,4 @@ A map between two propositions is an equivalence as soon as there is a map back 
 
 #+RESULTS:
 : Typecheck has succeeded.
+

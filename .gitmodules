@@ -1,0 +1,3 @@
+[submodule "poset-type-theory"]
+	path = poset-type-theory
+	url = git@github.com:JonasHoefer/poset-type-theory.git
