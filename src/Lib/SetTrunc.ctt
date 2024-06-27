@@ -137,7 +137,6 @@ Set-trunc/prod/right-htpy (A B : U)
           ( Set-trunc/prod/map A B (Set-trunc/prod/inv-map A B u)) u)
     ( \ u. refl (Set-trunc (A * B)) (Set-trunc/unit u))
 
-unlock Set-trunc/Set Set/closed-Prod
 Set-trunc/prod/left-htpy (A B : U) (t : (Set-trunc A * Set-trunc B))
                               : Path (Set-trunc A * Set-trunc B)
                                      (Set-trunc/prod/inv-map A B (Set-trunc/prod/map A B t)) t =
@@ -226,8 +225,6 @@ is-conn/is-inhabited (A : U) (is-conn-A : is-conn A) : Prop-trunc A =
     ( Prop/Set (Prop-trunc/Prop A))
     ( \ x. Prop-trunc/unit x)
     ( center (Set-trunc A) is-conn-A)
-
--- is-conn/mere-eq (A : U) (is-conn-A : is-conn A) (x y : A) : mere-eq A x y =
 
 fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
   \ b. (a, b)

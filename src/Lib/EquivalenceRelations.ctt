@@ -1,0 +1,72 @@
+module Lib.EquivalenceRelations where
+
+import Lib.Prop.Proposition
+
+Relation (A : U) : U =
+  A -> A -> U
+
+is-reflexive (A : U) (R : Relation A) : U =
+  (x : A) -> R x x  
+
+is-transitive (A : U) (R : Relation A) : U =
+  (x y z : A) -> R x y -> R y z -> R x z
+
+is-symmetric (A : U) (R : Relation A) : U =
+  (x y : A) -> R x y -> R y x
+
+Relation-Prop (A : U) : U =
+  A -> A -> UU-Prop
+
+Relation-Prop/type (A : U) (R : Relation-Prop A) : Relation A =
+  \ x y. Prop/type (R x y)
+
+Relation-Prop/is-reflexive (A : U) (R : Relation-Prop A) : U =
+  is-reflexive A (Relation-Prop/type A R)
+
+Relation-Prop/is-transitive (A : U) (R : Relation-Prop A) : U =
+  is-transitive A (Relation-Prop/type A R)
+
+Relation-Prop/is-symmetric (A : U) (R : Relation-Prop A) : U =
+  is-symmetric A (Relation-Prop/type A R)
+
+is-reflexive/is-prop (A : U) (R : Relation-Prop A) : is-prop (Relation-Prop/is-reflexive A R) =
+  is-prop/pi A
+    ( \ x. Prop/type (R x x))
+    ( \ x. Prop/is-prop (R x x))
+
+is-reflexive/Prop (A : U) (R : Relation-Prop A) : UU-Prop =
+  ( Relation-Prop/is-reflexive A R,
+    is-reflexive/is-prop A R)
+
+is-transitive/is-prop (A : U) (R : Relation-Prop A) : is-prop (Relation-Prop/is-transitive A R) =
+  is-prop/pi A
+    ( \ x. (y z : A) -> Prop/type (R x y) -> Prop/type (R y z) -> Prop/type (R x z))
+    ( \ x. is-prop/pi A
+          ( \ y. (z : A) -> Prop/type (R x y) -> Prop/type (R y z) -> Prop/type (R x z))
+          ( \ y. is-prop/pi A
+                ( \ z. Prop/type (R x y) -> Prop/type (R y z) -> Prop/type (R x z))
+                ( \ z. is-prop/pi
+                      ( Prop/type (R x y))
+                      ( \ _. Prop/type (R y z) -> Prop/type (R x z))
+                      ( \ _. is-prop/pi
+                            ( Prop/type (R y z))
+                            ( \ _. Prop/type (R x z))
+                            ( \ _. Prop/is-prop (R x z))))))
+
+is-transitive/Prop (A : U) (R : Relation-Prop A) : UU-Prop =
+  ( Relation-Prop/is-transitive A R,
+    is-transitive/is-prop A R)
+
+is-symmetric/is-prop (A : U) (R : Relation-Prop A) : is-prop (Relation-Prop/is-symmetric A R) =
+  is-prop/pi A
+    ( \ x. (y : A) -> Prop/type (R x y) -> Prop/type (R y x))
+    ( \ x. is-prop/pi A
+          ( \ y. Prop/type (R x y) -> Prop/type (R y x))
+          ( \ y. is-prop/pi
+                ( Prop/type (R x y))
+                ( \ _. Prop/type (R y x))
+                ( \ _. Prop/is-prop (R y x))))
+
+is-symmetric/Prop (A : U) (R : Relation-Prop A) : UU-Prop =
+  ( Relation-Prop/is-symmetric A R,
+    is-symmetric/is-prop A R)

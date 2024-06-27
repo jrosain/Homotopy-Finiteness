@@ -194,7 +194,6 @@ We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
             ( Set-trunc/prod/map A B (Set-trunc/prod/inv-map A B u)) u)
       ( \ u. refl (Set-trunc (A * B)) (Set-trunc/unit u))
 
-  unlock Set-trunc/Set Set/closed-Prod
   Set-trunc/prod/left-htpy (A B : U) (t : (Set-trunc A * Set-trunc B))
                                 : Path (Set-trunc A * Set-trunc B)
                                        (Set-trunc/prod/inv-map A B (Set-trunc/prod/map A B t)) t =
@@ -294,7 +293,8 @@ Mere equality corresponds to equality on set truncation. Indeed, the equality on
         ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
         ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
 #+end_src
-** TODO Connected type
+
+** Connected type
 A type is connected whenever its set truncation is contractible.
 #+begin_src ctt
   is-conn (A : U) : U =
@@ -307,10 +307,6 @@ A connected type is inhabited.
       ( Prop/Set (Prop-trunc/Prop A))
       ( \ x. Prop-trunc/unit x)
       ( center (Set-trunc A) is-conn-A)
-#+end_src
-Moreover, given a point of a connected type, ...
-#+begin_src ctt
-  -- is-conn/mere-eq (A : U) (is-conn-A : is-conn A) (x y : A) : mere-eq A x y =
 #+end_src
 
 ** TODO Ex 18.5

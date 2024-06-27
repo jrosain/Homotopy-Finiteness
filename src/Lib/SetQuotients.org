@@ -1,0 +1,178 @@
+#+NAME: Set Quotients
+#+AUTHOR: Johann Rosain
+
+* Set quotients
+
+  #+begin_src ctt
+  module Lib.SetQuotients where
+  #+end_src
+
+This file contains the definition and properties of set quotients as an Higher Inductive Type (see the HoTT book, section 6.10).
+
+** Packages imports
+
+   #+begin_src ctt
+  import Lib.Prop.Set
+  import Lib.Prop.Levels
+  import Lib.EquivalenceRelations
+  import Lib.Image
+  import Lib.SetTrunc
+   #+end_src
+
+** Definition
+A set quotient is a type, quotiented by a relation R (that is, if R(a, b) then q(a) = q(b)) such that the final type is a set.
+   #+begin_src ctt
+  data Set-quotient (A : U) (R : Relation-Prop A) : U
+    = Set-quotient/q (a : A)
+    | Set-quotient/eq (a b : A) (r : Prop/type (R a b)) <i> [(i=0) -> Set-quotient/q a, (i=1) -> Set-quotient/q b]
+    | Set-quotient/squash (x y : Set-quotient A R) (p q : Path (Set-quotient A R) x y) <i j> [(i=0) -> p j, (i=1) -> q j, (j=0) -> x, (j=1) -> y]
+   #+end_src
+
+As expected, quotienting respects the equivalence relation.
+#+begin_src ctt
+  Set-quotient/respects-relation (A : U) (R : Relation-Prop A) (x y : A) : Prop/type (R x y) -> Path (Set-quotient A R) (Set-quotient/q x) (Set-quotient/q y) =
+    \ r i. Set-quotient/eq x y r i
+#+end_src
+And it is a set.
+#+begin_src ctt
+  Set-quotient/is-set (A : U) (R : Relation-Prop A) : is-set (Set-quotient A R) =
+    \ x y p q i j. Set-quotient/squash x y p q i j
+
+  Set-quotient/Set (A : U) (R : Relation-Prop A) : UU-Set =
+    ( Set-quotient A R,
+      Set-quotient/is-set A R)
+#+end_src
+
+** Induction principle
+Of course, it has an induction principle.
+#+begin_src ctt
+  ind-Set-quotient (A : U) (R : Relation-Prop A) (P : Set-quotient A R -> UU-Set) (f : (x : A) -> Set/type (P (Set-quotient/q x)))
+                   (feq : (x y : A) -> (r : Prop/type (R x y)) -> PathP (i. Set/type (P (Set-quotient/eq x y r i))) (f x) (f y)) : (x : Set-quotient A R) -> Set/type (P x) = split
+    Set-quotient/q a -> f a
+    Set-quotient/eq x y r i -> feq x y r i
+    Set-quotient/squash x y p q i j ->
+      square/dependent-fill
+        ( Set-quotient A R) P x y p q
+        ( \ i' j'. Set-quotient/squash x y p q i' j')
+        ( ind-Set-quotient A R P f feq x)
+        ( ind-Set-quotient A R P f feq y)
+        ( \ k. ind-Set-quotient A R P f feq (p k))
+        ( \ k. ind-Set-quotient A R P f feq (q k)) i j
+#+end_src
+And a recursion principle.
+#+begin_src ctt
+  rec-Set-quotient (A : U) (R : Relation-Prop A) (B : UU-Set) (f : A -> Set/type B) (feq : (x y : A) -> Prop/type (R x y) -> Path (Set/type B) (f x) (f y))
+                      : (x : Set-quotient A R) -> Set/type B =
+    ind-Set-quotient A R
+      ( \ _. B) f feq
+#+end_src
+
+** Using propositions
+There's a (slightly simpler) induction principle if the goal is a proposition.
+#+begin_src ctt
+  PathO-to-PathP (A : U) (x y : A) (p : Path A x y) (B : A -> U) (u : B x) (v : B y) : (PathO A x y p B u v) -> PathP (i. B (p i)) u v =
+    Equiv/inv-map 
+      ( PathP (i. B (p i)) u v)
+      ( PathO A x y p B u v)
+      ( path-to-equiv
+        ( PathP (i. B (p i)) u v)
+        ( PathO A x y p B u v)
+        ( PathP-eq-PathO A x y p B u v))
+
+  ind-Set-quotient/Prop (A : U) (R : Relation-Prop A) (P : Set-quotient A R -> UU-Prop) (f : (x : A) -> Prop/type (P (Set-quotient/q x)))
+                           : (x : Set-quotient A R) -> Prop/type (P x) = split
+    Set-quotient/q a -> f a
+    Set-quotient/eq x y r i ->
+      PathO-to-PathP
+        ( Set-quotient A R)
+        ( Set-quotient/q x)
+        ( Set-quotient/q y)
+        ( Set-quotient/respects-relation A R x y r)
+        ( \ z. Prop/type (P z))
+        ( f x)
+        ( f y)
+        ( Prop/is-prop
+          ( P (Set-quotient/q y))
+          ( tr (Set-quotient A R) (Set-quotient/q x) (Set-quotient/q y) (Set-quotient/respects-relation A R x y r) (\ z. Prop/type (P z)) (f x))
+          ( f y)) i
+    Set-quotient/squash x y p q i j ->
+      square/dependent-fill
+        ( Set-quotient A R)
+        ( \ z. Prop/Set (P z)) x y p q
+        ( \ i' j'. Set-quotient/squash x y p q i' j')
+        ( ind-Set-quotient/Prop A R P f x)
+        ( ind-Set-quotient/Prop A R P f y)
+        ( \ k. ind-Set-quotient/Prop A R P f (p k))
+        ( \ k. ind-Set-quotient/Prop A R P f (q k)) i j
+#+end_src
+And thus, there's also a slightly simpler recursor.
+#+begin_src ctt
+  rec-Set-quotient/Prop (A : U) (R : Relation-Prop A) (B : UU-Prop) (f : A -> Prop/type B)
+                           : (x : Set-quotient A R) -> Prop/type B =
+    ind-Set-quotient/Prop A R (\ _. B) f
+#+end_src
+
+** Surjectivity
+The quotient of a type by an equivalence relation is obviously surjective.
+#+begin_src ctt
+  quotienting-is-surj (A : U) (R : Relation-Prop A) : is-surj A (Set-quotient A R) (\ a. Set-quotient/q a) =
+    ind-Set-quotient/Prop A R
+      ( \ x. Prop-trunc/Prop (Fib A (Set-quotient A R) (\ a. Set-quotient/q a) x))
+      ( \ x. Prop-trunc/unit (x, refl (Set-quotient A R) (Set-quotient/q x)))
+#+end_src
+
+** Universal property of co-equalizer
+That is to say, for any set =B=, precomposing with the quotient yields an equivalence:
+(A/R \to B) \simeq (\Sigma_{f: A \to B}\Pi_{x,y: A}R(a, b) \to f(a) = f(b)).
+   #+begin_src ctt
+  Set-quotient/universal/type (A : U) (R : Relation-Prop A) (B : UU-Set) : U =
+    Sg (A -> Set/type B) (\ f. (x y : A) -> (Prop/type (R x y)) -> Path (Set/type B) (f x) (f y))
+
+  Set-quotient/universal/map (A : U) (R : Relation-Prop A) (B : UU-Set)
+                                : (Set-quotient A R -> Set/type B) -> (Set-quotient/universal/type A R B) =
+    \ g. ( \ x. g (Set-quotient/q x),
+          \ x y r i. g (Set-quotient/eq x y r i))
+
+  Set-quotient/universal/inv-map (A : U) (R : Relation-Prop A) (B : UU-Set)
+                                    : (Set-quotient/universal/type A R B) -> (Set-quotient A R -> Set/type B) =
+    \ t. rec-Set-quotient A R B t.1 t.2
+
+  Set-quotient/universal/right-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (t : (Set-quotient/universal/type A R B))
+                                       : Path (Set-quotient/universal/type A R B) (Set-quotient/universal/map A R B (Set-quotient/universal/inv-map A R B t)) t =
+    refl (Set-quotient/universal/type A R B) t
+
+  Set-quotient/universal/left-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (f : Set-quotient A R -> Set/type B)
+                                      : Path (Set-quotient A R -> Set/type B) (Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f)) f =
+    \ i x.
+      rec-Prop-trunc
+        ( Fib A (Set-quotient A R) (\ z. Set-quotient/q z) x)
+        ( Set/eq/Prop B
+          ( Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) x)
+          ( f x))
+        ( \ t. 
+            comp
+              ( Set/type B)
+              ( Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) x)
+              ( f (Set-quotient/q t.1))
+              ( ap (Set-quotient A R) (Set/type B) (\ z. Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) z) x (Set-quotient/q t.1) t.2)
+              ( f x)
+              ( ap (Set-quotient A R) (Set/type B) f (Set-quotient/q t.1) x (inv (Set-quotient A R) x (Set-quotient/q t.1) t.2)))
+        ( quotienting-is-surj A R x) i
+   #+end_src
+Then, we can conclude on it being an equivalence.
+#+begin_src ctt
+  Set-quotient/universal-property (A : U) (R : Relation-Prop A) (B : UU-Set) : Equiv (Set-quotient A R -> Set/type B) (Set-quotient/universal/type A R B) =
+    has-inverse/Equiv
+      ( Set-quotient A R -> Set/type B)
+      ( Set-quotient/universal/type A R B)
+      ( Set-quotient/universal/map A R B)
+      ( Set-quotient/universal/inv-map A R B,
+        ( Set-quotient/universal/right-htpy A R B,
+          Set-quotient/universal/left-htpy A R B))
+#+end_src
+
+** TODO Effective on equivalence relations
+In turn, whenever R is an equivalence relation, q(x) = q(y) is equivalent to R(x, y).
+
+#+RESULTS:
+: Typecheck has succeeded.
