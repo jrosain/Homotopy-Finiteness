@@ -58,6 +58,24 @@ mere-eq (A : U) (x y : A) : U =
 mere-eq/Prop (A : U) (x y : A) : UU-Prop =
   Prop-trunc/Prop (Path A x y)
 
+mere-eq/refl (A : U) (x : A) : mere-eq A x x =
+  Prop-trunc/unit (refl A x)
+
+mere-eq/sym (A : U) (x y : A) : (p : mere-eq A x y) -> mere-eq A y x =
+  rec-Prop-trunc
+    ( Path A x y)
+    ( mere-eq/Prop A y x)
+    ( \ p. Prop-trunc/unit (inv A x y p))
+
+mere-eq/trans (A : U) (x y : A) (p : mere-eq A x y) (z : A) (q : mere-eq A y z) : mere-eq A x z =
+  rec-Prop-trunc
+    ( Path A x y)
+    ( mere-eq/Prop A x z)
+    ( \ p'. rec-Prop-trunc
+            ( Path A y z)
+            ( mere-eq/Prop A x z)
+            ( \ q'. Prop-trunc/unit (comp A x y p' z q')) q) p
+
 Prop-trunc/map-out (P : UU-Prop) : Prop-trunc (Prop/type P) -> Prop/type P =
   rec-Prop-trunc
     ( Prop/type P) P

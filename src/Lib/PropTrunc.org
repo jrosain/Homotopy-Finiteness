@@ -108,6 +108,29 @@ A mere equality is the propositional truncation of an equality.
   mere-eq/Prop (A : U) (x y : A) : UU-Prop =
     Prop-trunc/Prop (Path A x y)
 #+end_src
+Of course, mere equality is still an equivalence relation.
+#+begin_src ctt
+  mere-eq/refl (A : U) (x : A) : mere-eq A x x =
+    Prop-trunc/unit (refl A x)
+
+  mere-eq/sym (A : U) (x y : A) : (p : mere-eq A x y) -> mere-eq A y x =
+    rec-Prop-trunc
+      ( Path A x y)
+      ( mere-eq/Prop A y x)
+      ( \ p. Prop-trunc/unit (inv A x y p))
+
+  mere-eq/trans (A : U) (x y : A) (p : mere-eq A x y) (z : A) (q : mere-eq A y z) : mere-eq A x z =
+    rec-Prop-trunc
+      ( Path A x y)
+      ( mere-eq/Prop A x z)
+      ( \ p'. rec-Prop-trunc
+              ( Path A y z)
+              ( mere-eq/Prop A x z)
+              ( \ q'. Prop-trunc/unit (comp A x y p' z q')) q) p
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Back-and-forth map between prop and prop trunc
 If =P= is a proposition, then there is a map out of =Prop-trunc P=.

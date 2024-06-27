@@ -12,6 +12,7 @@ This file defines set truncation.
 ** Packages imports
 
    #+begin_src ctt
+  import Lib.SetQuotients
   import Lib.Prop.Levels
   import Lib.PropTrunc
   import Lib.Prop.Paths
@@ -95,12 +96,7 @@ Likewise, it can be expressed using propositions.
   Set-trunc/eq/Prop (X : U) (x y : Set-trunc X) : UU-Prop =
     ( Path (Set-trunc X) x y,
       Set-trunc/is-set X x y)
-
-  Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
-    ( Path (Set/type X) x y,
-      Set/is-set X x y)
    #+end_src
-
 ** Set-trunc/unit defines a set truncation
 
 #+begin_src ctt
@@ -127,6 +123,26 @@ Likewise, it can be expressed using propositions.
           ( Set-trunc/is-set-trunc/right-htpy X Y,
             Set-trunc/is-set-trunc/left-htpy X Y))
 #+end_src
+** TODO Set truncation is a type quotiented by mere equality
+We show that set truncation is actually a type that is quotiented by the equivalence relation that is the mere equality.
+#+begin_src ctt
+  Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+    rec-Prop-trunc
+      ( Path X x y)
+      ( Set-trunc/eq/Prop X
+        ( Set-trunc/unit x)
+        ( Set-trunc/unit y))
+      ( J X x
+        ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
+        ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
+
+  Set-trunc/relation (X : U) : Set-quotient/identifiable-map-relation X (mere-eq/Prop X) (Set-trunc/Set X) =
+    ( (\ x. Set-trunc/unit x),
+      Set-trunc/relation/map X)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Map between truncations
 If there is a map between A and B, then there is a map between the set truncations of A and B.
@@ -245,7 +261,7 @@ If =A= is contractible, then the set truncation of =A= is also contractible.
         ( Set-trunc/closed-contr/aux A is-contr-A))
 #+end_src
 
-** TODO Set truncation of a set is the set itself
+** Set truncation of a set is the set itself
 
    #+begin_src ctt
   Set/Set-trunc/map (X : UU-Set) : Set-trunc (Set/type X) -> Set/type X =
@@ -263,36 +279,25 @@ Homotopies:
                                    : Path (Set/type X) (Set/Set-trunc/map X (Set-trunc/unit x)) x =
     refl (Set/type X) x
 
-  -- Set/Equiv-Set-trunc/right-htpy (X : UU-Set) : (x : Set-trunc (Set/type X))
-  --                                             -> Path (Set-trunc (Set/type X)) (Set-trunc/unit (Set/Set-trunc/map X x)) x =
-  --   htpy-eq'
-  --     ( Set-trunc (Set/type X))
-  --     ( Set-trunc (Set/type X))
-  --     ( \ z. (Set-trunc/unit (Set/Set-trunc/map X z)))
-  --     ( id (Set-trunc (Set/type X)))
-  --     ( \ i.
-  --       ( ( Set-trunc/is-set-trunc (Set/type X) X 
-  --             ((\ z. Set-trunc/unit (Set/Set-trunc/map X z)),
-  --             (\ z. ap (Set/type X) (Set-trunc (Set/type X)) (\ y. Set-trunc/unit y) (Set/Set-trunc/map X (Set-trunc/unit z)) z (Set/Equiv-Set-trunc/left-htpy X z)))
-  --           ( id (Set-trunc (Set/type X)),
-  --             Htpy'/refl (Set-trunc (Set/type X)) (Set-trunc (Set/type X)) (id (Set-trunc (Set/type X))))) i).1)
+  Set/Equiv-Set-trunc/right-htpy (X : UU-Set) : (x : Set-trunc (Set/type X))
+                                              -> Path (Set-trunc (Set/type X)) (Set-trunc/unit (Set/Set-trunc/map X x)) x =
+    ind-Set-trunc
+      ( Set/type X)
+      ( \ z. Prop/Set (Set-trunc/eq/Prop (Set/type X) (Set-trunc/unit (Set/Set-trunc/map X z)) z))
+      ( \ z. refl (Set-trunc (Set/type X)) (Set-trunc/unit z))
+
+  Set/Equiv-Set-trunc (X : UU-Set) : Equiv (Set/type X) (Set-trunc (Set/type X)) =
+    has-inverse/Equiv
+      ( Set/type X)
+      ( Set-trunc (Set/type X))
+      ( \ x. Set-trunc/unit x)
+      ( ( Set/Set-trunc/map X),
+        ( Set/Equiv-Set-trunc/right-htpy X,
+          Set/Equiv-Set-trunc/left-htpy X))
 #+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.
-** TODO Mere eq and set truncation
-Mere equality corresponds to equality on set truncation. Indeed, the equality on a set truncation is a proposition and we have a back-and-forth map between |x|_0 = |y|_0 and ||x = y||.
-#+begin_src ctt
-  Set-trunc/mere-eq/eq (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
-    rec-Prop-trunc
-      ( Path X x y)
-      ( Set-trunc/eq/Prop X
-        ( Set-trunc/unit x)
-        ( Set-trunc/unit y))
-      ( J X x
-        ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
-        ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
-#+end_src
 
 ** Connected type
 A type is connected whenever its set truncation is contractible.

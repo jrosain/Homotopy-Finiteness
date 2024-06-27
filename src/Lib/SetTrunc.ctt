@@ -1,5 +1,6 @@
 module Lib.SetTrunc where
 
+import Lib.SetQuotients
 import Lib.Prop.Levels
 import Lib.PropTrunc
 import Lib.Prop.Paths
@@ -55,10 +56,6 @@ Set-trunc/eq/Prop (X : U) (x y : Set-trunc X) : UU-Prop =
   ( Path (Set-trunc X) x y,
     Set-trunc/is-set X x y)
 
-Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
-  ( Path (Set/type X) x y,
-    Set/is-set X x y)
-
 Set-trunc/is-set-trunc/right-htpy (X : U) (Y : UU-Set) (h : X -> Set/type Y)
                                      : Path (X -> Set/type Y)
                                             (precomp-Set X (Set-trunc/Set X) (\ z. Set-trunc/unit z) Y (rec-Set-trunc X Y h)) h =
@@ -81,6 +78,20 @@ Set-trunc/is-set-trunc (X : U) : is-set-trunc X (Set-trunc/Set X) (\ x. Set-trun
       ( rec-Set-trunc X Y,
         ( Set-trunc/is-set-trunc/right-htpy X Y,
           Set-trunc/is-set-trunc/left-htpy X Y))
+
+Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+  rec-Prop-trunc
+    ( Path X x y)
+    ( Set-trunc/eq/Prop X
+      ( Set-trunc/unit x)
+      ( Set-trunc/unit y))
+    ( J X x
+      ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
+      ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
+
+Set-trunc/relation (X : U) : Set-quotient/identifiable-map-relation X (mere-eq/Prop X) (Set-trunc/Set X) =
+  ( (\ x. Set-trunc/unit x),
+    Set-trunc/relation/map X)
 
 Set-trunc/map (A B : U) (f : A -> B) : (Set-trunc A) -> Set-trunc B =
   rec-Set-trunc A
@@ -193,29 +204,21 @@ Set/Equiv-Set-trunc/left-htpy (X : UU-Set) (x : Set/type X)
                                  : Path (Set/type X) (Set/Set-trunc/map X (Set-trunc/unit x)) x =
   refl (Set/type X) x
 
--- Set/Equiv-Set-trunc/right-htpy (X : UU-Set) : (x : Set-trunc (Set/type X))
---                                             -> Path (Set-trunc (Set/type X)) (Set-trunc/unit (Set/Set-trunc/map X x)) x =
---   htpy-eq'
---     ( Set-trunc (Set/type X))
---     ( Set-trunc (Set/type X))
---     ( \ z. (Set-trunc/unit (Set/Set-trunc/map X z)))
---     ( id (Set-trunc (Set/type X)))
---     ( \ i.
---       ( ( Set-trunc/is-set-trunc (Set/type X) X 
---             ((\ z. Set-trunc/unit (Set/Set-trunc/map X z)),
---             (\ z. ap (Set/type X) (Set-trunc (Set/type X)) (\ y. Set-trunc/unit y) (Set/Set-trunc/map X (Set-trunc/unit z)) z (Set/Equiv-Set-trunc/left-htpy X z)))
---           ( id (Set-trunc (Set/type X)),
---             Htpy'/refl (Set-trunc (Set/type X)) (Set-trunc (Set/type X)) (id (Set-trunc (Set/type X))))) i).1)
+Set/Equiv-Set-trunc/right-htpy (X : UU-Set) : (x : Set-trunc (Set/type X))
+                                            -> Path (Set-trunc (Set/type X)) (Set-trunc/unit (Set/Set-trunc/map X x)) x =
+  ind-Set-trunc
+    ( Set/type X)
+    ( \ z. Prop/Set (Set-trunc/eq/Prop (Set/type X) (Set-trunc/unit (Set/Set-trunc/map X z)) z))
+    ( \ z. refl (Set-trunc (Set/type X)) (Set-trunc/unit z))
 
-Set-trunc/mere-eq/eq (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
-  rec-Prop-trunc
-    ( Path X x y)
-    ( Set-trunc/eq/Prop X
-      ( Set-trunc/unit x)
-      ( Set-trunc/unit y))
-    ( J X x
-      ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
-      ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
+Set/Equiv-Set-trunc (X : UU-Set) : Equiv (Set/type X) (Set-trunc (Set/type X)) =
+  has-inverse/Equiv
+    ( Set/type X)
+    ( Set-trunc (Set/type X))
+    ( \ x. Set-trunc/unit x)
+    ( ( Set/Set-trunc/map X),
+      ( Set/Equiv-Set-trunc/right-htpy X,
+        Set/Equiv-Set-trunc/left-htpy X))
 
 is-conn (A : U) : U =
   is-contr (Set-trunc A)

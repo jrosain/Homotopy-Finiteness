@@ -4,7 +4,27 @@ import Lib.Prop.Set
 import Lib.Prop.Levels
 import Lib.EquivalenceRelations
 import Lib.Image
-import Lib.SetTrunc
+
+Set-quotient/identifiable-map-relation (A : U) (R : Relation-Prop A) (B : UU-Set) : U =
+  Sg (A -> Set/type B) (\ f. (x y : A) -> (Prop/type (R x y)) -> Path (Set/type B) (f x) (f y))
+
+Set-quotient/identifiable-map-relation/map (A : U) (R : Relation-Prop A) (B : UU-Set) (t : Set-quotient/identifiable-map-relation A R B) : A -> Set/type B = t.1
+
+Set-quotient/identifiable-map-relation/id-map (A : U) (R : Relation-Prop A) (B : UU-Set) (t : Set-quotient/identifiable-map-relation A R B)
+                                                 : (x y : A) -> (Prop/type (R x y)) -> Path (Set/type B) (Set-quotient/identifiable-map-relation/map A R B t x)
+                                                                                                       (Set-quotient/identifiable-map-relation/map A R B t y) = t.2
+
+precomp-Set-quotient (A : U) (R : Relation-Prop A) (B X : UU-Set) (f : Set-quotient/identifiable-map-relation A R B) (g : Set/hom B X)
+                        : Set-quotient/identifiable-map-relation A R X =
+  ( \ x. g (Set-quotient/identifiable-map-relation/map A R B f x),
+    \ x y r. ap ( Set/type B)
+               ( Set/type X) g
+               ( Set-quotient/identifiable-map-relation/map A R B f x)
+               ( Set-quotient/identifiable-map-relation/map A R B f y)
+               ( Set-quotient/identifiable-map-relation/id-map A R B f x y r))
+
+is-set-quotient (A : U) (R : Relation-Prop A) (B : UU-Set) (f : Set-quotient/identifiable-map-relation A R B) : U =
+  (X : UU-Set) -> is-equiv (Set/hom B X) (Set-quotient/identifiable-map-relation A R X) (precomp-Set-quotient A R B X f)
 
 data Set-quotient (A : U) (R : Relation-Prop A) : U
   = Set-quotient/q (a : A)
@@ -78,50 +98,57 @@ rec-Set-quotient/Prop (A : U) (R : Relation-Prop A) (B : UU-Prop) (f : A -> Prop
                          : (x : Set-quotient A R) -> Prop/type B =
   ind-Set-quotient/Prop A R (\ _. B) f
 
+Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
+  ( Path (Set/type X) x y,
+    Set/is-set X x y)
+
 quotienting-is-surj (A : U) (R : Relation-Prop A) : is-surj A (Set-quotient A R) (\ a. Set-quotient/q a) =
   ind-Set-quotient/Prop A R
     ( \ x. Prop-trunc/Prop (Fib A (Set-quotient A R) (\ a. Set-quotient/q a) x))
     ( \ x. Prop-trunc/unit (x, refl (Set-quotient A R) (Set-quotient/q x)))
 
-Set-quotient/universal/type (A : U) (R : Relation-Prop A) (B : UU-Set) : U =
-  Sg (A -> Set/type B) (\ f. (x y : A) -> (Prop/type (R x y)) -> Path (Set/type B) (f x) (f y))
+Set-quotient/relation (A : U) (R : Relation-Prop A) : Set-quotient/identifiable-map-relation A R (Set-quotient/Set A R) =
+  ( (\ x. Set-quotient/q x),
+    Set-quotient/respects-relation A R)
 
-Set-quotient/universal/map (A : U) (R : Relation-Prop A) (B : UU-Set)
-                              : (Set-quotient A R -> Set/type B) -> (Set-quotient/universal/type A R B) =
-  \ g. ( \ x. g (Set-quotient/q x),
-        \ x y r i. g (Set-quotient/eq x y r i))
+Set-quotient/is-set-quotient/map (A : U) (R : Relation-Prop A) (B : UU-Set)
+                                    : (Set-quotient A R -> Set/type B) -> (Set-quotient/identifiable-map-relation A R B) =
+  precomp-Set-quotient A R
+    ( Set-quotient/Set A R) B
+    ( Set-quotient/relation A R)
 
-Set-quotient/universal/inv-map (A : U) (R : Relation-Prop A) (B : UU-Set)
-                                  : (Set-quotient/universal/type A R B) -> (Set-quotient A R -> Set/type B) =
+Set-quotient/is-set-quotient/inv-map (A : U) (R : Relation-Prop A) (B : UU-Set)
+                                        : (Set-quotient/identifiable-map-relation A R B) -> (Set-quotient A R -> Set/type B) =
   \ t. rec-Set-quotient A R B t.1 t.2
 
-Set-quotient/universal/right-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (t : (Set-quotient/universal/type A R B))
-                                     : Path (Set-quotient/universal/type A R B) (Set-quotient/universal/map A R B (Set-quotient/universal/inv-map A R B t)) t =
-  refl (Set-quotient/universal/type A R B) t
+Set-quotient/is-set-quotient/right-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (t : Set-quotient/identifiable-map-relation A R B)
+                                           : Path (Set-quotient/identifiable-map-relation A R B) (Set-quotient/is-set-quotient/map A R B (Set-quotient/is-set-quotient/inv-map A R B t)) t =
+  refl (Set-quotient/identifiable-map-relation A R B) t
 
-Set-quotient/universal/left-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (f : Set-quotient A R -> Set/type B)
-                                    : Path (Set-quotient A R -> Set/type B) (Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f)) f =
+Set-quotient/is-set-quotient/left-htpy (A : U) (R : Relation-Prop A) (B : UU-Set) (f : Set-quotient A R -> Set/type B)
+                                          : Path (Set-quotient A R -> Set/type B) (Set-quotient/is-set-quotient/inv-map A R B (Set-quotient/is-set-quotient/map A R B f)) f =
   \ i x.
     rec-Prop-trunc
       ( Fib A (Set-quotient A R) (\ z. Set-quotient/q z) x)
       ( Set/eq/Prop B
-        ( Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) x)
+        ( Set-quotient/is-set-quotient/inv-map A R B (Set-quotient/is-set-quotient/map A R B f) x)
         ( f x))
       ( \ t. 
           comp
             ( Set/type B)
-            ( Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) x)
+            ( Set-quotient/is-set-quotient/inv-map A R B (Set-quotient/is-set-quotient/map A R B f) x)
             ( f (Set-quotient/q t.1))
-            ( ap (Set-quotient A R) (Set/type B) (\ z. Set-quotient/universal/inv-map A R B (Set-quotient/universal/map A R B f) z) x (Set-quotient/q t.1) t.2)
+            ( ap (Set-quotient A R) (Set/type B) (\ z. Set-quotient/is-set-quotient/inv-map A R B (Set-quotient/is-set-quotient/map A R B f) z) x (Set-quotient/q t.1) t.2)
             ( f x)
             ( ap (Set-quotient A R) (Set/type B) f (Set-quotient/q t.1) x (inv (Set-quotient A R) x (Set-quotient/q t.1) t.2)))
       ( quotienting-is-surj A R x) i
 
-Set-quotient/universal-property (A : U) (R : Relation-Prop A) (B : UU-Set) : Equiv (Set-quotient A R -> Set/type B) (Set-quotient/universal/type A R B) =
-  has-inverse/Equiv
+Set-quotient/is-set-quotient (A : U) (R : Relation-Prop A) : is-set-quotient A R (Set-quotient/Set A R) (Set-quotient/relation A R) =
+  \ B.
+  has-inverse/is-equiv
     ( Set-quotient A R -> Set/type B)
-    ( Set-quotient/universal/type A R B)
-    ( Set-quotient/universal/map A R B)
-    ( Set-quotient/universal/inv-map A R B,
-      ( Set-quotient/universal/right-htpy A R B,
-        Set-quotient/universal/left-htpy A R B))
+    ( Set-quotient/identifiable-map-relation A R B)
+    ( Set-quotient/is-set-quotient/map A R B)
+    ( Set-quotient/is-set-quotient/inv-map A R B,
+      ( Set-quotient/is-set-quotient/right-htpy A R B,
+        Set-quotient/is-set-quotient/left-htpy A R B))
