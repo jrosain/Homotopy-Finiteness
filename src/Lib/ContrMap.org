@@ -237,11 +237,19 @@ Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
 #+begin_src ctt
   htpy-eq/is-equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : is-equiv (Path ((x : A) -> B x) f g) (Htpy A B f g) (htpy-eq A B f g) =
     has-inverse/is-equiv (Path ((x : A) -> B x) f g) (Htpy A B f g) (htpy-eq A B f g) (htpy-eq/has-inverse A B f g)
+
+  htpy-eq/Equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : Equiv (Path ((x : A) -> B x) f g) (Htpy A B f g) =
+    ( htpy-eq A B f g,
+      htpy-eq/is-equiv A B f g)
 #+end_src
 Same for =eq-htpy=.
 #+begin_src ctt
   eq-htpy/is-equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : is-equiv (Htpy A B f g) (Path ((x : A) -> B x) f g) (eq-htpy A B f g) =
     has-inverse/is-equiv (Htpy A B f g) (Path ((x : A) -> B x) f g) (eq-htpy A B f g) (eq-htpy/has-inverse A B f g)
+
+  eq-htpy/Equiv (A : U) (B : A -> U) (f g : (x : A) -> B x) : Equiv (Htpy A B f g) (Path ((x : A) -> B x) f g) =
+    ( eq-htpy A B f g,
+      eq-htpy/is-equiv A B f g)
 #+end_src
 
 #+RESULTS:

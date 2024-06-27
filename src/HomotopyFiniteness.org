@@ -55,7 +55,7 @@ If =A= and =B= are equivalent, then whenever one of them is \pi_n finite, the ot
   is-htpy-finite/closed-Equiv' (A B : U) (e : Equiv A B) (n : Nat) (is-htpy-finite-A : is-htpy-finite n A) : is-htpy-finite n B =
     is-htpy-finite/closed-Equiv B A (Equiv/sym A B e) n is-htpy-finite-A
 #+end_src
-** TODO Equivalence of set-truncated function type
+** Equivalence of set-truncated function type
 We show that if =A= is finite, then there is an equivalence between \Pi_{x: A}||B x||_0 and ||\Pi_{x: A} B x||_0. First, we show this result for =A = Fin k= by induction on /k/.
    * if /k = 0/, then both types are contractible. By the 3-for-2 property of contractibility, they are equivalent.
    * if /k > 0/, there is the following chain of equivalences:
@@ -66,31 +66,152 @@ We show that if =A= is finite, then there is an equivalence between \Pi_{x: A}||
   Fin/Equiv-Pi-Set-trunc : (k : Nat) -> (B : Fin k -> U) -> Equiv ((x : Fin k) -> Set-trunc (B x)) (Set-trunc ((x : Fin k) -> B x)) = split
     zero -> \ B.
       is-contr/Equiv
+        ( (x : Fin zero) -> Set-trunc (B x))
+        ( Set-trunc ((x : Fin zero) -> B x))
         ( Empty/universal-dependent-property
           ( Fin zero)
-          ( \ n. Set-trunc (B n))
+          ( \ x. Set-trunc (B x))
           ( Equiv/refl (Fin zero)))
         ( Set-trunc/closed-contr
           ( (x : Fin zero) -> B x)
           ( Empty/universal-dependent-property
             ( Fin zero) B
             ( Equiv/refl (Fin zero))))
-    suc k -> \ B. ?
+    suc k -> \ B.
+      Equiv/comp five-Nat
+        ( (x : Fin (suc k)) -> Set-trunc (B x))
+        ( ((x : Fin k) -> Set-trunc (B (inl x))) * ((x : Unit) -> Set-trunc (B (inr x))))
+        ( Coprod/dependent-universal-property
+          ( Fin k) Unit (\ x. Set-trunc (B x)))
+        ( ((x : Fin k) -> Set-trunc (B (inl x))) * (Set-trunc (B (inr star))))
+        ( Equiv/prod'
+          ( (x : Fin k) -> Set-trunc (B (inl x)))
+          ( (x : Unit) -> Set-trunc (B (inr x)))
+          ( Set-trunc (B (inr star)))
+          ( Equiv/pi-Unit
+            ( \ x. Set-trunc (B (inr x)))))
+        ( (Set-trunc ((x : Fin k) -> B (inl x))) * (Set-trunc (B (inr star))))
+        ( Equiv/prod
+          ( (x : Fin k) -> Set-trunc (B (inl x)))
+          ( Set-trunc ((x : Fin k) -> B (inl x)))
+          ( Set-trunc (B (inr star)))
+          ( Fin/Equiv-Pi-Set-trunc k
+            ( \ x. B (inl x))))
+        ( Set-trunc (((x : Fin k) -> B (inl x)) * (B (inr star))))
+        ( Set-trunc/closed-Prod
+          ( (x : Fin k) -> B (inl x))
+          ( B (inr star)))
+        ( Set-trunc (((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x))))
+        ( Set-trunc/Equiv
+          ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+          ( ((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+          ( Equiv/prod'
+            ( (x : Fin k) -> B (inl x))
+            ( B (inr star))
+            ( (x : Unit) -> B (inr x))
+            ( Equiv/sym
+              ( (x : Unit) -> B (inr x))
+              ( B (inr star))
+              ( Equiv/pi-Unit (\ x. B (inr x))))))
+        ( Set-trunc ((x : Fin (suc k)) -> B x))
+        ( Set-trunc/Equiv
+          ( ((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+          ( (x : Fin (suc k)) -> B x)
+          ( Equiv/sym
+            ( (x : Fin (suc k)) -> B x)
+            ( ((x : Fin k) -> B (inl x)) * ((x : Unit) -> B (inr x)))
+            ( Coprod/dependent-universal-property
+              ( Fin k) Unit B)))
+#+end_src
+This result cannot be directly generalized for a finite type (as =Equiv= is not a proposition). It can be, however, generalized for any type that has a counting.
+#+begin_src ctt
+  Path/Pi (A : U) (B : A -> U) (f : A -> A) (H : (x : A) -> Path A (f x) x) : Path U ((x : A) -> B (f x)) ((x : A) -> B x) =
+    \ i. (x : A) -> B (H x i)
 
+  count/Equiv-Pi-Set-trunc (A : U) (B : A -> U) (c : count A) : Equiv ((x : A) -> Set-trunc (B x)) (Set-trunc ((x : A) -> B x)) =
+    let k : Nat = number-of-elements A c
+        e : Equiv (Fin k) A = count/Equiv A c
+        f : (Fin k) -> A = Equiv/map (Fin k) A e
+        g : A -> (Fin k) = Equiv/inv-map (Fin k) A e
+    in
+    Equiv/comp three-Nat
+      ( (x : A) -> Set-trunc (B x))
+      ( (x : Fin k) -> Set-trunc (B (f x)))
+      ( Equiv/dependent
+        ( Fin k) A
+        ( \ x. Set-trunc (B x)) e)
+      ( Set-trunc ((x : Fin k) -> B (f x)))
+      ( Fin/Equiv-Pi-Set-trunc k
+        ( \ x. B (f x)))
+      ( Set-trunc ((x : A) -> B (f (g x))))
+      ( Set-trunc/Equiv
+        ( (x : Fin k) -> B (f x))
+        ( (x : A) -> B (f (g x)))
+        ( Equiv/dependent A
+          ( Fin k)
+          ( \ x. B (f x))
+          ( Equiv/sym
+            ( Fin k) A e)))
+      ( Set-trunc ((x : A) -> B x))
+      ( Set-trunc/Equiv
+        ( (x : A) -> B (f (g x)))
+        ( (x : A) -> B x)
+        ( path-to-equiv
+          ( (x : A) -> B (f (g x)))
+          ( (x : A) -> B x)
+          ( Path/Pi A B (\ x. f (g x)) (Equiv/inv-right-htpy (Fin k) A e))))
 #+end_src
 
-** TODO Closure under \Pi-types
+** Homotopy Finiteness is closed downwards
+If is-\pi_{n+1}-finite A, then is-\pi_n-finite A.
+#+begin_src ctt
+  is-htpy-finite/pred : (n : Nat) -> (A : U) -> is-htpy-finite (suc n) A -> is-htpy-finite n A = split
+    zero -> \ A H. H.1
+    suc n -> \ A H.
+        ( H.1,
+          \ x y.
+            is-htpy-finite/pred n
+              ( Path A x y) (H.2 x y))
+#+end_src
+
+** Homotopy finiteness implies finiteness of set-truncated type
+If a type A is \pi_n-finite, then its set truncation is finite.
+#+begin_src ctt
+  is-htpy-finite/is-finite-Set-trunc (A : U) : (n : Nat) -> is-htpy-finite n A -> is-finite (Set-trunc A) = split
+    zero -> id (is-finite (Set-trunc A))
+    suc n -> \ H. H.1
+#+end_src
+
+** Closure under \Pi-types
 In this section, we show that if =B= is a family of \pi_n finite types over a finite type =A=, then the product \Pi_{x: A}B(x) is also \pi_{n}-finite.
 We proceed by induction over =n=. 
    * If =n= is zero, then by is-finite/\Pi, is-finite (\Pi_{x: A}||B x||_0). Moreover, \Pi_{x: A}||B x||_0 is equivalent to ||\Pi_{x: A}B(x)||_0 and as is-finite is closed by equivalences, the result follows.
    * If =n > 0=, then it suffices to show that f \sim g is \pi_n finite by function extensionality and \pi_n-finiteness closure under equivalence. It then suffices to use the induction hypothesis.
 #+begin_src ctt
-  -- is-htpy-finite/closed-Pi (A : U) (B : A -> U) (is-finite-A : is-finite A)
-  --                             : (n : Nat) -> (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n ((x : A) -> B x) = split
-  --  zero -> \ is-finite-B.
-  --    is-finite/Pi A
-  --      ( \ x. Set-trunc (B x)) is-finite-A is-finite-B
+  is-htpy-finite/closed-Pi : (n : Nat) -> (A : U) -> (B : A -> U) -> is-finite A -> ((x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n ((x : A) -> B x) = split
+   zero -> \ A B HA HB.
+      (rec-Prop-trunc
+        ( count A)
+        ( is-finite/Prop (Set-trunc ((x : A) -> B x)))
+        ( \ c.
+            is-finite/closed-Equiv'
+              ( (x : A) -> Set-trunc (B x))
+              ( Set-trunc ((x : A) -> B x))
+              ( count/Equiv-Pi-Set-trunc A B c)
+              ( is-finite/Pi A
+                ( \ x. Set-trunc (B x)) HA HB)) HA)
 
+   suc n -> \ A B HA HB.
+        let IH : is-htpy-finite n ((x : A) -> B x) = is-htpy-finite/closed-Pi n A B HA (\ x. is-htpy-finite/pred n (B x) (HB x)) in
+        ( is-htpy-finite/is-finite-Set-trunc ((x : A) -> B x) n IH,
+          \ f g.
+            is-htpy-finite/closed-Equiv
+              ( Path ((x : A) -> B x) f g)
+              ( Htpy A B f g)
+              ( htpy-eq/Equiv A B f g) n
+              ( is-htpy-finite/closed-Pi n A
+                ( \ x. Path (B x) (f x) (g x)) HA
+                ( \ x. (HB x).2 (f x) (g x))))
 #+end_src
 
 #+RESULTS:

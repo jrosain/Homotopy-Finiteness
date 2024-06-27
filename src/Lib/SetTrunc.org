@@ -182,7 +182,7 @@ We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
         ( Set-trunc/Set B))
       ( \ u. (Set-trunc/unit u.1, Set-trunc/unit u.2))
 
-  lock ind-Set-trunc/Prop Set-trunc/Set Set/closed-Prod
+  lock Set/closed-Prod/is-set Set-trunc/is-set
   Set-trunc/prod/right-htpy (A B : U)
                                  : (t : Set-trunc (A * B))
                                  -> Path (Set-trunc (A * B))
@@ -213,15 +213,16 @@ We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
                   ( Set-trunc/prod/inv-map A B (Set-trunc/prod/map A B (Set-trunc/unit x, y)))
                   ( Set-trunc/unit x, y))
             ( \ y. refl (Set-trunc A * Set-trunc B) (Set-trunc/unit x, Set-trunc/unit y)) t.2) t.1
-  unlock ind-Set-trunc/Prop
 
-  Set-trunc/prod/Equiv (A B : U) : Equiv (Set-trunc A * Set-trunc B) (Set-trunc (A * B)) =
+  Set-trunc/closed-Prod (A B : U) : Equiv (Set-trunc A * Set-trunc B) (Set-trunc (A * B)) =
     has-inverse/Equiv
       ( Set-trunc A * Set-trunc B)
       ( Set-trunc (A * B))
-      ( Set-trunc/prod/map A B,
+      ( Set-trunc/prod/map A B)
+      ( Set-trunc/prod/inv-map A B,
         ( Set-trunc/prod/right-htpy A B,
           Set-trunc/prod/left-htpy A B))
+  unlock Set/closed-Prod/is-set Set-trunc/is-set
 #+end_src
 
 #+RESULTS:
