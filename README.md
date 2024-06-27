@@ -1,45 +1,63 @@
 # Homotopy Finiteness
 
-This repository is a formalisation of the homotopy finiteness proof in [Jonas Hoefer's
-prototype](https://github.com/JonasHoefer/poset-type-theory/).
-
-## Context
-
-In Homotopy Type Theory, types are represented as topological spaces and the elements of a type as
-points in the type's space. It allows the interpretation of equality (or *identification*) between
-elements as continuous paths in this space. This system permits to formalise usual arguments used by
-mathematicians -- namely, transport of properties for isomorphic structures -- using the *univalence
-axiom*, that has been found to be modeled by Voevodsky.
-
-In this interpretation, for any type $A$, there exists a type $\|A\|_0$ that is the set of connected
-components of $A$, i.e., the set of elements that can be identified. For groups of fixed cardinal
-$k$, it is known that such a set is finite *up to isomorphism*. Homotopy Type Theory allows us to
-formalize this result thanks to the univalence axiom. This argument has been presented in Cubical
-Agda and, the proof being constructive, we can theoretically evaluate the term for $k$ so that it
-yields the number of connected components of the groupoid of groups of fixed cardinal $k$. However,
-for an unknown reason, the computation is abnormally long.
+This repository is a formalisation of Rijke's proof that the number of groups of finite order is
+finite [3] in [Jonas Hoefer's prototype](https://github.com/JonasHoefer/poset-type-theory/).
 
 The goal of this implementation is to better understand the computations done and, if possible,
-derive and formalise a new proof that will be both more computationally (and humanly) efficient.
+derive and formalise a new proof, "better" (for some definition of better) proof.
+
+## Setup
+
+Everything needed to execute this project is bundled into this repository. Beware that the cloning
+must happen to download submodules. One way of doing it is as follows:
+* in SSH: 
+```console
+git clone --recursive-submodules git@github.com:jrosain/Homotopy-Finiteness.git
+```
+* in HTTPs:
+```console
+git clone --recursive-submodules https://github.com/jrosain/Homotopy-Finiteness.git
+```
+
+If you have already cloned the repository, no worries. Use the following command:
+```console
+git submodule init && git submodule update
+```
+
+Once cloned, `cd poset-type-theory` and follow the installation instructions
+[here](https://github.com/JonasHoefer/poset-type-theory/blob/e1ac6042a0ae3d55469e27ef9094e8cf5ec80eb3/README.md).  
+Then, you should be able to run the following command: `postt eval src/HomotopyFiniteness.ctt`.
+
+## Emacs modes
+
+A small emacs mode has been developed so that `org-mode` can be used to formalize things. It can be
+found in the folder `emacs-mode/` and loaded with `M-x load-file RET emacs-mode/ob-ctt.el`. It then
+suffices to press `C-c C-c` (in a code block) to evaluate a file. It also contains a copy of the
+minimal major mode that can be found
+[here](https://github.com/JonasHoefer/poset-type-theory/blob/main/ctt-mode.el), with some additional
+tweaks to beautify the often-used symbols.
 
 ## Organisation of this repository
 
-I've developed a little emacs mode that allows the use of `org-mode` when formalising things in
-`ctt`. It can be found in `emacs-mode/` and loaded with `M-x load-file RET
-emacs-mode/ob-ctt.el`. It then suffices to press `C-c C-c` (in a code block) to evaluate a file. A
-minimal major mode for `ctt` is also available [here](https://github.com/JonasHoefer/poset-type-theory/blob/main/ctt-mode.el).
+The goal of this repository is twofold:
+* develop a library of standard results following [1, 2] ;
+* formalize the homotopy finiteness proof of [3].
 
-This repository is otherwise organised as follows: the `src/` folder contains the formalisation of [3]
-the `lib/` folder inside containing classical results that can be found in [1]. [2] has helped me a
-lot.
+As such, it is organized as follows: the `src/Lib` folder contains the standard results, that should
+be merged in the [standard
+library](https://github.com/JonasHoefer/poset-type-theory/tree/main/library) of the language at some
+point, and the other files of the `src/` folder contain the formalization of [3].
+
+Some name and proofs of `src/Lib` have been adapted from [4].
 
 ## References
 
 1. Introduction to Homotopy Type Theory, Egbert Rijke (2022),
 	[https://arxiv.org/abs/2212.11082](https://arxiv.org/abs/2212.11082)
-2. Agda formalisation of Introduction to Homotopy Type Theory, Egbert Rijke (2021),
-   [https://github.com/HoTT-Intro/Agda/](https://github.com/HoTT-Intro/Agda/)
+2. The HoTT Book, The Univalent Foundation Program (2013), [https://homotopytypetheory.org/book/](https://homotopytypetheory.org/book/)
 3. Daily applications of the univalence axiom, Egbert Rijke (2022), Logic and Interactions in the
    Centre International de Rencontres Mathématiques (Marseille, France).  
    [slides](https://www.cirm-math.fr/RepOrga/2689/Slides/s_rijke_3.pdf),
    [talk](https://www.youtube.com/watch?v=C9Lr_D6FyWw)
+4. Agda Unimath Library,
+   [https://unimath.github.io/agda-unimath/HOME.html](https://unimath.github.io/agda-unimath/HOME.html)
