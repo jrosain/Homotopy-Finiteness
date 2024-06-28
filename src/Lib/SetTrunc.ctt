@@ -79,6 +79,11 @@ Set-trunc/is-set-trunc (X : U) : is-set-trunc X (Set-trunc/Set X) (\ x. Set-trun
         ( Set-trunc/is-set-trunc/right-htpy X Y,
           Set-trunc/is-set-trunc/left-htpy X Y))
 
+Set-trunc/is-surjective (X : U) : is-surj X (Set-trunc X) (\ x. Set-trunc/unit x) =
+  ind-Set-trunc/Prop X
+    ( \ x. Prop-trunc/Prop (Fib X (Set-trunc X) (\ z. Set-trunc/unit z) x))
+    ( \ x. Prop-trunc/unit (x, refl (Set-trunc X) (Set-trunc/unit x)))
+
 Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
   rec-Prop-trunc
     ( Path X x y)
@@ -92,6 +97,56 @@ Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X
 Set-trunc/relation (X : U) : Set-quotient/identifiable-map-relation X (mere-eq/Prop X) (Set-trunc/Set X) =
   ( (\ x. Set-trunc/unit x),
     Set-trunc/relation/map X)
+
+Set-trunc/is-set-quotient/map (X : U) (B : UU-Set)
+                                 : (Set-trunc X -> Set/type B) -> (Set-quotient/identifiable-map-relation X (mere-eq/Prop X) B) =
+  precomp-Set-quotient X
+    ( mere-eq/Prop X)
+    ( Set-trunc/Set X) B
+    ( Set-trunc/relation X)
+
+Set-trunc/is-set-quotient/inv-map (X : U) (B : UU-Set)
+                                     : (Set-quotient/identifiable-map-relation X (mere-eq/Prop X) B) -> (Set-trunc X -> Set/type B) =
+  \ t. rec-Set-trunc X B t.1
+
+Set-trunc/is-set-quotient/right-htpy (X : U) (B : UU-Set) (t : Set-quotient/identifiable-map-relation X (mere-eq/Prop X) B)
+                                        : Path (Set-quotient/identifiable-map-relation X (mere-eq/Prop X) B)
+                                               (Set-trunc/is-set-quotient/map X B (Set-trunc/is-set-quotient/inv-map X B t)) t =
+  SgPath-prop
+    ( X -> Set/type B)
+    ( \ f. (x y : X) -> (mere-eq X x y) -> Path (Set/type B) (f x) (f y))
+    ( \ f. is-prop/pi-2 X
+          ( \ _. X)
+          ( \ x y. mere-eq X x y -> Path (Set/type B) (f x) (f y))
+          ( \ x y. is-prop/pi
+                  ( mere-eq X x y)
+                  ( \ _. Path (Set/type B) (f x) (f y))
+                  ( \ _. Set/is-set B (f x) (f y))))
+    ( Set-trunc/is-set-quotient/map X B (Set-trunc/is-set-quotient/inv-map X B t)) t
+    ( \ i x. refl (Set/type B) (t.1 x) i)
+
+Set-trunc/is-set-quotient/left-htpy (X : U) (B : UU-Set) (f : Set-trunc X -> Set/type B)
+                                       : Path (Set-trunc X -> Set/type B)
+                                              (Set-trunc/is-set-quotient/inv-map X B (Set-trunc/is-set-quotient/map X B f)) f =
+  \ i x.
+    ind-Set-trunc/Prop X
+      ( \ z. Set/eq/Prop B
+            ( Set-trunc/is-set-quotient/inv-map X B (Set-trunc/is-set-quotient/map X B f) z)
+            ( f z))
+      ( \ z. refl (Set/type B) (f (Set-trunc/unit z))) x i
+
+Set-trunc/is-set-quotient (X : U) : is-set-quotient X (mere-eq/Prop X) (Set-trunc/Set X) (Set-trunc/relation X) =
+  \ B.
+    has-inverse/is-equiv
+      ( Set-trunc X -> Set/type B)
+      ( Set-quotient/identifiable-map-relation X (mere-eq/Prop X) B)
+      ( Set-trunc/is-set-quotient/map X B)
+      ( Set-trunc/is-set-quotient/inv-map X B,
+        ( Set-trunc/is-set-quotient/right-htpy X B,
+          Set-trunc/is-set-quotient/left-htpy X B))
+
+transport (A B : U) (p : Path U A B) : A -> B =
+  \ x. coe 0 1 (i. (p i)) x
 
 Set-trunc/map (A B : U) (f : A -> B) : (Set-trunc A) -> Set-trunc B =
   rec-Set-trunc A

@@ -14,7 +14,50 @@ This file defines what it means to be surjective and some associated properties.
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.PropTrunc
+  import Lib.Prop.Levels
    #+end_src
+
+** Image 
+
+#+begin_src ctt
+  im (A X : U) (f : A -> X) : U =
+    Sg X (\ x. Prop-trunc (Fib A X f x))
+
+  im/inclusion (A X : U) (f : A -> X) : im A X f -> X =
+    \ t. t.1
+
+  im/q (A X : U) (f : A -> X) : A -> im A X f =
+    \ x. (f x, Prop-trunc/unit (x, refl X (f x)))
+#+end_src
+Moreover, the composition of the inclusion function and of q is f.
+#+begin_src ctt
+  im/htpy (A X : U) (f : A -> X) : Htpy' A X (\ x. im/inclusion A X f (im/q A X f x)) f =
+    \ x. refl X (f x)
+
+  im/htpy' (A X : U) (f : A -> X) : Htpy' A X f (\ x. im/inclusion A X f (im/q A X f x)) =
+    \ x. refl X (f x)
+#+end_src
+Furthermore, image inclusion is injective.
+#+begin_src ctt
+  im/is-injective (A X : U) (f : A -> X) (t u : im A X f) (p : Path X (im/inclusion A X f t) (im/inclusion A X f u)) : Path (im A X f) t u =
+    SgPath-prop X
+      ( \ x. Prop-trunc (Fib A X f x))
+      ( \ x. Prop-trunc/is-prop (Fib A X f x))
+      t u p
+#+end_src
+Note that if X is a set, then the image of a map to X is a set.
+#+begin_src ctt
+  im/Set (A : U) (X : UU-Set) (f : A -> Set/type X) : UU-Set =
+    Set/closed-Sg X
+      ( \ x. Prop/Set (Prop-trunc/Prop (Fib A (Set/type X) f x)))
+
+  im/is-set (A : U) (X : UU-Set) (f : A -> Set/type X) : is-set (im A (Set/type X) f) =
+    Set/is-set
+      ( im/Set A X f)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Surjective
 

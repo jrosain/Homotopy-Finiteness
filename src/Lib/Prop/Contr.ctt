@@ -56,3 +56,9 @@ Sg/is-contr' (A : U) (B : A -> U) (is-contr-A : is-contr A) (a : A) (is-contr-B 
     (B a)
     (Sg/left-unit-law-is-contr A B is-contr-A a)
     (is-contr-B)
+
+is-contr/all-elements-equal (A : U) (c : is-contr A) (x y : A) : Path A x y =
+  comp A x
+    ( center A c)
+    ( inv A (center A c) x (contraction A c x))
+    y (contraction A c y)

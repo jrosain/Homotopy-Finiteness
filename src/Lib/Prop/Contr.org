@@ -29,7 +29,7 @@ This file regroups properties of contractible types and maps not provided by the
 
 ** Properties
 
-*** Contractibility of \Sigma
+*** Contractibility of \Sigma_{x: A}(a = x)
 In this section, we show that \Sigma (a_1 : A) (a_0 = a_1) is contractible.
 
 Indeed, the center of contraction is (a_0, refl).
@@ -55,7 +55,7 @@ Thus, this space is contractible.
     (is-contr/Sg-path-center A x, is-contr/Sg-path-contr A x)
 #+end_src
 
-*** Contractible =A=
+*** Contractible =A= implies fiber inclusion equivalence
 We show that if A is contractible, then if a : A is its center of contraction, the map B a \to Sg A B is an equivalence.
 #+begin_src ctt
   Sg/left-unit-law-is-contr/map (A : U) (B : A -> U) (c : is-contr A) (a : A) : B a -> Sg A B =
@@ -74,7 +74,7 @@ We show that if A is contractible, then if a : A is its center of contraction, t
     (Sg/left-unit-law-is-contr/inv-map A B c a, (Sg/left-unit-law-is-contr/map A B c a, Sg/left-unit-law-is-contr/right-htpy A B c a))
 #+end_src
 
-*** Contractibility of \Sigma types
+*** Contractibility is closed under \Sigma types
 
     #+begin_src ctt
   Sg/is-contr (A : U) (B : A -> U) (is-contr-A : is-contr A) (is-contr-fam : ((x : A) -> is-contr (B x)))
@@ -93,5 +93,15 @@ We show that if A is contractible, then if a : A is its center of contraction, t
       (Sg/left-unit-law-is-contr A B is-contr-A a)
       (is-contr-B)
     #+end_src
+
+** If =A= is contractible, any two of its elements are equal 
+   #+begin_src ctt
+  is-contr/all-elements-equal (A : U) (c : is-contr A) (x y : A) : Path A x y =
+    comp A x
+      ( center A c)
+      ( inv A (center A c) x (contraction A c x))
+      y (contraction A c y)
+   #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

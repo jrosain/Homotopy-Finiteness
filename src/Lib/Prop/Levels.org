@@ -32,7 +32,7 @@
     is-set/closed-equiv B A (Equiv/sym A B e) H    
    #+end_src
 
-** TODO =is-prop= is a proposition
+** =is-prop= is a proposition
 
    #+begin_src ctt
   is-prop/is-set (A : U) (is-prop-A : is-prop A) : is-set A =
@@ -76,7 +76,7 @@ TODO: the thing above has really long eval time, find out why.
 #+RESULTS:
 : Typecheck has succeeded.
 
-** Closed of set under product
+** Closure of set under product
 If =A= and =B= are both sets, then =A * B= is also a set.
 #+begin_src ctt
   Set/closed-Prod/is-set (A B : UU-Set) : is-set ((Set/type A) * (Set/type B)) =
@@ -100,6 +100,30 @@ If =A= and =B= are both sets, then =A * B= is also a set.
     ( (Set/type A) * (Set/type B),
       Set/closed-Prod/is-set A B)
 #+end_src
+
+** Closure of sets under \Sigma-types
+
+   #+begin_src ctt
+  Set/closed-Sg/is-set (A : UU-Set) (B : (Set/type A) -> UU-Set) : is-set (Sg (Set/type A) (\ x. Set/type (B x))) =
+    \ t u p q.
+      let p' : PathP (i. Set/type (B (p i).1)) t.2 u.2 = \ i. (p i).2
+          q' : PathP (i. Set/type (B (q i).1)) t.2 u.2 = \ i. (q i).2
+          spq : Path (Path (Set/type A) t.1 u.1) (\ i. (p i).1) (\ i. (q i).1) = Set/is-set A t.1 u.1 ( \ i. (p i).1) ( \ i. (q i).1)
+          r  : PathP (i. PathP (j. Set/type (B (spq i j))) t.2 u.2) p' q' = 
+                      square/dependent-fill
+                        ( Set/type A) B t.1 u.1
+                        ( \ i. (p i).1)
+                        ( \ i. (q i).1) spq t.2 u.2 p' q'
+      in
+      \ i. SgPathP->PathSg
+          ( Set/type A)
+          ( \ x. Set/type (B x)) t u
+          ( spq i, r i)
+
+  Set/closed-Sg (A : UU-Set) (B : (Set/type A) -> UU-Set) : UU-Set =
+    ( Sg (Set/type A) (\ x. Set/type (B x)),
+      Set/closed-Sg/is-set A B)
+   #+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.
