@@ -13,6 +13,7 @@ This file defines the propositional truncation. It is useful when wanting to sho
 
    #+begin_src ctt
   import Lib.Prop.Proposition
+  import Lib.EquivalenceRelations
    #+end_src
 
 ** Specification
@@ -127,6 +128,14 @@ Of course, mere equality is still an equivalence relation.
               ( Path A y z)
               ( mere-eq/Prop A x z)
               ( \ q'. Prop-trunc/unit (comp A x y p' z q')) q) p
+#+end_src
+In fact, it is an equivalence relation.
+#+begin_src ctt
+  mere-eq/Eq-Rel (A : U) : Eq-Rel A =
+    ( mere-eq/Prop A,
+      ( mere-eq/refl A,
+        ( mere-eq/sym A,
+          \ x y z p. mere-eq/trans A x y p z)))
 #+end_src
 
 #+RESULTS:

@@ -13,6 +13,7 @@
   import Stdlib.Prelude
   import Lib.Prop.Proposition
   import Lib.Prop.Set
+  import Lib.Univalence
    #+end_src
 
 ** Closure under equivalence for propositions and sets
@@ -48,6 +49,69 @@
             ( is-prop/is-set A is-prop-A))
    #+end_src
 TODO: the thing above has really long eval time, find out why.
+
+** =UU-Prop= is a set
+=Equiv= is a proposition whenever =B= is a proposition.
+#+begin_src ctt
+  Equiv/is-prop (A : U) (B : UU-Prop) : is-prop (Equiv A (Prop/type B)) =
+    \ e e'.
+      SgPath-prop
+        ( A -> Prop/type B)
+        ( is-equiv A
+          ( Prop/type B))
+        ( is-equiv/is-prop A
+          ( Prop/type B)) e e'
+        ( is-prop/pi A
+          ( \ _. Prop/type B)
+          ( \ _. Prop/is-prop B) e.1 e'.1)
+#+end_src
+By univalence, the path between the underlying type of propositions is equivalent to a proposition, so it is also a proposition.
+#+begin_src ctt
+  Prop/eq-Prop (A B : UU-Prop) : is-prop (Path U (Prop/type A) (Prop/type B)) =
+    is-prop/closed-equiv'
+      ( Equiv (Prop/type A) (Prop/type B))
+      ( Path U (Prop/type A) (Prop/type B))
+      ( univalence (Prop/type A) (Prop/type B))
+      ( Equiv/is-prop (Prop/type A) B)
+#+end_src
+Moreover, path between propositions is equivalent to path between their underlying type.
+#+begin_src ctt
+  UU-Prop/eq/map (A B : UU-Prop) : Path U (Prop/type A) (Prop/type B) -> Path UU-Prop A B =
+    SgPath-prop U is-prop
+      ( is-prop/is-prop) A B    
+
+  UU-Prop/eq (A B : UU-Prop) : Path UU-Prop A B -> Path U (Prop/type A) (Prop/type B) =
+    \ p i. (p i).1
+
+  UU-Prop/is-equiv (A : UU-Prop) : (B : UU-Prop) -> is-equiv (Path UU-Prop A B) (Path U (Prop/type A) (Prop/type B)) (UU-Prop/eq A B) =
+    fundamental-theorem-id UU-Prop
+      ( \ B. Path U (Prop/type A) (Prop/type B)) A
+      ( UU-Prop/eq A)
+      ( ( A, refl U (Prop/type A)),
+        ( \ t. SgPath-prop UU-Prop
+              ( \ B. Path U (Prop/type A) (Prop/type B))
+              ( Prop/eq-Prop A)
+              ( A, refl U (Prop/type A)) t
+              ( UU-Prop/eq/map A t.1 t.2)))
+
+  UU-Prop/Eq/Equiv (A B : UU-Prop) : Equiv (Path UU-Prop A B) (Path U (Prop/type A) (Prop/type B)) =
+    ( UU-Prop/eq A B,
+      UU-Prop/is-equiv A B)
+
+  UU-Prop/is-set (A B : UU-Prop) : is-prop (Path UU-Prop A B) =
+    is-prop/closed-equiv
+      ( Path UU-Prop A B)
+      ( Path U (Prop/type A) (Prop/type B))
+      ( UU-Prop/Eq/Equiv A B)
+      ( Prop/eq-Prop A B)
+
+  UU-Prop/Set : UU-Set =
+    ( UU-Prop,
+      UU-Prop/is-set)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Lifting prop universe to set universe
 

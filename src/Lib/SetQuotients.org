@@ -198,7 +198,11 @@ Then, we can conclude on it being an equivalence.
 #+end_src
 
 ** Effective on equivalence relations
-In turn, whenever R is an equivalence relation, q(x) = q(y) is equivalent to R(x, y), under the condition that q is surjective.
+The equality on set quotient is equivalent to the relation.
+#+begin_src ctt
+  -- is-set-quotient/is-effective/rel-aux (A : U) (R : Eq-Rel A) (x y : Set-quotient A R) : UU-Prop =
+  
+#+end_src
 
 ** Uniqueness principle
 We show that whenever a pair (f : A \to B, g : R(x, y) \to f x = f y) is a set quotient, then any map that extends f is unique. To see this, we use the im/inclusion and im/q functions. First, we show that for any x, y such that R(x, y), im/q q x = im/q q y. Indeed, im/inclusion (im/q q x) = q x = q y = im/inclusion (im/q q y), and im/inclusion is injective.
@@ -279,12 +283,9 @@ As such, the composition of the inclusion with the map and q is q.
 #+end_src
 We can conclude that q is surjective.
 #+begin_src ctt
-
-
   -- is-set-quotient/is-surj (A : U) (R : Relation-Prop A) (B : UU-Set) (f : reflecting-map-Eq-Rel A R B) (H : is-set-quotient A R B f)
   --                            : is-surj A (Set/type B) (reflecting-map-Eq-Rel A R B f) =
   --   let q : A -> Set/type B = (reflecting-map-Eq-Rel A R B f) in
-
 #+end_src
 
 #+RESULTS:

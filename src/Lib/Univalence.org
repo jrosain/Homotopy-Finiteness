@@ -32,5 +32,18 @@ We state the fundamental theorem of univalence, that is: the fundamental theorem
               ( i B))
 #+end_src
 
+** Equivalence between paths and equivalence
+Path between types is equivalent to equivalence between types.
+#+begin_src ctt
+  univalence (A B : U) : Equiv (Equiv A B) (Path U A B) =
+    has-inverse/Equiv
+      ( Equiv A B)
+      ( Path U A B)
+      ( equiv-to-path A B)
+      ( path-to-equiv A B,
+        ( equiv-to-path/unique A B,
+          equiv-to-path/comp A B))
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.

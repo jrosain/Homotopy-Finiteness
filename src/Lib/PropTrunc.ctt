@@ -1,6 +1,7 @@
 module Lib.PropTrunc where
 
 import Lib.Prop.Proposition
+import Lib.EquivalenceRelations
 
 precomp-Prop (A : U) (P : UU-Prop) (f : A -> (Prop/type P)) (Q : UU-Prop) (g : Prop/hom P Q) : A -> Prop/type Q =
   \ z. g (f z)
@@ -75,6 +76,12 @@ mere-eq/trans (A : U) (x y : A) (p : mere-eq A x y) (z : A) (q : mere-eq A y z) 
             ( Path A y z)
             ( mere-eq/Prop A x z)
             ( \ q'. Prop-trunc/unit (comp A x y p' z q')) q) p
+
+mere-eq/Eq-Rel (A : U) : Eq-Rel A =
+  ( mere-eq/Prop A,
+    ( mere-eq/refl A,
+      ( mere-eq/sym A,
+        \ x y z p. mere-eq/trans A x y p z)))
 
 Prop-trunc/map-out (P : UU-Prop) : Prop-trunc (Prop/type P) -> Prop/type P =
   rec-Prop-trunc
