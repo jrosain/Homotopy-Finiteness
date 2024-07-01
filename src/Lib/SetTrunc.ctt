@@ -193,6 +193,20 @@ Set-trunc/is-set-quotient (X : U) : is-set-quotient X (mere-eq/Eq-Rel X) (Set-tr
         ( Set-trunc/is-set-quotient/right-htpy X B,
           Set-trunc/is-set-quotient/left-htpy X B))
 
+Set-trunc/is-effective (X : U) (x y : X) : Equiv (Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y)) (mere-eq X x y) =
+  Equiv/trans
+    ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))
+    ( Path (Set-quotient X (mere-eq/Eq-Rel X)) (Set-quotient/q x) (Set-quotient/q y))
+    ( mere-eq X x y)
+    ( Equiv/Equiv-id
+      ( Set-trunc X)
+      ( Set-quotient X (mere-eq/Eq-Rel X))
+      ( Set-trunc/Set-quotient X)
+      ( Set-trunc/unit x)
+      ( Set-trunc/unit y))
+    ( is-set-quotient/is-effective X
+      ( mere-eq/Eq-Rel X) x y)
+
 Set-trunc/map (A B : U) (f : A -> B) : (Set-trunc A) -> Set-trunc B =
   rec-Set-trunc A
     ( Set-trunc/Set B)

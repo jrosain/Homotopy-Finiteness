@@ -144,6 +144,124 @@ Set-quotient/is-set-quotient (A : U) (R : Eq-Rel A) : is-set-quotient A R (Set-q
       ( Set-quotient/is-set-quotient/right-htpy A R B,
         Set-quotient/is-set-quotient/left-htpy A R B))
 
+is-set-quotient/is-effective/rel-eq (A : U) (R : Eq-Rel A) (x y z : A) (r1 : Eq-Rel/type A R y z) : Path UU-Prop (Eq-Rel/Relation A R x y) (Eq-Rel/Relation A R x z) =
+  UU-Prop/eq/map
+    ( Eq-Rel/Relation A R x y)
+    ( Eq-Rel/Relation A R x z)
+    ( equiv-to-path
+      ( Eq-Rel/type A R x y)
+      ( Eq-Rel/type A R x z)
+      ( Prop/Equiv
+        ( Eq-Rel/Relation A R x y)
+        ( Eq-Rel/Relation A R x z)
+        ( \ rxy. Eq-Rel/is-transitive A R x y z rxy r1)
+        ( \ rxz. Eq-Rel/is-transitive A R x z y rxz
+                ( Eq-Rel/is-symmetric A R y z r1))))
+
+is-set-quotient/is-effective/rel-eq'' (A : U) (R : Eq-Rel A) (x y : A) (r : Eq-Rel/type A R x y) (z : A)
+                                         : Path UU-Prop (Eq-Rel/Relation A R x z) (Eq-Rel/Relation A R y z) =
+  UU-Prop/eq/map
+    ( Eq-Rel/Relation A R x z)
+    ( Eq-Rel/Relation A R y z)
+    ( equiv-to-path
+      ( Eq-Rel/type A R x z)
+      ( Eq-Rel/type A R y z)
+      ( Prop/Equiv
+        ( Eq-Rel/Relation A R x z)
+        ( Eq-Rel/Relation A R y z)
+        ( \ rxz. Eq-Rel/is-symmetric A R z y
+                ( Eq-Rel/is-transitive A R z x y
+                  ( Eq-Rel/is-symmetric A R x z rxz) r))
+        ( \ ryz. Eq-Rel/is-symmetric A R z x
+                ( Eq-Rel/is-transitive A R z y x
+                  ( Eq-Rel/is-symmetric A R y z ryz)
+                  ( Eq-Rel/is-symmetric A R x y r)))))
+
+lock UU-Prop/is-set has-inverse/is-equiv UU-Prop/eq/map 
+is-set-quotient/is-effective/rel-aux' (A : U) (R : Eq-Rel A) (y : Set-quotient A R) (x : A) : UU-Prop =
+  rec-Set-quotient A R
+    UU-Prop/Set
+    ( \ y'. Eq-Rel/Relation A R x y')
+    ( is-set-quotient/is-effective/rel-eq A R x) y
+
+is-set-quotient/is-effective/rel-eq' (A : U) (R : Eq-Rel A) (y : Set-quotient A R) (a b : A) (r : Eq-Rel/type A R a b)
+                                        : Path UU-Prop (is-set-quotient/is-effective/rel-aux' A R y a)
+                                                       (is-set-quotient/is-effective/rel-aux' A R y b) =
+  ind-Set-quotient/Prop A R
+    ( \ z. Set/eq/Prop UU-Prop/Set
+            ( is-set-quotient/is-effective/rel-aux' A R z a)
+            ( is-set-quotient/is-effective/rel-aux' A R z b))
+    ( is-set-quotient/is-effective/rel-eq'' A R a b r) y
+
+is-set-quotient/is-effective/rel-aux (A : U) (R : Eq-Rel A) (x y : Set-quotient A R) : UU-Prop =
+  rec-Set-quotient A R
+    UU-Prop/Set
+    ( is-set-quotient/is-effective/rel-aux' A R y)
+    ( is-set-quotient/is-effective/rel-eq' A R y) x
+
+is-set-quotient/is-effective/refl (A : U) (R : Eq-Rel A) (x : Set-quotient A R) : (Prop/type (is-set-quotient/is-effective/rel-aux A R x x)) =
+  ind-Set-quotient/Prop A R
+    ( \ x'. is-set-quotient/is-effective/rel-aux A R x' x')
+    ( Eq-Rel/is-reflexive A R) x
+
+is-set-quotient/is-effective/map (A : U) (R : Eq-Rel A) (x y : Set-quotient A R) : Path (Set-quotient A R) x y -> (Prop/type (is-set-quotient/is-effective/rel-aux A R x y)) =
+  J ( Set-quotient A R) x
+    ( \ z _. Prop/type (is-set-quotient/is-effective/rel-aux A R x z))
+    ( is-set-quotient/is-effective/refl A R x) y
+
+is-set-quotient/is-effective/R (A : U) (R : Eq-Rel A) (a b : Set-quotient A R) (x y : A) (p : Path (Set-quotient A R) a (Set-quotient/q x)) (q : Path (Set-quotient A R) b (Set-quotient/q y))
+                               (r : Prop/type (is-set-quotient/is-effective/rel-aux A R a b)) : Prop/type (is-set-quotient/is-effective/rel-aux A R (Set-quotient/q x) (Set-quotient/q y)) =
+  tr ( Set-quotient A R) a
+     ( Set-quotient/q x) p
+     ( \ z. Prop/type (is-set-quotient/is-effective/rel-aux A R z (Set-quotient/q y)))
+     ( tr ( Set-quotient A R) b
+          ( Set-quotient/q y) q
+          ( \ z. Prop/type (is-set-quotient/is-effective/rel-aux A R a z)) r)
+
+is-set-quotient/is-effective/eq' (A : U) (R : Eq-Rel A) (a b : Set-quotient A R) (x y : A) (p : Path (Set-quotient A R) a (Set-quotient/q x)) (q : Path (Set-quotient A R) b (Set-quotient/q y))
+                                 (r : Prop/type (is-set-quotient/is-effective/rel-aux A R a b)) : Path (Set-quotient A R) (Set-quotient/q x) (Set-quotient/q y) =
+  \ i. Set-quotient/eq x y
+        ( is-set-quotient/is-effective/R A R a b x y p q r) i
+
+is-set-quotient/is-effective/eq (A : U) (R : Eq-Rel A) (a b : Set-quotient A R) (x y : A) (p : Path (Set-quotient A R) a (Set-quotient/q x)) (q : Path (Set-quotient A R) b (Set-quotient/q y))
+                                (r : Prop/type (is-set-quotient/is-effective/rel-aux A R a b)) : Path (Set-quotient A R) a b =
+  tr ( Set-quotient A R)
+     ( Set-quotient/q x) a
+     ( inv (Set-quotient A R) a (Set-quotient/q x) p)
+     ( \ z. Path (Set-quotient A R) z b)
+     ( tr ( Set-quotient A R)
+          ( Set-quotient/q y) b
+          ( inv (Set-quotient A R) b (Set-quotient/q y) q)
+          ( \ z. Path (Set-quotient A R) (Set-quotient/q x) z)
+          ( is-set-quotient/is-effective/eq' A R a b x y p q r))
+
+is-set-quotient/is-effective/inv-map (A : U) (R : Eq-Rel A) (x y : Set-quotient A R) (r : Prop/type (is-set-quotient/is-effective/rel-aux A R x y)) : Path (Set-quotient A R) x y =
+  rec-Prop-trunc
+    ( Fib A (Set-quotient A R) (\ a. Set-quotient/q a) x)
+    ( Set/eq/Prop (Set-quotient/Set A R) x y)
+    ( \ t. rec-Prop-trunc
+          ( Fib A (Set-quotient A R) (\ a. Set-quotient/q a) y)
+          ( Set/eq/Prop (Set-quotient/Set A R) x y)
+          ( \ u. is-set-quotient/is-effective/eq A R x y t.1 u.1 t.2 u.2 r)
+          ( quotienting-is-surj A R y))
+    ( quotienting-is-surj A R x)
+
+is-set-quotient/is-effective (A : U) (R : Eq-Rel A) (x y : A) : Equiv (Path (Set-quotient A R) (Set-quotient/q x) (Set-quotient/q y)) (Eq-Rel/type A R x y) =
+  Prop/Equiv
+    ( Set/eq/Prop (Set-quotient/Set A R) (Set-quotient/q x) (Set-quotient/q y))
+    ( Eq-Rel/Relation A R x y)
+    ( is-set-quotient/is-effective/map A R (Set-quotient/q x) (Set-quotient/q y))
+    ( is-set-quotient/is-effective/inv-map A R (Set-quotient/q x) (Set-quotient/q y))
+
+is-set-quotient/is-effective' (A : U) (R : Eq-Rel A) (x y : A) : Equiv (Eq-Rel/type A R x y) (Path (Set-quotient A R) (Set-quotient/q x) (Set-quotient/q y)) =
+  Prop/Equiv
+    ( Eq-Rel/Relation A R x y)
+    ( Set/eq/Prop (Set-quotient/Set A R) (Set-quotient/q x) (Set-quotient/q y))
+    ( is-set-quotient/is-effective/inv-map A R (Set-quotient/q x) (Set-quotient/q y))
+    ( is-set-quotient/is-effective/map A R (Set-quotient/q x) (Set-quotient/q y))
+
+unlock UU-Prop/is-set has-inverse/is-equiv UU-Prop/eq/map
+
 is-set-quotient/is-surj/identifying-q (A : U) (R : Eq-Rel A) (B : UU-Set) (f : reflecting-map-Eq-Rel A R (Set/type B))
                                       (x y : A) (r : Eq-Rel/type A R x y)
                                          : Path (im A (Set/type B) (reflecting-map-Eq-Rel/map A R (Set/type B) f))

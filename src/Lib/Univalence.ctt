@@ -22,3 +22,12 @@ univalence (A B : U) : Equiv (Equiv A B) (Path U A B) =
     ( path-to-equiv A B,
       ( equiv-to-path/unique A B,
         equiv-to-path/comp A B))
+
+univalence' (A B : U) : Equiv (Path U A B) (Equiv A B) =
+  has-inverse/Equiv
+    ( Path U A B)
+    ( Equiv A B)
+    ( path-to-equiv A B)
+    ( equiv-to-path A B,
+      ( equiv-to-path/comp A B,
+        equiv-to-path/unique A B))

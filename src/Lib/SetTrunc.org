@@ -258,7 +258,26 @@ Thus, set truncation is a set quotient.
             Set-trunc/is-set-quotient/left-htpy X B))
 #+end_src
 
-** Equivalence between set-truncation equality and mere equality
+** Equivalence between set truncation equality and mere equality
+We have shown that || X ||_0 \simeq X/||x = y||. Moreover, quotienting is effective; that is, q(x) = q(y) \simeq R(x, y). Here, R is mere equality. Hence, |x|_0 = |y|_0 \simeq q(x) = q(y) \simeq || x = y ||.
+#+begin_src ctt
+  Set-trunc/is-effective (X : U) (x y : X) : Equiv (Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y)) (mere-eq X x y) =
+    Equiv/trans
+      ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))
+      ( Path (Set-quotient X (mere-eq/Eq-Rel X)) (Set-quotient/q x) (Set-quotient/q y))
+      ( mere-eq X x y)
+      ( Equiv/Equiv-id
+        ( Set-trunc X)
+        ( Set-quotient X (mere-eq/Eq-Rel X))
+        ( Set-trunc/Set-quotient X)
+        ( Set-trunc/unit x)
+        ( Set-trunc/unit y))
+      ( is-set-quotient/is-effective X
+        ( mere-eq/Eq-Rel X) x y)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Map between truncations
 If there is a map between A and B, then there is a map between the set truncations of A and B.
