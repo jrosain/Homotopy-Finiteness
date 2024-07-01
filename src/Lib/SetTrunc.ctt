@@ -207,6 +207,18 @@ Set-trunc/is-effective (X : U) (x y : X) : Equiv (Path (Set-trunc X) (Set-trunc/
     ( is-set-quotient/is-effective X
       ( mere-eq/Eq-Rel X) x y)
 
+Set-trunc/is-effective/map (X : U) (x y : X) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) -> mere-eq X x y =
+  Equiv/map
+    ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))
+    ( mere-eq X x y)
+    ( Set-trunc/is-effective X x y)
+
+Set-trunc/is-effective/inv-map (X : U) (x y : X) : mere-eq X x y -> Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+  Equiv/inv-map
+    ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))
+    ( mere-eq X x y)
+    ( Set-trunc/is-effective X x y)
+
 Set-trunc/map (A B : U) (f : A -> B) : (Set-trunc A) -> Set-trunc B =
   rec-Set-trunc A
     ( Set-trunc/Set B)
@@ -346,12 +358,39 @@ is-conn/is-inhabited (A : U) (is-conn-A : is-conn A) : Prop-trunc A =
 fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
   \ b. (a, b)
 
--- fiber-inclusion/is-surj/sg (A : U) (B : A -> U) (a : A) (is-conn-A : is-conn A) (x : A) (y : B x) : Prop-trunc (Fib A B f (x, y)) =
---   Prop-trunc/map
---     ( Prop-trunc (Path A a x))
---     ( Prop-trunc (Fib A B f (x, y)))
---     ( \ p.  )
---     ( is-conn/is-inhabited A is-conn-A) -- no
+is-connected/fiber-inclusion/Path (A : U) (B : A -> U) (H : is-conn A) (a : A) (x : A) (y : B x) (p : Path A a x)
+                                     : Path (Sg A B) (fiber-inclusion A B a (tr A x a (inv A a x p) B y)) (x, y) =
+  J A a
+    ( \ z q. (u : B z) -> Path (Sg A B) (fiber-inclusion A B a (tr A z a (inv A a z q) B u)) (z, u))
+    ( \ u. comp (Sg A B)
+          ( fiber-inclusion A B a (tr A a a (inv A a a (refl A a)) B u))
+          ( fiber-inclusion A B a (tr A a a (refl A a) B u))
+          ( ap (Path A a a) (Sg A B) (\ q. fiber-inclusion A B a (tr A a a q B u)) (inv A a a (refl A a)) (refl A a) (inv/refl A a))
+          ( a, u)
+          ( ap (B a) (Sg A B) (\ v. (a, v)) (tr A a a (refl A a) B u) u (tr/refl-path A a B u))) x p y
 
--- fiber-inclusion/is-surj (A : U) (B : A -> U) (a : A) (is-conn-A : is-conn A) : is-surj (B a) (Sg A B) (fiber-inclusion A B a) =
---   \ t. fiber-inclusion/is-surj/sg A B a is-conn-A t.1 t.2
+is-connected/fiber-inclusion-is-surj (A : U) (B : A -> U) (H : is-conn A) (a : A) : is-surj (B a) (Sg A B) (fiber-inclusion A B a) =
+  \ b.
+    rec-Prop-trunc
+      ( Path A a b.1)
+      ( Prop-trunc/Prop (Fib (B a) (Sg A B) (fiber-inclusion A B a) b))
+      ( \ p. Prop-trunc/unit (tr A b.1 a (inv A a b.1 p) B b.2, inv (Sg A B) (a, tr A b.1 a (inv A a b.1 p) B b.2) b (is-connected/fiber-inclusion/Path A B H a b.1 b.2 p)))
+      ( Set-trunc/is-effective/map A a b.1
+        ( is-contr/all-elements-equal
+          ( Set-trunc A) H
+          ( Set-trunc/unit a)
+          ( Set-trunc/unit b.1)))
+
+Set-trunc-map (A B : U) (f : A -> B) : Set-trunc A -> Set-trunc B =
+  rec-Set-trunc A
+    ( Set-trunc/Set B)
+    ( \ a. Set-trunc/unit (f a))
+
+Set-trunc-map/is-surj (A B : U) (f : A -> B) (H : is-surj A B f) : is-surj (Set-trunc A) (Set-trunc B) (Set-trunc-map A B f) =
+  ind-Set-trunc/Prop B
+    ( \ y. Prop-trunc/Prop (Fib (Set-trunc A) (Set-trunc B) (Set-trunc-map A B f) y))
+    ( \ y. rec-Prop-trunc
+          ( Fib A B f y)
+          ( Prop-trunc/Prop (Fib (Set-trunc A) (Set-trunc B) (Set-trunc-map A B f) (Set-trunc/unit y)))
+            ( \ t. Prop-trunc/unit (Set-trunc/unit t.1, ap B (Set-trunc B) (\ z. Set-trunc/unit z) y (f t.1) t.2))
+            ( H y))

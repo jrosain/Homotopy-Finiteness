@@ -216,6 +216,12 @@ We proceed by induction over =n=.
 
 ** Closure under \Sigma-types, base case
 In this section, we show that if =B= is a family of \pi_0-finite types over a connected, \pi_1-finite type A, then \Sigma_{x: A}B(x) is also \pi_0-finite, i.e., that || \Sigma_{x: A}B(x) ||_0 is finite. As A is connected, and we show a property, we assume that a : A. Then, the fiber inclusion function (recall that it is defined as \ b. (a, b) for b : B(a)) is surjective. As set truncation preserves surjectivity, it suffices to show that || \Sigma_{x: A}B(x) ||_0 has decidable equality.
+#+begin_src ctt
+  -- is-htpy-finite/closed-Sg/base' (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
+  --                                (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+  --                                (has-dec-eq-Sg : has-decidable-equality (Set-trunc (Sg A B))) : is-htpy-finite zero (Sg A B) =
+  
+#+end_src
 
 Thus, we start by showing that, under the hypotheses that A is \pi_1-finite and (B x) is \pi_0-finite forall x : A, || \Sigma_{x: A}B(x) ||_0 has decidable equality.
 
