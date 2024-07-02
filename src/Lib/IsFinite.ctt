@@ -334,56 +334,331 @@ has-decidable-equality/is-finite/base (B : U) (f : Empty -> B) (H : is-surj Empt
         ( has-decidable-equality/is-finite/base/left-htpy B f H,
           has-decidable-equality/is-finite/base/right-htpy B f H)))
 
-has-decidable-equality/is-finite/decide/eq (B : U) (y : B) (k : Nat) (f : Fin (suc k) -> B) (X : Maybe (Fin (suc k)))
-                                              : Coprod (Path B (f (inr star)) y) (neg (Path B (f (inr star)) y)) -> Maybe (Fin (suc k)) = split
-  inl _ -> inl (inr star)
-  inr _ -> X
+has-decidable-equality/is-finite/decide/s'' (B : U) (y : B) (k : Nat) (f : Fin (suc k) -> B) (p : neg (Path B y (f (inr star))))
+                                            (h : (x : Fin k) -> neg (Path B y (f (inl x))))
+                                               : (x : Fin (suc k)) -> neg (Path B y (f x)) = split
+  inl x -> h x
+  inr s -> ind-Unit
+            ( \ x. neg (Path B y (f (inr x)))) p s
 
-has-decidable-equality/is-finite/iterate-maybe (k : Nat) : (X : Maybe (Fin k)) -> Maybe (Fin (suc k)) = split
-  inl x -> inl (inl x)
-  inr y -> inr y
+has-decidable-equality/is-finite/decide/s' (B : U) (y : B) (k : Nat) (f : Fin (suc k) -> B) (p : neg (Path B y (f (inr star))))
+                                              : Coprod (Sg (Fin k) (\ x. Path B y (f (inl x)))) ((x : Fin k) -> neg (Path B y (f (inl x))))
+                                               -> Coprod (Sg (Fin (suc k)) (\ x. Path B y (f x))) ((x : Fin (suc k)) -> neg (Path B y (f x))) = split
+  inl t -> inl (inl t.1, t.2)
+  inr h -> inr (has-decidable-equality/is-finite/decide/s'' B y k f p h)
 
-has-decidable-equality/is-finite/decide (B : U) (y : B) (Heq : has-decidable-equality B) : (k : Nat) -> (f : Fin k -> B) -> Maybe (Fin k) = split
-  zero -> \ _. inr star
-  suc k -> \ f. has-decidable-equality/is-finite/decide/eq B y k f
-              ( has-decidable-equality/is-finite/iterate-maybe k (has-decidable-equality/is-finite/decide B y Heq k (\ x. f (inl x))))
-              ( Heq (f (inr star)) y)
+has-decidable-equality/is-finite/decide/s (B : U) (y : B) (k : Nat) (f : Fin (suc k) -> B)
+                                          (u : Coprod (Sg (Fin k) (\ x. Path B y (f (inl x)))) ((x : Fin k) -> neg (Path B y (f (inl x)))))
+                                             : Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star))))
+                                              -> Coprod (Sg (Fin (suc k)) (\ x. Path B y (f x))) ((x : Fin (suc k)) -> neg (Path B y (f x))) = split
+  inl p -> inl (inr star, p)
+  inr p -> has-decidable-equality/is-finite/decide/s' B y k f p u
 
-has-decidable-equality/is-finite/subtype (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) : U =
-  Sg (Fin k) (\ x. Path (Fin k) (H (f x)).1 x)
+has-decidable-equality/is-finite/decide (B : U) (y : B) (Heq : has-decidable-equality B) : (k : Nat) -> (f : Fin k -> B)
+                                            -> Coprod (Sg (Fin k) (\ x. Path B y (f x))) ((x : Fin k) -> neg (Path B y (f x))) = split
+  zero -> \ _. inr (\ x _. x)
+  suc k -> \ f. has-decidable-equality/is-finite/decide/s B y k f
+                ( has-decidable-equality/is-finite/decide B y Heq k
+                  ( \ x. f (inl x)))
+                ( Heq y (f (inr star)))
 
-has-decidable-equality/is-finite/map (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) (t : has-decidable-equality/is-finite/subtype k B f H) : B =
-  f (t.1)
+has-decidable-equality/is-finite/subtype (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) : U =
+  Sg (Fin k) (\ x. Path (Fin (suc k)) (H (f (inl x))).1 (inl x))
 
-has-decidable-equality/is-finite/inv-map (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) (y : B) : has-decidable-equality/is-finite/subtype k B f H =
-  let x : Fin k = (H y).1
-      p : Path B y (f x) = (H y).2
-  in
-  ( x,
-    ap B (Fin k) (\ b. (H b).1) (f x) y (inv B y (f x) p))
+has-decidable-equality/is-finite/map'' (k : Nat) (B : U) (f : Fin (suc k) -> B) (y : B) (p : neg (Path B y (f (inr star)))) (H : (b : B) -> Fib (Fin (suc k)) B f b)
+                                          : (x : Fin (suc k)) -> Path (Fin (suc k)) (H (f x)).1 x -> Path B y (f x) -> has-decidable-equality/is-finite/subtype k B f H = split
+  inl x -> \ q _. (x, q)
+  inr s -> \ q. ind-Unit
+                ( \ x. (Path B y (f (inr x))) -> has-decidable-equality/is-finite/subtype k B f H)
+                ( \ r. ex-falso (has-decidable-equality/is-finite/subtype k B f H) (p r)) s
 
-has-decidable-equality/is-finite/right-htpy (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) (y : B)
-                                               : Path B (has-decidable-equality/is-finite/map k B f H (has-decidable-equality/is-finite/inv-map k B f H y)) y =
-  (inv B y (f (H y).1) (H y).2)
+has-decidable-equality/is-finite/map' (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (y : B)
+                                         : Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star))))
+                                          -> Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit = split
+  inl _ -> inr star
+  inr p ->
+    let x : Fin (suc k) = (H y).1
+        q : Path B y (f x) = (H y).2
+    in inl ( has-decidable-equality/is-finite/map'' k B f y p H x
+             ( ap B (Fin (suc k)) (\ b. (H b).1) (f x) y (inv B y (f x) q)) q)
 
-has-decidable-equality/is-finite/left-htpy (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) (t : has-decidable-equality/is-finite/subtype k B f H)
-                                              : Path (has-decidable-equality/is-finite/subtype k B f H)
-                                                     (has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map k B f H t)) t =
-  SgPath-prop
-    ( Fin k)
-    ( \ x. Path (Fin k) (H (f x)).1 x)
-    ( \ x. count/is-set
-          ( Fin k)
-          ( count/fin-count k)
-          ( H (f x)).1 x)
-    ( has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map k B f H t)) t
-    t.2
+has-decidable-equality/is-finite/map (k : Nat) (B : U) (Heq : has-decidable-equality B) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (y : B)
+                                        : Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit =
+  has-decidable-equality/is-finite/map' k B f H y
+    ( Heq y (f (inr star)))
 
-has-decidable-equality/is-finite/Equiv (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y)
-                                          : Equiv (has-decidable-equality/is-finite/subtype k B f H) B =
-  has-inverse/Equiv
-    ( has-decidable-equality/is-finite/subtype k B f H) B
-    ( has-decidable-equality/is-finite/map k B f H)
-    ( has-decidable-equality/is-finite/inv-map k B f H,
-      ( has-decidable-equality/is-finite/right-htpy k B f H,
-        has-decidable-equality/is-finite/left-htpy k B f H))
+has-decidable-equality/is-finite/inv-map (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y)
+                                            : Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit -> B = split
+  inl t -> f (inl t.1)
+  inr _ -> f (inr star)
+
+has-decidable-equality/is-finite/Path' (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (Heq : has-decidable-equality B)
+                                       (y : B) (p : Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                         (has-decidable-equality/is-finite/map k B Heq f H y) (inr star))
+                                         : (u : Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+                                           -> Path (Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+                                                  u (Heq y (f (inr star)))
+                                           -> Path B y (f (inr star)) = split
+  inl q -> \ _. q
+  inr h -> \ q.
+    let x : Fin (suc k) = (H y).1
+        q' : Path B y (f x) = (H y).2
+        r : Path (Fin (suc k)) (H (f x)).1 (H y).1 = ap B (Fin (suc k)) (\ b. (H b).1) (f x) y (inv B y (f x) q')
+    in
+    ex-falso
+      ( Path B y (f (inr star)))
+      ( Coprod/Eq/eq-map
+        ( has-decidable-equality/is-finite/subtype k B f H) Unit
+        ( inl (has-decidable-equality/is-finite/map'' k B f y h H x r q'))
+        ( inr star)
+        ( comp
+          ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) 
+          ( inl (has-decidable-equality/is-finite/map'' k B f y h H x r q'))
+          ( has-decidable-equality/is-finite/map' k B f H y (Heq y (f (inr star))))
+          ( ap ( Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+               ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+               ( has-decidable-equality/is-finite/map' k B f H y)
+               ( inr h)
+               ( Heq y (f (inr star))) q)
+          ( inr star) p))
+
+has-decidable-equality/is-finite/Path (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (Heq : has-decidable-equality B)
+                                      (y : B) (p : Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                        (has-decidable-equality/is-finite/map k B Heq f H y) (inr star))
+                                         : Path B y (f (inr star)) =
+  has-decidable-equality/is-finite/Path' k B f H Heq y p
+    ( Heq y (f (inr star)))
+    ( refl
+      ( Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+      ( Heq y (f (inr star))))
+
+has-decidable-equality/is-finite/right-htpy/inl' (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (HB : has-decidable-equality B)
+                                                 (t : has-decidable-equality/is-finite/subtype k B f H) (p : neg (Path B (f (inl t.1)) (f (inr star))))
+                                                    : (x : Fin (suc k)) -> (r : Path (Fin (suc k)) (H (f x)).1 x) -> (q : Path B (f (inl t.1)) (f x))
+                                                     -> Path (has-decidable-equality/is-finite/subtype k B f H)
+                                                            (has-decidable-equality/is-finite/map'' k B f (f (inl t.1)) p H x r q) t = split
+  inl x -> \ r q.
+    SgPath-prop
+      ( Fin k)
+      ( \ x'. Path (Fin (suc k)) (H (f (inl x'))).1 (inl x'))
+      ( \ x'. count/is-set
+              ( Fin (suc k))
+              ( count/fin-count (suc k))
+              ( H (f (inl x'))).1
+              ( inl x'))
+      ( x, r) t
+      ( Coprod/inl-inj
+          ( Fin k) Unit x t.1
+          ( comp-n
+              ( Fin (suc k)) three-Nat
+              ( inl x)
+              ( H (f (inl x))).1
+              ( inv (Fin (suc k)) (H (f (inl x))).1 (inl x) r)
+              ( H (f (inl t.1))).1
+              ( ap B (Fin (suc k)) (\ b. (H b).1) (f (inl x)) (f (inl t.1))
+                ( inv B (f (inl t.1)) (f (inl x)) q))
+              (inl t.1) t.2))
+  inr s -> \ r q.
+    ex-falso
+      ( Path
+        ( has-decidable-equality/is-finite/subtype k B f H)
+        ( has-decidable-equality/is-finite/map'' k B f (f (inl t.1)) p H (inr s) r q) t)
+      ( ind-Unit (\ x. Path B (f (inl t.1)) (f (inr x)) -> Empty)
+                 (\ p'. p p') s q)
+
+has-decidable-equality/is-finite/right-htpy/inl/dec (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (HB : has-decidable-equality B)
+                                                    (t : has-decidable-equality/is-finite/subtype k B f H) (u : (has-decidable-equality/is-finite/subtype k B f H))
+                                                    (p : Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (has-decidable-equality/is-finite/map k B HB f H (f (inl t.1))) (inl u))
+                                                       : (v : Coprod (Path B (f (inl t.1)) (f (inr star))) (neg (Path B (f (inl t.1)) (f (inr star)))))
+                                                        -> Path (Coprod (Path B (f (inl t.1)) (f (inr star))) (neg (Path B (f (inl t.1)) (f (inr star))))) 
+                                                               (HB (f (inl t.1)) (f (inr star))) v
+                                                        -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (inl u) (inl t) = split
+  inl p' -> \ q.
+    ex-falso
+    ( Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (inl u) (inl t))
+    ( Coprod/Eq/eq-map
+      ( has-decidable-equality/is-finite/subtype k B f H) Unit
+      ( inl u)
+      ( inr star)
+      ( comp
+        ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) 
+        ( inl u)
+        ( has-decidable-equality/is-finite/map k B HB f H (f (inl t.1)))
+        ( inv
+          ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+          ( has-decidable-equality/is-finite/map k B HB f H (f (inl t.1)))
+          ( inl u) p)
+        ( has-decidable-equality/is-finite/map' k B f H (f (inl t.1)) (inl p'))
+        ( ap ( Coprod (Path B (f (inl t.1)) (f (inr star))) (neg (Path B (f (inl t.1)) (f (inr star)))))
+             ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+             ( has-decidable-equality/is-finite/map' k B f H (f (inl t.1)))
+             ( HB (f (inl t.1)) (f (inr star)))
+             ( inl p') q)))
+  inr p' -> \ q'.
+    let x : Fin (suc k) = (H (f (inl t.1))).1
+        q : Path B (f (inl t.1)) (f x) = (H (f (inl t.1))).2
+        r : Path (Fin (suc k)) (H (f x)).1 x = ap B (Fin (suc k)) (\ b. (H b).1) (f x) (f (inl t.1)) (inv B (f (inl t.1)) (f x) q)
+    in
+    Coprod/Eq/map
+      ( has-decidable-equality/is-finite/subtype k B f H) Unit
+      ( inl u)
+      ( inl t) 
+      ( comp
+        ( has-decidable-equality/is-finite/subtype k B f H) u
+        ( has-decidable-equality/is-finite/map'' k B f (f (inl t.1)) p' H x r q)
+        ( Coprod/inl-inj (has-decidable-equality/is-finite/subtype k B f H) Unit u
+          ( has-decidable-equality/is-finite/map'' k B f (f (inl t.1)) p' H x r q)
+          ( comp (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (inl u)
+            ( has-decidable-equality/is-finite/map k B HB f H (f (inl t.1)))
+            ( inv (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (has-decidable-equality/is-finite/map k B HB f H (f (inl t.1))) (inl u) p)
+            ( inl ( has-decidable-equality/is-finite/map'' k B f (f (inl t.1)) p' H x r q))
+            ( ap ( Coprod (Path B (f (inl t.1)) (f (inr star))) (neg (Path B (f (inl t.1)) (f (inr star)))))
+                 ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                 ( has-decidable-equality/is-finite/map' k B f H (f (inl t.1)))
+                 ( HB (f (inl t.1)) (f (inr star))) (inr p') q'))) t
+        ( has-decidable-equality/is-finite/right-htpy/inl' k B f H HB t p' x r q))
+
+has-decidable-equality/is-finite/right-htpy/inl (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (HB : has-decidable-equality B)
+                                                (t : has-decidable-equality/is-finite/subtype k B f H) (Heq : (x : Fin k) -> neg (Path B (f (inr star)) (f (inl x))))
+                                                   : (u : Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                    -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                           (has-decidable-equality/is-finite/map k B HB f H (f (inl t.1))) u
+                                                    -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) u (inl t) = split
+  inr s -> \ p'.
+    ind-Unit
+      ( \ x. Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (has-decidable-equality/is-finite/map k B HB f H (f (inl t.1))) (inr x)
+                   -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (inr x) (inl t))
+      ( \ p. ex-falso
+            ( Path
+              ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+              ( inr star)
+              ( inl t))
+            ( Heq
+              ( t.1)
+              ( inv B
+                ( f (inl t.1))
+                ( f (inr star))
+                ( has-decidable-equality/is-finite/Path k B f H HB (f (inl t.1)) p)))) s p'
+  inl u -> \ p. has-decidable-equality/is-finite/right-htpy/inl/dec k B f H HB t u p
+              ( HB (f (inl t.1)) (f (inr star)))
+              ( refl (Coprod (Path B (f (inl t.1)) (f (inr star))) (neg (Path B (f (inl t.1)) (f (inr star))))) ( HB (f (inl t.1)) (f (inr star))))
+
+has-decidable-equality/is-finite/right-htpy/inr' (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (Heq : has-decidable-equality B)
+                                                    : (u : Coprod (Path B (f (inr star)) (f (inr star))) (neg (Path B (f (inr star)) (f (inr star)))))
+                                                      -> Path (Coprod (Path B (f (inr star)) (f (inr star))) (neg (Path B (f (inr star)) (f (inr star)))))
+                                                             (Heq (f (inr star)) (f (inr star))) u
+                                                      -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                             (has-decidable-equality/is-finite/map k B Heq f H (f (inr star)))
+                                                             (inr star) = split
+  inl p -> \ q.
+    ( ap ( Coprod (Path B (f (inr star)) (f (inr star))) (neg (Path B (f (inr star)) (f (inr star)))))
+         ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+         ( has-decidable-equality/is-finite/map' k B f H (f (inr star)))
+         ( Heq (f (inr star)) (f (inr star)))
+         ( inl p) q)
+  inr np -> \ _.
+    ex-falso
+      ( Path
+        ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+        ( has-decidable-equality/is-finite/map k B Heq f H (f (inr star)))
+        ( inr star))
+      ( np (refl B (f (inr star))))
+
+has-decidable-equality/is-finite/right-htpy/inr (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (Heq : has-decidable-equality B)
+                                                   : (s : Unit) -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                                       (has-decidable-equality/is-finite/map k B Heq f H (f (inr star)))
+                                                                       (inr s) = split
+  star -> 
+    has-decidable-equality/is-finite/right-htpy/inr' k B f H Heq
+      ( Heq (f (inr star)) (f (inr star)))
+      ( refl (Coprod (Path B (f (inr star)) (f (inr star))) (neg (Path B (f (inr star)) (f (inr star))))) (Heq (f (inr star)) (f (inr star))))
+
+has-decidable-equality/is-finite/right-htpy (k : Nat) (B : U) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (HB : has-decidable-equality B)
+                                            (Heq : (x : Fin k) -> neg (Path B (f (inr star)) (f (inl x))))
+                                               : (u : Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                -> Path (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+                                                       (has-decidable-equality/is-finite/map k B HB f H (has-decidable-equality/is-finite/inv-map k B f H u)) u = split
+  inl t -> has-decidable-equality/is-finite/right-htpy/inl k B f H HB t Heq
+            ( has-decidable-equality/is-finite/map k B HB f H (f (inl t.1)))
+            ( refl (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (has-decidable-equality/is-finite/map k B HB f H (f (inl t.1))))
+  inr s -> has-decidable-equality/is-finite/right-htpy/inr k B f H HB s
+
+has-decidable-equality/is-finite/left-htpy-map (k : Nat) (B : U) (HB : has-decidable-equality B) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (y : B)
+                                               (np : neg (Path B y (f (inr star)))) (p : Path (Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star))))) (HB y (f (inr star))) (inr np))
+                                                   : (x : Fin (suc k)) -> (q : Path B y (f x)) -> Path (Fib (Fin (suc k)) B f y) (H y) (x, q)
+                                                    -> Path B (has-decidable-equality/is-finite/inv-map k B f H
+                                                               (inl (has-decidable-equality/is-finite/map'' k B f y np H (H y).1
+                                                                (ap B (Fin (suc k)) (\ b. (H b).1) (f (H y).1) y (inv B y (f (H y).1) (H y).2)) (H y).2))) y = split
+  inl x -> \ q r.
+    comp B
+      ( has-decidable-equality/is-finite/inv-map k B f H
+        ( inl (has-decidable-equality/is-finite/map'' k B f y np H (H y).1
+          ( ap B (Fin (suc k)) (\ b. (H b).1) (f (H y).1) y (inv B y (f (H y).1) (H y).2)) (H y).2)))
+      ( has-decidable-equality/is-finite/inv-map k B f H
+        ( inl (has-decidable-equality/is-finite/map'' k B f y np H x
+          ( ap B (Fin (suc k)) (\ b. (H b).1) (f x) y (inv B y (f x) q)) q)))
+      ( ap (Fib (Fin (suc k)) B f y) B
+        ( \ t. ( has-decidable-equality/is-finite/inv-map k B f H
+                ( inl (has-decidable-equality/is-finite/map'' k B f y np H t.1
+                  ( ap B (Fin (suc k)) (\ b. (H b).1) (f t.1) y (inv B y (f t.1) t.2)) t.2))))
+        ( H y)
+        ( inl x, q) r)
+      y ( inv B y (f x) q)
+
+
+  inr s -> \ _ _. refl (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit) (has-decidable-equality/is-finite/map k B HB f H y)
+
+--      ( inl ( has-decidable-equality/is-finite/map'' k B f y p H x
+--               ( ap B (Fin (suc k)) (\ b. (H b).1) (f x) y (inv B y (f x) q)) q)
+
+-- has-decidable-equality/is-finite/left-htpy' (k : Nat) (B : U) (HB : has-decidable-equality B) (f : Fin (suc k) -> B) (H : (y : B) -> Fib (Fin (suc k)) B f y) (y : B)
+--                                                : (u : Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+--                                                 -> Path (Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star)))))
+--                                                        (HB y (f (inr star))) u
+--                                                 -> Path B (has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map k B HB f H y)) y = split
+--   inl p -> \ p'.
+--     comp B
+--       ( has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map k B HB f H y))
+--       ( has-decidable-equality/is-finite/inv-map k B f H (inr star))
+--       ( ap
+--         ( Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star))))) B
+--         ( \ q. has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map' k B f H y q))
+--         ( HB y (f (inr star)))
+--         ( inl p) p')
+--       y ( inv B y (f (inr star)) p)
+--   inr np -> \ p.
+--     let x : Fin (suc k) = (H y).1
+--         q : Path B y (f x) = (H y).2
+--     in 
+--     comp B
+--       ( has-decidable-equality/is-finite/inv-map k B f H (has-decidable-equality/is-finite/map k B HB f H y))
+--       ( has-decidable-equality/is-finite/inv-map k B f H (x, q)) ? -- it is easy to show that it is inv-map (inl ( map'' ...)) but inside we have to show that it's only inl x.
+--       y ? -- easy: it depends on the result of inv-map but it must be f (inl t.1) by np (otherwise, we have a path between y and f (inr star)) thus inv q suffices
+
+-- Probably useful for the thing above.
+    -- comp
+    --   ( Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+    --   ( has-decidable-equality/is-finite/map k B HB f H y)
+    --   ( has-decidable-equality/is-finite/map' k B f H y (inr np))
+    --   ( ap (Coprod (Path B y (f (inr star))) (neg (Path B y (f (inr star))))) (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+    --        (has-decidable-equality/is-finite/map' k B f H y) (HB y (f (inr star))) (inr np) p)
+    --   ( x, q)
+    --   ( ap (Fib (Fin (suc k)) B f y) (Coprod (has-decidable-equality/is-finite/subtype k B f H) Unit)
+    --        (\ t. let x' : Fin (suc k) = t.1 in let q' : Path B y (f x') = t.2
+    --             in inl ( has-decidable-equality/is-finite/map'' k B f y p H x'
+    --                      ( ap B (Fin (suc k)) (\ b. (H b).1) (f x') y (inv B y (f x') q')) q'))
+    --        (H y) (x, q) r)
+
+-- has-decidable-equality/is-finite/left-htpy (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y) (y : B)
+--                                                : Path B (has-decidable-equality/is-finite/map k B f H (has-decidable-equality/is-finite/inv-map k B f H y)) y =
+--   (inv B y (f (H y).1) (H y).2)
+
+
+-- has-decidable-equality/is-finite/Equiv (k : Nat) (B : U) (f : Fin k -> B) (H : (y : B) -> Fib (Fin k) B f y)
+--                                           : Equiv (has-decidable-equality/is-finite/subtype k B f H) B =
+--   has-inverse/Equiv
+--     ( has-decidable-equality/is-finite/subtype k B f H) B
+--     ( has-decidable-equality/is-finite/map k B f H)
+--     ( has-decidable-equality/is-finite/inv-map k B f H,
+--       ( has-decidable-equality/is-finite/right-htpy k B f H,
+--         has-decidable-equality/is-finite/left-htpy k B f H))

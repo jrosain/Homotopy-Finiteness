@@ -211,6 +211,7 @@ That is, using the fundamental theorem, the following family of maps is a family
   Coprod/inr-inj (A B : U) (x y : B) (p : Path (Coprod A B) (inr x) (inr y)) : Path B x y =
     Coprod/Eq/eq-map A B (inr x) (inr y) p
    #+end_src
+
 ** Dependent universal property of the coproduct
 
 The map \Pi_{z: A + B}P(z) \to \Pi_{x: A}P(inl(x)) + \Pi_{y: B}P(inr(y)) is an equivalence.
