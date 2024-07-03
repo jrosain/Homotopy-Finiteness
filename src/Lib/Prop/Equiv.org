@@ -835,6 +835,25 @@ If A is equivalent to C and B is equivalent to D, then A \times B is equivalent 
 #+RESULTS:
 : Typecheck has succeeded.
 
+*** (x, y) = (x', y') is \Sigma_{p: x = x'}tr_B(p, y) = y'
+This result is more or less direct from the one in the prelude.
+#+begin_src ctt
+  PathSg/Equiv (A : U) (B : A -> U) (u v : Sg A B) : Equiv (Path (Sg A B) u v) (SgPathO A B u v) =
+    path-to-equiv
+      ( Path (Sg A B) u v)
+      ( SgPathO A B u v)
+      ( PathSg-eq-SgPathO A B u v)
+
+  PathSg/Equiv' (A : U) (B : A -> U) (u v : Sg A B) : Equiv (SgPathO A B u v) (Path (Sg A B) u v) =
+    Equiv/sym
+      ( Path (Sg A B) u v)
+      ( SgPathO A B u v)
+      ( PathSg/Equiv A B u v)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** Closure of truncation levels under equivalence
 
 If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =k=.

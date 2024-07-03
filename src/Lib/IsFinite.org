@@ -71,6 +71,16 @@ Of course, if =Equiv X Y= and one of them is finite, the other one is also finit
   is-finite/closed-Equiv' (A B : U) (e : Equiv A B) (is-finite-A : is-finite A) : is-finite B =
     is-finite/closed-Equiv B A (Equiv/sym A B e) is-finite-A
 #+end_src
+*** Decidable
+A finite proposition is decidable.
+#+begin_src ctt
+  is-finite/is-decidable (X : U) (is-prop-X : is-prop X) (is-finite-X : is-finite X) : is-decidable X =
+    rec-Prop-trunc
+      ( count X)
+      ( is-decidable/Prop X is-prop-X)
+      ( \ c. count/countable-is-decidable X c)
+      is-finite-X
+#+end_src
 
 ** Cardinality
 We define the notion of having a cardinality and its equivalence to the notion of =is-finite=.
@@ -711,18 +721,38 @@ It is now time to prove the result. First, we write the formalization of the ind
           ( Unit/is-finite))
 #+end_src
 
-Then, we can prove the result.
+Then, we can prove the result for Fin k.
 #+begin_src ctt
-  has-decidable-equality/is-finite : (k : Nat) (B : U) (H : has-decidable-equality B) (f : Fin k -> B) (is-surj-f : is-surj (Fin k) B f) -> is-finite B = split
+  has-decidable-equality/Fin-is-finite : (k : Nat) (B : U) (H : has-decidable-equality B) (f : Fin k -> B) (is-surj-f : is-surj (Fin k) B f) -> is-finite B = split
     zero -> \ B H f is-surj-f. count/is-finite B (has-decidable-equality/is-finite/base B f is-surj-f)
     suc k -> \ B H f is-surj-f.
       has-decidable-equality/is-finite' k B H f is-surj-f
-        ( has-decidable-equality/is-finite k)
+        ( has-decidable-equality/Fin-is-finite k)
         ( has-decidable-equality/is-finite/decide B (f (inr star)) H k f)
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
+As we prove a property, it holds for any finite type.
+#+begin_src ctt
+  has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-decidable-equality B) (f : A -> B) (is-surj-f : is-surj A B f)
+                                        : is-finite B =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop B)
+      ( \ c.
+        let k : Nat = number-of-elements A c
+            e : Equiv (Fin k) A = count/Equiv A c
+            g : Fin k -> B = \ x. f (Equiv/map (Fin k) A e x) in
+        has-decidable-equality/Fin-is-finite c.1 B H g            
+          ( \ y. rec-Prop-trunc
+                  ( Fib A B f y)
+                  ( Prop-trunc/Prop (Fib (Fin k) B g y))
+                  ( \ t. Prop-trunc/unit
+                          ( ( Equiv/inv-map (Fin k) A e t.1),
+                            ( comp B y (f t.1) t.2 (f (Equiv/map (Fin k) A e (Equiv/inv-map (Fin k) A e t.1)))
+                                (ap A B f t.1 (Equiv/map (Fin k) A e (Equiv/inv-map (Fin k) A e t.1))
+                                  (inv A (Equiv/map (Fin k) A e (Equiv/inv-map (Fin k) A e t.1)) t.1 (Equiv/inv-right-htpy (Fin k) A e t.1))))))
+                  ( is-surj-f y)))
+        ( is-finite-A)
+#+end_src
 
 *** Unlock
     #+begin_src ctt

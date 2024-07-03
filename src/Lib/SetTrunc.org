@@ -493,7 +493,7 @@ is surjective:
             ( Set-trunc/unit b.1)))
 #+end_src
 
-** A set truncation of a map is surjective whenever the original map is surjective
+** Set truncated map is surjective whenever original map is surjective
 Let f : A \to B. The set truncation of f, || f ||_0 : || A ||_0 \to || B ||_0 defined as follows:
 #+begin_src ctt
   Set-trunc-map (A B : U) (f : A -> B) : Set-trunc A -> Set-trunc B =

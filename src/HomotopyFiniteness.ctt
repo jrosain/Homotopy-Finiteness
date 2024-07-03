@@ -8,6 +8,22 @@ is-htpy-finite : Nat -> U -> U = split
   suc k -> \ A. is-finite (Set-trunc A) *
               ( (x y : A) -> is-htpy-finite k (Path A x y))
 
+is-htpy-finite/is-prop : (k : Nat) -> (A : U) -> is-prop (is-htpy-finite k A) = split
+  zero -> \ A. is-finite/is-prop (Set-trunc A)
+  suc k -> \ A.
+    is-prop/prod
+      ( is-finite (Set-trunc A))
+      ( (x y : A) -> is-htpy-finite k (Path A x y))
+      ( is-finite/is-prop (Set-trunc A))
+      ( is-prop/pi-2 A
+        ( \ _. A)
+        ( \ x y. is-htpy-finite k (Path A x y))
+        ( \ x y. is-htpy-finite/is-prop k (Path A x y)))
+
+is-htpy-finite/Prop (k : Nat) (A : U) : UU-Prop =
+  ( is-htpy-finite k A,
+    is-htpy-finite/is-prop k A)
+
 is-htpy-finite/closed-Equiv/aux : (n : Nat) -> (A B : U) -> Equiv A B -> is-htpy-finite n B -> is-htpy-finite n A = split
   zero -> \ A B e.
     is-finite/closed-Equiv
@@ -167,3 +183,135 @@ is-htpy-finite/closed-Pi : (n : Nat) -> (A : U) -> (B : A -> U) -> is-finite A -
             ( is-htpy-finite/closed-Pi n A
               ( \ x. Path (B x) (f x) (g x)) HA
               ( \ x. (HB x).2 (f x) (g x))))
+
+is-htpy-finite/closed-Sg/base' (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
+                               (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+                               (has-dec-eq-Sg : has-decidable-equality (Set-trunc (Sg A B))) : is-htpy-finite zero (Sg A B) =
+  rec-Prop-trunc A
+    ( is-htpy-finite/Prop zero (Sg A B))
+    ( \ a. has-decidable-equality/is-finite
+            ( Set-trunc (B a))
+            ( Set-trunc (Sg A B))
+            ( is-htpy-finite-B a)
+            ( has-dec-eq-Sg)
+            ( Set-trunc-map
+              ( B a)
+              ( Sg A B)
+              ( fiber-inclusion A B a))
+            ( Set-trunc-map/is-surj
+              ( B a)
+              ( Sg A B)
+              ( fiber-inclusion A B a)
+              ( is-connected/fiber-inclusion-is-surj A B H a)))
+    ( is-conn/is-inhabited A H)
+
+is-htpy-finite/closed-Sg/dec-mere-eq' (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
+                                      (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+                                      (y : B a) (x' : A) (y' : B x')
+                                         : is-decidable (mere-eq (Sg A B) (a, y) (x', y')) =
+  rec-Prop-trunc
+    ( Path A a x')
+    ( is-decidable/Prop
+        ( mere-eq (Sg A B) (a, y) (x', y'))
+        ( Prop-trunc/is-prop (Path (Sg A B) (a, y) (x', y'))))
+    ( \ p. J A a
+          ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (a, y) (z, b)))
+          ( h y) x' p y')
+    ( Set-trunc/is-effective/map A a x'
+      ( is-contr/all-elements-equal
+        ( Set-trunc A)
+        ( is-conn-A)
+        ( Set-trunc/unit a)
+        ( Set-trunc/unit x')))
+
+is-htpy-finite/closed-Sg/dec-mere-eq (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
+                                     (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+                                     (x : A) (y : B x) (x' : A) (y' : B x')
+                                        : is-decidable (mere-eq (Sg A B) (x, y) (x', y')) =
+  rec-Prop-trunc
+    ( Path A a x)
+    ( is-decidable/Prop
+        ( mere-eq (Sg A B) (x, y) (x', y'))
+        ( Prop-trunc/is-prop (Path (Sg A B) (x, y) (x', y'))))
+    ( \ p. J A a
+          ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (z, b) (x', y')))
+          ( \ b. is-htpy-finite/closed-Sg/dec-mere-eq' A B is-conn-A a h b x' y') x p y)
+    ( Set-trunc/is-effective/map A a x
+      ( is-contr/all-elements-equal
+        ( Set-trunc A)
+        ( is-conn-A)
+        ( Set-trunc/unit a)
+        ( Set-trunc/unit x)))
+
+is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq' (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
+                                             (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+                                             (x : A) (y : B x) (x' : A) (y' : B x')
+                                                : is-decidable (Path (Set-trunc (Sg A B)) (Set-trunc/unit (x, y)) (Set-trunc/unit (x', y'))) =
+  is-decidable/closed-Equiv
+    ( Path (Set-trunc (Sg A B)) (Set-trunc/unit (x, y)) (Set-trunc/unit (x', y')))
+    ( mere-eq (Sg A B) (x, y) (x', y'))
+    ( Set-trunc/is-effective (Sg A B) (x, y) (x', y'))
+    ( is-htpy-finite/closed-Sg/dec-mere-eq A B is-conn-A a h x y x' y')
+
+is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
+                                            (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+                                            (t u : Set-trunc (Sg A B))
+                                                 : is-decidable (Path (Set-trunc (Sg A B)) t u) =
+  ind-Set-trunc/Prop
+    ( Sg A B)
+    ( \ t'. is-decidable/Prop
+            ( Path (Set-trunc (Sg A B)) t' u)
+            ( Set-trunc/is-set (Sg A B) t' u))
+    ( \ t'. ind-Set-trunc/Prop
+            ( Sg A B)
+            ( \ u'. is-decidable/Prop
+                    ( Path (Set-trunc (Sg A B)) (Set-trunc/unit t') u')
+                    ( Set-trunc/is-set (Sg A B) (Set-trunc/unit t') u'))
+            ( \ u'. is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq' A B is-conn-A a h t'.1 t'.2 u'.1 u'.2) u) t
+
+is-htpy-finite/closed-Sg/type (A : U) (B : A -> U) (a : A) (y y' : B a) : Set-trunc (Path A a a) -> UU-Prop =
+  rec-Set-trunc
+    ( Path A a a)
+    ( UU-Prop/Set)
+    ( \ p. mere-eq/Prop (B a) (tr A a a p B y) y')
+
+lock Prop-trunc/is-prop UU-Prop/is-set
+is-htpy-finite/closed-Sg/Equiv/map (A : U) (B : A -> U) (a : A) (y y' : B a) : (p : Prop-trunc (Path (Sg A B) (a, y) (a, y')))
+                                       -> (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+  rec-Prop-trunc
+    ( Path (Sg A B) (a, y) (a, y'))
+    ( Prop-trunc/Prop (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
+    ( \ p. let t : SgPathO A B (a, y) (a, y') = PathSg->SgPathO A B (a, y) (a, y') p in
+          Prop-trunc/unit
+          ( Set-trunc/unit t.1,
+            Prop-trunc/unit t.2))
+
+is-htpy-finite/closed-Sg/Equiv/inv-map (A : U) (B : A -> U) (a : A) (y y' : B a)
+                                          : (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
+                                           -> Prop-trunc (Path (Sg A B) (a, y) (a, y')) =
+  rec-Prop-trunc
+    ( Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
+    ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
+    ( \ t. ind-Set-trunc/Prop
+            ( Path A a a)
+            ( \ p. Prop/Pi
+                    ( Prop/type (is-htpy-finite/closed-Sg/type A B a y y' p))
+                    ( \ _. Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y'))))
+            ( \ p. rec-Prop-trunc
+                    ( Path (B a) (tr A a a p B y) y')
+                    ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
+                    ( \ q'. Prop-trunc/unit ( SgPathO->PathSg A B
+                                             ( a, y)
+                                             ( a, y')
+                                             ( p, q')))) t.1 t.2)
+
+is-htpy-finite/closed-Sg/Equiv (A : U) (B : A -> U) (a : A) (y y' : B a)
+                                  : Equiv (Prop-trunc (Path (Sg A B) (a, y) (a, y')))
+                                          (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+  Prop/Equiv 
+    ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
+    ( Prop-trunc/Prop (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
+    ( is-htpy-finite/closed-Sg/Equiv/map A B a y y')
+    ( is-htpy-finite/closed-Sg/Equiv/inv-map A B a y y')
+
+unlock Prop-trunc/is-prop UU-Prop/is-set

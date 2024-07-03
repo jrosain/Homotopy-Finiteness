@@ -40,10 +40,7 @@ Let =u, v= be \Sigma-types such that =u = v=. Then, by path induction, we have =
     \ i. (p i).1
 
   PathSg->SgPathO (A : U) (B : A -> U) (u v : Sg A B) : Path (Sg A B) u v -> SgPathO A B u v =
-    ( path-to-equiv
-      ( Path (Sg A B) u v)
-      ( SgPathO A B u v)
-      ( PathSg-eq-SgPathO A B u v)).1
+    coe 0 1 (i. PathSg-eq-SgPathO A B u v i)
 
   Sg-path/right (A : U) (B : A -> U) (u v : Sg A B) (p : Path (Sg A B) u v)
                    : PathO A u.1 v.1 (PathSg->SgPathO A B u v p).1 B u.2 v.2 =
