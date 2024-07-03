@@ -120,11 +120,14 @@ Prop/Prod (A B : UU-Prop) : UU-Prop =
     ( Prop/is-prop A)
     ( Prop/is-prop B))
 
+Pi/is-prop (A : U) (B : A -> UU-Prop) : is-prop ((x : A) -> Prop/type (B x)) =
+  is-prop/pi A
+    ( \ x. Prop/type (B x))
+    ( \ x. Prop/is-prop (B x))
+
 Prop/Pi (A : U) (B : A -> UU-Prop) : UU-Prop =
   ( (x : A) -> Prop/type (B x),
-    is-prop/pi A
-    ( \ x. Prop/type (B x))
-    ( \ x. Prop/is-prop (B x)))
+    Pi/is-prop A B)
 
 is-prop/path (A : UU-Prop) (x y : Prop/type A) : is-prop (Path (Prop/type A) x y) =
   is-contr->is-prop

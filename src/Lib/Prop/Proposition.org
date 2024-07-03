@@ -198,11 +198,14 @@ The product of propositions is a proposition
    #+end_src
 The dependent product of propositions is a proposition
 #+begin_src ctt
+  Pi/is-prop (A : U) (B : A -> UU-Prop) : is-prop ((x : A) -> Prop/type (B x)) =
+    is-prop/pi A
+      ( \ x. Prop/type (B x))
+      ( \ x. Prop/is-prop (B x))
+
   Prop/Pi (A : U) (B : A -> UU-Prop) : UU-Prop =
     ( (x : A) -> Prop/type (B x),
-      is-prop/pi A
-      ( \ x. Prop/type (B x))
-      ( \ x. Prop/is-prop (B x)))
+      Pi/is-prop A B)
 #+end_src
 
 #+RESULTS:
