@@ -138,3 +138,43 @@ Set/closed-Sg/is-set (A : UU-Set) (B : (Set/type A) -> UU-Set) : is-set (Sg (Set
 Set/closed-Sg (A : UU-Set) (B : (Set/type A) -> UU-Set) : UU-Set =
   ( Sg (Set/type A) (\ x. Set/type (B x)),
     Set/closed-Sg/is-set A B)
+
+Set/closed-Coprod/is-set/inl (A B : UU-Set) (x : Set/type A)
+                                  : (v : Coprod (Set/type A) (Set/type B))
+                                    -> is-prop (Path (Coprod (Set/type A) (Set/type B)) (inl x) v)  = split
+  inl a ->
+    is-prop/closed-equiv
+      ( Path (Coprod (Set/type A) (Set/type B)) (inl x) (inl a))
+      ( Path (Set/type A) x a)
+      ( Coprod/Eq/Equiv (Set/type A) (Set/type B) (inl x) (inl a))
+      ( Set/is-set A x a)
+  inr y ->
+    is-prop/closed-equiv
+      ( Path (Coprod (Set/type A) (Set/type B)) (inl x) (inr y))
+      ( Empty)
+      ( Coprod/Eq/Equiv (Set/type A) (Set/type B) (inl x) (inr y))
+      ( Empty/is-prop)
+
+Set/closed-Coprod/is-set/inr (A B : UU-Set) (y : Set/type B)
+                                  : (v : Coprod (Set/type A) (Set/type B))
+                                    -> is-prop (Path (Coprod (Set/type A) (Set/type B)) (inr y) v)  = split
+  inl a ->
+    is-prop/closed-equiv
+      ( Path (Coprod (Set/type A) (Set/type B)) (inr y) (inl a))
+      ( Empty)
+      ( Coprod/Eq/Equiv (Set/type A) (Set/type B) (inr y) (inl a))
+      ( Empty/is-prop)
+  inr b ->
+    is-prop/closed-equiv
+      ( Path (Coprod (Set/type A) (Set/type B)) (inr y) (inr b))
+      ( Path (Set/type B) y b)
+      ( Coprod/Eq/Equiv (Set/type A) (Set/type B) (inr y) (inr b))
+      ( Set/is-set B y b)
+
+Set/closed-Coprod/is-set (A B : UU-Set) : is-set (Coprod (Set/type A) (Set/type B)) = split
+  inl x -> Set/closed-Coprod/is-set/inl A B x
+  inr y -> Set/closed-Coprod/is-set/inr A B y
+
+Set/closed-Coprod (A B : UU-Set) : UU-Set =
+  ( Coprod (Set/type A) (Set/type B),
+    Set/closed-Coprod/is-set A B)

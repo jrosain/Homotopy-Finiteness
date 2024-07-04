@@ -16,6 +16,7 @@ This file defines set truncation.
   import Lib.Prop.Levels
   import Lib.PropTrunc
   import Lib.Prop.Paths
+  import Lib.IsFinite
    #+end_src
 
 ** Specification
@@ -396,6 +397,90 @@ We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
 #+RESULTS:
 : Typecheck has succeeded.
 
+** Distribution over coproduct
+We also have an equivalence || A ||_0 + || B ||_0 \simeq || A + B ||_0. Maps:
+#+begin_src ctt
+  Set-trunc/Coprod/map (A B : U) : Coprod (Set-trunc A) (Set-trunc B) -> Set-trunc (Coprod A B) = split
+    inl x ->
+      rec-Set-trunc A
+        ( Set-trunc/Set (Coprod A B))
+        ( \ a. Set-trunc/unit (inl a)) x
+    inr y ->
+      rec-Set-trunc B
+        ( Set-trunc/Set (Coprod A B))
+        ( \ b. Set-trunc/unit (inr b)) y
+
+  Set-trunc/Coprod/inv-map' (A B : U) : Coprod A B -> Coprod (Set-trunc A) (Set-trunc B) = split
+    inl a -> inl (Set-trunc/unit a)
+    inr b -> inr (Set-trunc/unit b)
+
+  Set-trunc/Coprod/inv-map (A B : U) : Set-trunc (Coprod A B) -> Coprod (Set-trunc A) (Set-trunc B) =
+    rec-Set-trunc
+      ( Coprod A B)
+      ( Set/closed-Coprod
+        ( Set-trunc/Set A)
+        ( Set-trunc/Set B))
+      ( Set-trunc/Coprod/inv-map' A B)    
+#+end_src
+Homotopies:
+#+begin_src ctt
+  Set-trunc/Coprod/right-htpy' (A B : U) : (u : Coprod A B)
+                                          -> Path (Set-trunc (Coprod A B))
+                                                 (Set-trunc/Coprod/map A B (Set-trunc/Coprod/inv-map A B (Set-trunc/unit u)))
+                                                 (Set-trunc/unit u) = split
+    inl x -> refl (Set-trunc (Coprod A B)) (Set-trunc/unit (inl x))
+    inr y -> refl (Set-trunc (Coprod A B)) (Set-trunc/unit (inr y))
+
+  Set-trunc/Coprod/right-htpy (A B : U) : (u : Set-trunc (Coprod A B))
+                                         -> Path (Set-trunc (Coprod A B))
+                                                (Set-trunc/Coprod/map A B (Set-trunc/Coprod/inv-map A B u)) u =
+    ind-Set-trunc/Prop
+      ( Coprod A B)
+      ( \ u. Set-trunc/eq/Prop
+        ( Coprod A B)
+        ( Set-trunc/Coprod/map A B (Set-trunc/Coprod/inv-map A B u)) u)
+      ( Set-trunc/Coprod/right-htpy' A B)
+
+  Set-trunc/Coprod/left-htpy (A B : U) : (u : Coprod (Set-trunc A) (Set-trunc B))
+                                        -> Path (Coprod (Set-trunc A) (Set-trunc B))
+                                               (Set-trunc/Coprod/inv-map A B (Set-trunc/Coprod/map A B u)) u = split
+    inl x ->
+      ind-Set-trunc/Prop A
+        ( \ u. Set/eq/Prop
+              ( Set/closed-Coprod (Set-trunc/Set A) (Set-trunc/Set B))
+              ( Set-trunc/Coprod/inv-map A B (Set-trunc/Coprod/map A B (inl u))) (inl u))
+        ( \ a. refl (Coprod (Set-trunc A) (Set-trunc B)) (inl (Set-trunc/unit a))) x
+    inr y ->
+      ind-Set-trunc/Prop B
+        ( \ u. Set/eq/Prop
+              ( Set/closed-Coprod (Set-trunc/Set A) (Set-trunc/Set B))
+              ( Set-trunc/Coprod/inv-map A B (Set-trunc/Coprod/map A B (inr u))) (inr u))
+        ( \ b. refl (Coprod (Set-trunc A) (Set-trunc B)) (inr (Set-trunc/unit b))) y
+#+end_src
+Equivalence:
+#+begin_src ctt
+  Set-trunc/closed-Coprod (A B : U) : Equiv (Coprod (Set-trunc A) (Set-trunc B)) (Set-trunc (Coprod A B)) =
+    has-inverse/Equiv
+      ( Coprod (Set-trunc A) (Set-trunc B))
+      ( Set-trunc (Coprod A B))
+      ( Set-trunc/Coprod/map A B)
+      ( Set-trunc/Coprod/inv-map A B,
+        ( Set-trunc/Coprod/right-htpy A B,
+          Set-trunc/Coprod/left-htpy A B))
+
+  Set-trunc/closed-Coprod' (A B : U) : Equiv (Set-trunc (Coprod A B)) (Coprod (Set-trunc A) (Set-trunc B)) =
+    has-inverse/Equiv
+      ( Set-trunc (Coprod A B))
+      ( Coprod (Set-trunc A) (Set-trunc B))
+      ( Set-trunc/Coprod/inv-map A B)
+      ( Set-trunc/Coprod/map A B,
+        ( Set-trunc/Coprod/left-htpy A B,
+          Set-trunc/Coprod/right-htpy A B))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** Closure of contractibility
 If =A= is contractible, then the set truncation of =A= is also contractible.
 #+begin_src ctt
@@ -519,7 +604,49 @@ is surjective whenever =f= is surjective.
               ( H y))
 #+end_src
 
+** Empty set truncation means empty type
+   #+begin_src ctt
+  is-empty-Set-trunc/is-empty (A : U) : is-empty (Set-trunc A) -> is-empty A =
+    \ f a. f (Set-trunc/unit a)
+   #+end_src
+
+** Finite set truncation implies map
+We show that if || A ||_0 is finite with k elements, then there merely exists an f : Fin k \to A such that |\cdot|_0 \circ f is an equivalence. Morally, |\cdot|_0 \circ f is the equivalence between Fin k and || A ||_0.
+#+begin_src ctt
+  is-finite-Set-trunc/Prop-trunc-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
+                                        : Prop-trunc ((x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x)) =
+    Fin/choice k
+      ( \ x. Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
+      ( \ x. Set-trunc/is-surjective A
+              ( Equiv/map (Fin k) (Set-trunc A) e x))
+
+  lock Prop-trunc/is-prop has-cardinality/is-prop
+  is-finite-Set-trunc/has-Equiv-map (A : U) (H : is-finite (Set-trunc A))
+                                       : Prop-trunc (Sg (Fin (card (Set-trunc A) H) -> A) (\ f. is-equiv (Fin (card (Set-trunc A) H)) (Set-trunc A) (\ z. Set-trunc/unit (f z)))) =
+    let cardinality : has-cardinality (Set-trunc A) = is-finite/has-cardinality (Set-trunc A) H
+        k : Nat = cardinality.1
+        eq : Prop-trunc (Equiv (Fin k) (Set-trunc A)) = cardinality.2
+    in
+    rec-Prop-trunc
+      ( Equiv (Fin k) (Set-trunc A))
+      ( Prop-trunc/Prop
+          ( Sg (Fin k -> A) (\ f. is-equiv (Fin k) (Set-trunc A) (\ z. Set-trunc/unit (f z)))))
+      ( \ e. rec-Prop-trunc
+              ( (x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
+              ( Prop-trunc/Prop
+                ( Sg (Fin k -> A) (\ f. is-equiv (Fin k) (Set-trunc A) (\ z. Set-trunc/unit (f z)))))
+              ( \ g. Prop-trunc/unit
+                    ( \ x. (g x).1,
+                      tr
+                      ( Fin k -> Set-trunc A)
+                      ( Equiv/map (Fin k) (Set-trunc A) e)
+                      ( \ x. Set-trunc/unit (g x).1)
+                      ( eq-htpy' (Fin k) (Set-trunc A) (Equiv/map (Fin k) (Set-trunc A) e) (\ x. Set-trunc/unit (g x).1) (\ x. (g x).2))
+                      ( is-equiv (Fin k) (Set-trunc A))
+                      ( Equiv/is-equiv (Fin k) (Set-trunc A) e)))
+              ( is-finite-Set-trunc/Prop-trunc-map A k e)) eq
+  unlock Prop-trunc/is-prop has-cardinality/is-prop
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.
-
-

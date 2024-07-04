@@ -27,6 +27,10 @@ Unit/is-finite : is-finite Unit =
   count/is-finite Unit
     ( count/Unit)
 
+Empty/is-finite : is-finite Empty =
+  count/is-finite Empty
+    ( count/zero-count)
+
 Fin/is-finite (k : Nat) : is-finite (Fin k) =
   count/is-finite
     ( Fin k)
@@ -142,6 +146,17 @@ has-cardinality/Equiv (X : U) (h : has-cardinality X) : mere-equiv (Fin (has-car
 card (X : U) (i : is-finite X) : Nat =
   has-cardinality/card X
     ( is-finite/has-cardinality X i)
+
+lock has-cardinality/is-prop
+is-finite/one-element-is-contr (A : U) (is-finite-A : is-finite A) (p : Path Nat one-Nat (card A is-finite-A))
+                                  : is-contr A =
+  rec-Prop-trunc
+    ( Equiv (Fin (card A is-finite-A)) A)
+    ( ( is-contr A,
+        is-contr/is-prop A))
+    ( \ e. count/one-element-is-contr A (card A is-finite-A, e) p)
+    ( is-finite/has-cardinality A is-finite-A).2
+unlock has-cardinality/is-prop
 
 is-finite/closed-Coprod (A B : U) (is-finite-A : is-finite A) (is-finite-B : is-finite B) : is-finite (Coprod A B) =
   rec-Prop-trunc

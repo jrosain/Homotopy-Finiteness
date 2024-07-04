@@ -854,6 +854,7 @@ This result is more or less direct from the one in the prelude.
 #+RESULTS:
 : Typecheck has succeeded.
 
+
 ** Closure of truncation levels under equivalence
 
 If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =k=.

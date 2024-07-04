@@ -46,11 +46,15 @@ Some shortcuts.
   count/is-finite (X : U) (c : count X) : is-finite X =
     Prop-trunc/unit c
 #+end_src
-*** Unit is finite
+*** Unit and Empty are finite
     #+begin_src ctt
   Unit/is-finite : is-finite Unit =
     count/is-finite Unit
       ( count/Unit)
+
+  Empty/is-finite : is-finite Empty =
+    count/is-finite Empty
+      ( count/zero-count)
     #+end_src
 *** Fin is finite
 #+begin_src ctt
@@ -198,6 +202,20 @@ Some shortcuts.
     has-cardinality/card X
       ( is-finite/has-cardinality X i)
 #+end_src
+
+** One element is contractible
+    #+begin_src ctt
+  lock has-cardinality/is-prop
+  is-finite/one-element-is-contr (A : U) (is-finite-A : is-finite A) (p : Path Nat one-Nat (card A is-finite-A))
+                                    : is-contr A =
+    rec-Prop-trunc
+      ( Equiv (Fin (card A is-finite-A)) A)
+      ( ( is-contr A,
+          is-contr/is-prop A))
+      ( \ e. count/one-element-is-contr A (card A is-finite-A, e) p)
+      ( is-finite/has-cardinality A is-finite-A).2
+  unlock has-cardinality/is-prop
+    #+end_src
 
 ** Some immediate consequences
 =X= and =Y= are finite iff their coproduct is finite.
@@ -811,3 +829,6 @@ As we prove a property, it holds for any finite type.
     #+begin_src ctt
   unlock Coprod/Eq/map
     #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
