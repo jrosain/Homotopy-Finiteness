@@ -275,6 +275,12 @@ We have shown that || X ||_0 \simeq X/||x = y||. Moreover, quotienting is effect
       ( is-set-quotient/is-effective X
         ( mere-eq/Eq-Rel X) x y)
 
+  Set-trunc/is-effective' (X : U) (x y : X) : Equiv (mere-eq X x y) (Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y)) =
+    Equiv/sym 
+      ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))
+      ( mere-eq X x y)
+      ( Set-trunc/is-effective X x y)
+
   Set-trunc/is-effective/map (X : U) (x y : X) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) -> mere-eq X x y =
     Equiv/map
       ( Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y))

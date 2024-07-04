@@ -385,7 +385,72 @@ And we have the equivalence:
       ( is-htpy-finite/closed-Sg/Equiv/map A B a y y')
       ( is-htpy-finite/closed-Sg/Equiv/inv-map A B a y y')
 #+end_src
-TODO: show that the thing above is decidable and thus conclude.
+
+*** Decidable equality of || \Sigma_{x : A}B(x) ||_0
+We start by showing that || \Sigma_{w : || a = a ||_0}P(w) || is decidable. To show this, it suffices to show that the type underlying the propositional truncation is finite. It is the case as, by hypothesis, A is \pi_1 finite and || tr_B(p, y) = y' || \simeq |tr_B(p, y)|_0 = |y'|_0 which is decidable as || B(a) ||_0 is finite.
+#+begin_src ctt
+  is-htpy-finite/closed-Sg/subtype-decidable (A : U) (B : A -> U) (is-finite-A : is-htpy-finite one-Nat A)
+                                             (is-finite-B : (x : A) -> is-htpy-finite zero (B x)) (a : A) (y y' : B a)
+                                                          : is-decidable (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+    is-finite/is-decidable-Prop-trunc
+      ( Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
+      ( is-finite/closed-Sg
+          ( Set-trunc (Path A a a))
+          ( \ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))
+          ( is-finite-A.2 a a)
+          ( ind-Set-trunc/Prop
+            ( Path A a a)
+            ( \ q. is-finite/Prop (Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
+            ( \ w. is-finite/closed-Equiv
+                    ( Prop-trunc (Path (B a) (tr A a a w B y) y'))
+                    ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+                    ( Set-trunc/is-effective' (B a) (tr A a a w B y) y')
+                    ( is-decidable/is-finite
+                      ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+                      ( Set-trunc/is-set (B a) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+                      ( is-finite/has-decidable-equality
+                        ( Set-trunc (B a))
+                        ( is-finite-B a)
+                        ( Set-trunc/unit (tr A a a w B y))
+                        ( Set-trunc/unit y'))))))
+#+end_src
+Hence, under the same hypotheses, || (a, y) = (a, y') || is also decidable.
+#+begin_src ctt
+  is-htpy-finite/closed-Sg/mere-eq-decidable (A : U) (B : A -> U) (is-finite-A : is-htpy-finite one-Nat A)
+                                             (is-finite-B : (x : A) -> is-htpy-finite zero (B x)) (a : A) (y y' : B a)
+                                                          : is-decidable (mere-eq (Sg A B) (a, y) (a, y')) =
+    is-decidable/closed-Equiv
+      ( mere-eq (Sg A B) (a, y) (a, y'))
+      ( Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
+      ( is-htpy-finite/closed-Sg/Equiv A B a y y')
+      ( is-htpy-finite/closed-Sg/subtype-decidable A B is-finite-A is-finite-B a y y')
+#+end_src
+Adding the connectedness hypothesis, we show that || \Sigma_{x: A}B(x) ||_0 has a decidable equality.
+#+begin_src ctt
+  is-htpy-finite/closed-Sg/has-decidable-equality (A : U) (B : A -> U) (is-finite-A : is-htpy-finite one-Nat A) (is-conn-A : is-conn A)
+                                                  (is-finite-B : (x : A) -> is-htpy-finite zero (B x)) (t u : Set-trunc (Sg A B))
+                                                    : is-decidable (Path (Set-trunc (Sg A B)) t u) =
+    rec-Prop-trunc A
+      ( is-decidable/Prop
+        ( Path (Set-trunc (Sg A B)) t u)
+        ( Set/is-set (Set-trunc/Set (Sg A B)) t u))
+      ( \ a. is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq A B is-conn-A a
+              ( is-htpy-finite/closed-Sg/mere-eq-decidable A B is-finite-A is-finite-B a) t u)
+      ( is-conn/is-inhabited A is-conn-A)
+#+end_src
+
+*** Closed under \Sigma-types (base case)
+Finally, we show the base case of the homotopy finite being closed under \Sigma-types.
+#+begin_src ctt
+  is-htpy-finite/closed-Sg/base (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
+                                (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+                                   : is-htpy-finite zero (Sg A B) =
+    is-htpy-finite/closed-Sg/base' A B H is-htpy-finite-A is-htpy-finite-B
+      ( is-htpy-finite/closed-Sg/has-decidable-equality A B is-htpy-finite-A H is-htpy-finite-B)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 *** Unlock
     #+begin_src ctt

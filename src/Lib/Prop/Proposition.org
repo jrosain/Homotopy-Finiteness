@@ -207,6 +207,34 @@ The dependent product of propositions is a proposition
     ( (x : A) -> Prop/type (B x),
       Pi/is-prop A B)
 #+end_src
+The coproduct of P and Q is a proposition under the condition that P implies \neg Q.
+#+begin_src ctt
+  Coprod/is-prop/inl (P Q : UU-Prop) (H : Prop/type P -> neg (Prop/type Q)) (p : Prop/type P)
+                          : (v : (Coprod (Prop/type P) (Prop/type Q)))
+                           -> Path (Coprod (Prop/type P) (Prop/type Q)) (inl p) v = split
+    inl p' -> Coprod/Eq/map (Prop/type P) (Prop/type Q) (inl p) (inl p') (Prop/is-prop P p p')
+    inr q  ->
+      ex-falso
+        ( Path (Coprod (Prop/type P) (Prop/type Q)) (inl p) (inr q))
+        ( H p q)
+
+  Coprod/is-prop/inr (P Q : UU-Prop) (H : Prop/type P -> neg (Prop/type Q)) (q : Prop/type Q)
+                          : (v : Coprod (Prop/type P) (Prop/type Q))
+                           -> Path (Coprod (Prop/type P) (Prop/type Q)) (inr q) v = split
+    inl p ->
+      ex-falso
+        ( Path (Coprod (Prop/type P) (Prop/type Q)) (inr q) (inl p))
+        ( H p q)
+    inr q' -> Coprod/Eq/map (Prop/type P) (Prop/type Q) (inr q) (inr q') (Prop/is-prop Q q q')
+
+  Coprod/is-prop (P Q : UU-Prop) (H : Prop/type P -> neg (Prop/type Q)) : is-prop (Coprod (Prop/type P) (Prop/type Q)) = split 
+    inl p -> Coprod/is-prop/inl P Q H p
+    inr q -> Coprod/is-prop/inr P Q H q
+
+  Coprod/Prop (P Q : UU-Prop) (H : Prop/type P -> neg (Prop/type Q)) : UU-Prop =
+    ( Coprod (Prop/type P) (Prop/type Q),
+      Coprod/is-prop P Q H)
+#+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.

@@ -48,6 +48,47 @@ is-finite/is-decidable (X : U) (is-prop-X : is-prop X) (is-finite-X : is-finite 
     ( \ c. count/countable-is-decidable X c)
     is-finite-X
 
+is-decidable/is-finite (X : U) (is-prop-X : is-prop X) (is-decidable-X : is-decidable X) : is-finite X =
+  Prop-trunc/unit
+    ( count/is-decidable-is-countable X is-prop-X is-decidable-X)
+
+is-finite/is-inhabited-or-empty' (A : U) : (k : Nat) -> (e : Equiv (Fin k) A) -> Coprod (Prop-trunc A) (is-empty A) = split
+  zero -> \ e. inr (Equiv/inv-map (Fin zero) A e)
+  suc k -> \ e. inl (Prop-trunc/unit (Equiv/map (Fin (suc k)) A e (zero-Fin k)))
+
+is-finite/is-inhabited-or-empty (A : U) : is-finite A -> Coprod (Prop-trunc A) (is-empty A) =
+  rec-Prop-trunc
+    ( count A)
+    ( Coprod/Prop
+        ( Prop-trunc/Prop A)
+        ( Prop/Pi A (\ _. Empty/Prop))
+        ( rec-Prop-trunc A
+          ( Prop/Pi (is-empty A) (\ _. Empty/Prop))
+          ( \ a h. h a)))
+    ( \ c. is-finite/is-inhabited-or-empty' A
+          ( number-of-elements A c)
+          ( count/Equiv A c))
+
+is-finite/is-decidable-Prop-trunc' (A : U) : Coprod (Prop-trunc A) (is-empty A)
+                                        -> is-decidable (Prop-trunc A) = split
+  inl x -> inl x
+  inr na ->
+    inr
+      ( rec-Prop-trunc A
+          ( Empty/Prop)
+          ( \ a. na a))
+
+is-finite/is-decidable-Prop-trunc (A : U) (is-finite-A : is-finite A) : is-decidable (Prop-trunc A) =
+  is-finite/is-decidable-Prop-trunc' A
+    ( is-finite/is-inhabited-or-empty A is-finite-A)
+
+is-finite/is-finite-Prop-trunc (A : U) (is-finite-A : is-finite A) : is-finite (Prop-trunc A) =
+  Prop-trunc/unit
+    ( count/is-decidable-is-countable
+      ( Prop-trunc A)
+      ( Prop-trunc/is-prop A)
+      ( is-finite/is-decidable-Prop-trunc A is-finite-A))
+
 has-cardinality (X : U) : U =
   Sg Nat
     ( \ k. mere-equiv (Fin k) X)

@@ -37,6 +37,14 @@ rec-Prop-trunc (A : U) (P : UU-Prop) (f : A -> Prop/type P) : Prop-trunc A -> Pr
   Prop-trunc/unit a -> f a
   Prop-trunc/squash x y i -> (Prop/is-prop P) (rec-Prop-trunc A P f x) (rec-Prop-trunc A P f y) i
 
+ind-Prop-trunc (A : U) (P : Prop-trunc A -> UU-Prop) (f : (x : A) -> Prop/type (P (Prop-trunc/unit x))) : (x : Prop-trunc A) -> Prop/type (P x) = split
+  Prop-trunc/unit a -> f a
+  Prop-trunc/squash x y i ->
+    J ( Prop-trunc A) x
+      ( \ z q. PathP (j. Prop/type (P (q j))) (ind-Prop-trunc A P f x) (ind-Prop-trunc A P f z))
+      ( Prop/is-prop (P x) (ind-Prop-trunc A P f x) (ind-Prop-trunc A P f x)) y
+      ( Prop-trunc/is-prop A x y) i
+
 Prop-trunc/is-prop-trunc (A : U) : is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) =
   has-ext-property/is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (\ Q. rec-Prop-trunc A Q)
 

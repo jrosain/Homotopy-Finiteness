@@ -73,6 +73,18 @@ Of course, as it is an inductive type, it has a recurrence principle.
     Prop-trunc/squash x y i -> (Prop/is-prop P) (rec-Prop-trunc A P f x) (rec-Prop-trunc A P f y) i
 #+end_src
 
+** Induction principle
+It also has an induction principle.
+#+begin_src ctt
+  ind-Prop-trunc (A : U) (P : Prop-trunc A -> UU-Prop) (f : (x : A) -> Prop/type (P (Prop-trunc/unit x))) : (x : Prop-trunc A) -> Prop/type (P x) = split
+    Prop-trunc/unit a -> f a
+    Prop-trunc/squash x y i ->
+      J ( Prop-trunc A) x
+        ( \ z q. PathP (j. Prop/type (P (q j))) (ind-Prop-trunc A P f x) (ind-Prop-trunc A P f z))
+        ( Prop/is-prop (P x) (ind-Prop-trunc A P f x) (ind-Prop-trunc A P f x)) y
+        ( Prop-trunc/is-prop A x y) i
+#+end_src
+
 ** =unit= is a propositional truncation
 Of course, the =unit= constructor of =Prop-trunc= satisfies the =is-prop-trunc= property.
 #+begin_src ctt
