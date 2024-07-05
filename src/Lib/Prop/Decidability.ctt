@@ -38,3 +38,7 @@ has-decidable-equality/is-prop (A : U) (H : (x y : A) -> is-prop (Path A x y)) :
 has-decidable-equality/Prop (A : U) (H : (x y : A) -> is-prop (Path A x y)) : UU-Prop =
   ( has-decidable-equality A,
     has-decidable-equality/is-prop A H)
+
+is-contr/is-decidable (A : UU-Prop) : is-decidable (Prop/type A) -> is-decidable (is-contr (Prop/type A)) = split
+  inl a -> inl (a, Prop/is-prop A a)
+  inr f -> inr (\ c. f c.1)

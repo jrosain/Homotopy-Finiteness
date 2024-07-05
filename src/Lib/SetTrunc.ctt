@@ -426,6 +426,12 @@ Set/Equiv-Set-trunc (X : UU-Set) : Equiv (Set/type X) (Set-trunc (Set/type X)) =
       ( Set/Equiv-Set-trunc/right-htpy X,
         Set/Equiv-Set-trunc/left-htpy X))
 
+Set-trunc/Equiv-Set (X : UU-Set) : Equiv (Set-trunc (Set/type X)) (Set/type X) =
+  Equiv/sym
+    ( Set/type X)
+    ( Set-trunc (Set/type X))
+    ( Set/Equiv-Set-trunc X)
+
 is-conn (A : U) : U =
   is-contr (Set-trunc A)
 
@@ -477,6 +483,12 @@ Set-trunc-map/is-surj (A B : U) (f : A -> B) (H : is-surj A B f) : is-surj (Set-
 
 is-empty-Set-trunc/is-empty (A : U) : is-empty (Set-trunc A) -> is-empty A =
   \ f a. f (Set-trunc/unit a)
+
+is-finite/is-finite-Set-trunc (X : U) (H : is-finite X) : is-finite (Set-trunc X) =
+  is-finite/closed-Equiv
+    ( Set-trunc X) X
+    ( Set-trunc/Equiv-Set
+      ( X, is-finite/is-set X H)) H
 
 is-finite-Set-trunc/Prop-trunc-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
                                       : Prop-trunc ((x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x)) =

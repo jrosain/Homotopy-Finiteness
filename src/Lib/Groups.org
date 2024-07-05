@@ -811,3 +811,12 @@ We have also shown that =Semi-Group/iso-eq=. Hence, =Group/iso-eq= is again an e
 
 #+RESULTS:
 : Typecheck has succeeded.
+
+** Unlock
+   #+begin_src ctt
+  unlock Semi-Group
+         Semi-Group/Iso
+         Semi-Group/iso-eq
+         Semi-Group/iso-eq/contr-Iso
+   #+end_src
+

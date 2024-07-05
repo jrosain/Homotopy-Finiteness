@@ -105,3 +105,4 @@ We show that if A is contractible, then if a : A is its center of contraction, t
 
 #+RESULTS:
 : Typecheck has succeeded.
+

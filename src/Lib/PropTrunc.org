@@ -250,6 +250,62 @@ The following equivalence holds: ||A|| \times ||B|| \simeq ||A \times B||.
       ( Prop-trunc/closed-Prod/inv-map A B)
 #+end_src
 
+** Closure under \Sigma-type
+We have that || \Sigma_{(x: A)}B(x) || is equivalent to || \Sigma_{x: A} ||B(x)|| ||.
+#+begin_src ctt
+  Prop-trunc/closed-Sg/map (A : U) (B : A -> U) : Prop-trunc (Sg A (\ x. Prop-trunc (B x))) -> Prop-trunc (Sg A B) =
+    rec-Prop-trunc
+      ( Sg A (\ x. Prop-trunc (B x)))
+      ( Prop-trunc/Prop (Sg A B))
+      ( \ t. rec-Prop-trunc
+            ( B t.1)
+            ( Prop-trunc/Prop (Sg A B))
+            ( \ b. Prop-trunc/unit (t.1, b)) t.2)
+
+  Prop-trunc/closed-Sg/inv-map (A : U) (B : A -> U) : Prop-trunc (Sg A B) -> Prop-trunc (Sg A (\ x. Prop-trunc (B x))) =
+    rec-Prop-trunc
+      ( Sg A B)
+      ( Prop-trunc/Prop (Sg A (\ x. Prop-trunc (B x))))
+      ( \ t. Prop-trunc/unit (t.1, Prop-trunc/unit t.2))
+
+  Prop-trunc/closed-Sg/right-htpy (A : U) (B : A -> U) : (t : Prop-trunc (Sg A B))
+                                      -> Path (Prop-trunc (Sg A B))
+                                             (Prop-trunc/closed-Sg/map A B (Prop-trunc/closed-Sg/inv-map A B t)) t =
+    ind-Prop-trunc
+      ( Sg A B)
+      ( \ t. is-prop/Prop-path
+            ( Prop-trunc/Prop (Sg A B))
+            ( Prop-trunc/closed-Sg/map A B (Prop-trunc/closed-Sg/inv-map A B t)) t)
+      ( \ t. refl (Prop-trunc (Sg A B)) (Prop-trunc/unit t))
+
+  Prop-trunc/closed-Sg/left-htpy (A : U) (B : A -> U) : (t : Prop-trunc (Sg A (\ x. Prop-trunc (B x))))
+                                     -> Path (Prop-trunc (Sg A (\ x. Prop-trunc (B x))))
+                                            (Prop-trunc/closed-Sg/inv-map A B (Prop-trunc/closed-Sg/map A B t)) t =
+    ind-Prop-trunc
+      ( Sg A (\ x. Prop-trunc (B x)))
+      ( \ t. is-prop/Prop-path
+            ( Prop-trunc/Prop (Sg A (\ x. Prop-trunc (B x))))
+            ( Prop-trunc/closed-Sg/inv-map A B (Prop-trunc/closed-Sg/map A B t)) t)
+      ( \ t. ind-Prop-trunc
+            ( B t.1)
+            ( \ b. is-prop/Prop-path
+                  ( Prop-trunc/Prop (Sg A (\ x. Prop-trunc (B x))))
+                  ( Prop-trunc/closed-Sg/inv-map A B (Prop-trunc/closed-Sg/map A B (Prop-trunc/unit (t.1, b)))) (Prop-trunc/unit (t.1, b)))
+            ( \ b. refl (Prop-trunc (Sg A (\ x. Prop-trunc (B x)))) (Prop-trunc/unit (t.1, Prop-trunc/unit b))) t.2)
+
+  Prop-trunc/closed-Sg (A : U) (B : A -> U) : Equiv (Prop-trunc (Sg A (\ x. Prop-trunc (B x)))) (Prop-trunc (Sg A B)) =
+    has-inverse/Equiv
+      ( Prop-trunc (Sg A (\ x. Prop-trunc (B x))))
+      ( Prop-trunc (Sg A B))
+      ( Prop-trunc/closed-Sg/map A B)
+      ( Prop-trunc/closed-Sg/inv-map A B,
+        ( Prop-trunc/closed-Sg/right-htpy A B,
+          Prop-trunc/closed-Sg/left-htpy A B))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** Map out of \Pi-type
 
    #+begin_src ctt

@@ -532,6 +532,12 @@ Homotopies:
       ( ( Set/Set-trunc/map X),
         ( Set/Equiv-Set-trunc/right-htpy X,
           Set/Equiv-Set-trunc/left-htpy X))
+
+  Set-trunc/Equiv-Set (X : UU-Set) : Equiv (Set-trunc (Set/type X)) (Set/type X) =
+    Equiv/sym
+      ( Set/type X)
+      ( Set-trunc (Set/type X))
+      ( Set/Equiv-Set-trunc X)
 #+end_src
 
 #+RESULTS:
@@ -610,6 +616,15 @@ is surjective whenever =f= is surjective.
     \ f a. f (Set-trunc/unit a)
    #+end_src
 
+** Finite type means finite set truncation
+   #+begin_src ctt
+  is-finite/is-finite-Set-trunc (X : U) (H : is-finite X) : is-finite (Set-trunc X) =
+    is-finite/closed-Equiv
+      ( Set-trunc X) X
+      ( Set-trunc/Equiv-Set
+        ( X, is-finite/is-set X H)) H
+   #+end_src
+
 ** Finite set truncation implies map
 We show that if || A ||_0 is finite with k elements, then there merely exists an f : Fin k \to A such that |\cdot|_0 \circ f is an equivalence. Morally, |\cdot|_0 \circ f is the equivalence between Fin k and || A ||_0.
 #+begin_src ctt
@@ -650,3 +665,4 @@ We show that if || A ||_0 is finite with k elements, then there merely exists an
 
 #+RESULTS:
 : Typecheck has succeeded.
+

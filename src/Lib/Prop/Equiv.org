@@ -310,7 +310,7 @@ As such, =Coprod A Empty= is also equivalent to =A=.
   Equiv/Equiv-copr-type-empty (A : U) : Equiv (Coprod A Empty) A =
     Equiv/trans (Coprod A Empty) (Coprod Empty A) A (Equiv/commutative-coprod A Empty) (Equiv/Equiv-copr-empty-type A)
 #+end_src
-*** \Sigma Empty A is A
+*** \Sigma Empty A is Empty
 For any type family =A= over =Empty=, Sg Empty A is empty.
 #+begin_src ctt
   Equiv/is-equiv-Sg-empty-map (A : Empty -> U) : (Sg Empty A) -> Empty =
@@ -854,6 +854,8 @@ This result is more or less direct from the one in the prelude.
 #+RESULTS:
 : Typecheck has succeeded.
 
+*** (x, y) = (x', y') is x = x' if the type of y, y' is proposition
+See the file [[Levels.org][Levels.org]].
 
 ** Closure of truncation levels under equivalence
 
@@ -917,6 +919,7 @@ If =B= is of level =k= and =A= is equivalent to =B=, then =A= is also of level =
 
   unlock has-inverse/is-equiv  
    #+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.
 

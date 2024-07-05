@@ -35,6 +35,21 @@ Empty/is-htpy-finite : (n : Nat) -> is-htpy-finite n Empty = split
     ( Empty/is-htpy-finite zero,
       \ x y. ex-falso (is-htpy-finite n (Path Empty x y)) x)
 
+is-contr/is-htpy-finite : (n : Nat) -> (X : U) -> is-contr X -> is-htpy-finite n X = split
+  zero -> \ X H.
+    is-contr/is-finite
+      ( Set-trunc X)
+      ( Set-trunc/closed-contr X H)
+  suc n -> \ X H.
+    ( is-contr/is-htpy-finite zero X H,
+      \ x y. is-contr/is-htpy-finite n
+            ( Path X x y)
+            ( is-contr/closed-upwards X H x y))
+
+Unit/is-htpy-finite (n : Nat) : is-htpy-finite n Unit =
+  is-contr/is-htpy-finite n Unit
+    ( Unit/is-contr)
+
 is-htpy-finite/is-finite-Set-trunc (A : U) : (n : Nat) -> is-htpy-finite n A -> is-finite (Set-trunc A) = split
   zero -> id (is-finite (Set-trunc A))
   suc n -> \ H. H.1
@@ -184,6 +199,27 @@ is-htpy-finite/Coprod/right (A B : U) : (n : Nat) (is-htpy-finite-copr : is-htpy
           ( Path (Coprod A B) (inr x) (inr y))
           ( Coprod/Eq/Equiv' A B (inr x) (inr y)) n
           ( H.2 (inr x) (inr y)))
+
+Fin/is-htpy-finite (n : Nat) : (k : Nat) -> is-htpy-finite n (Fin k) = split
+  zero -> Empty/is-htpy-finite n
+  suc k ->
+    is-htpy-finite/closed-Coprod n
+      ( Fin k) Unit
+      ( Fin/is-htpy-finite n k)
+      ( Unit/is-htpy-finite n)
+
+count/is-htpy-finite (X : U) (H : count X) (n : Nat) : is-htpy-finite n X =
+  let k : Nat = number-of-elements X H
+      e : Equiv (Fin k) X = count/Equiv X H in
+  is-htpy-finite/closed-Equiv'
+    ( Fin k) X e n
+    ( Fin/is-htpy-finite n k)
+
+is-finite/is-htpy-finite (X : U) (H : is-finite X) (n : Nat) : is-htpy-finite n X =
+  rec-Prop-trunc
+    ( count X)
+    ( is-htpy-finite/Prop n X)
+    ( \ c. count/is-htpy-finite X c n) H
 
 Fin/Equiv-Pi-Set-trunc : (k : Nat) -> (B : Fin k -> U) -> Equiv ((x : Fin k) -> Set-trunc (B x)) (Set-trunc ((x : Fin k) -> B x)) = split
   zero -> \ B.

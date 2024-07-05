@@ -50,5 +50,3 @@ pr1/is-inj (A : U) (B : A -> U) (is-prop-B : (x : A) -> is-prop (B x)) (t u : Sg
       ( Equiv/fib-space-Equiv A B x)
       ( is-prop-B x))
     t u
-
-ttttt : Nat = zero

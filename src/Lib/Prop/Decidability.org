@@ -64,3 +64,14 @@ The same holds for decidable equality.
 
 #+RESULTS:
 : Typecheck has succeeded.
+** =is-contr= is decidable whenever the underlying type is a decidable proposition
+
+   #+begin_src ctt
+  is-contr/is-decidable (A : UU-Prop) : is-decidable (Prop/type A) -> is-decidable (is-contr (Prop/type A)) = split
+    inl a -> inl (a, Prop/is-prop A a)
+    inr f -> inr (\ c. f c.1)
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+

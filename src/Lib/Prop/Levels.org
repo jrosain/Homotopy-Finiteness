@@ -236,3 +236,70 @@ If =A= and =B= are both sets, then =A * B= is also a set.
 
 #+RESULTS:
 : Typecheck has succeeded.
+** (x, y) = (x', y') is x = x' if the type of y, y' is proposition
+The back-and-forth maps are already defined; one is Sg-Path/left and the other is SgPath-prop. We show that they are inverses to each other.
+    #+begin_src ctt
+  PathPath/Equiv (A : U) (B : A -> U) (u v : Sg A B) (p q : Path (Sg A B) u v) 
+                    : Equiv (Path (Path (Sg A B) u v) p q) (Path (SgPathP A B u v) (PathSg->SgPathP A B u v p) (PathSg->SgPathP A B u v q))  =
+    Equiv/Equiv-id
+      ( Path (Sg A B) u v)
+      ( SgPathP A B u v)
+      ( PathSg-equiv-SgPathP A B u v) p q
+
+  PathPath/map (A : U) (B : A -> U) (u v : Sg A B) (p q : Path (Sg A B) u v) (spq : Path (SgPathP A B u v) (PathSg->SgPathP A B u v p) (PathSg->SgPathP A B u v q))
+           : Path (Path (Sg A B) u v) p q =
+    Equiv/inv-map
+      ( Path (Path (Sg A B) u v) p q)
+      ( Path (SgPathP A B u v) (PathSg->SgPathP A B u v p) (PathSg->SgPathP A B u v q))
+      ( PathPath/Equiv A B u v p q) spq
+
+  SgPath-prop' (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg A B) (p : Path A u.1 v.1) : Path (Sg A B) u v =
+    SgPathP->PathSg A B u v (p, J A u.1 (\ z q. (y : B z) -> PathP (i. B (q i)) u.2 y) (\ y. H u.1 u.2 y) v.1 p v.2)
+
+  SgPath-prop/right-htpy (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg A B) (p : Path (Sg A B) u v)
+                            : Path (Path (Sg A B) u v) (SgPath-prop' A B H u v (Sg-path/left A B u v p)) p =
+    PathPath/map A B u v 
+      ( SgPath-prop' A B H u v (Sg-path/left A B u v p)) p
+      ( SgPathP->PathSg
+        ( Path A u.1 v.1)
+        ( \ r. PathP (i. B (r i)) u.2 v.2)
+        ( PathSg->SgPathP A B u v
+          ( SgPath-prop' A B H u v (Sg-path/left A B u v p)))
+        ( PathSg->SgPathP A B u v p)
+        ( refl (Path A u.1 v.1) (PathSg->SgPathP A B u v p).1 ,
+          J A u.1
+          ( \ z q. (y :B z) -> (r s : PathP (i. B (q i)) u.2 y) -> Path (PathP (i. B (q i)) u.2 y) r s)
+          ( \ y r s. is-prop/is-set
+                    ( B u.1)
+                    ( H u.1) u.2 y r s) v.1 (\ i. (p i).1) v.2
+                    ( PathSg->SgPathP A B u v
+                      ( SgPath-prop' A B H u v (Sg-path/left A B u v p))).2
+                      (PathSg->SgPathP A B u v p).2))
+
+  SgPath-prop/left-htpy (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg A B) (p : Path A u.1 v.1)
+                           : Path (Path A u.1 v.1) (Sg-path/left A B u v (SgPath-prop' A B H u v p)) p =
+    refl (Path A u.1 v.1) p
+
+  SgPath-prop/Equiv (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg A B)
+                       : Equiv (Path A u.1 v.1) (Path (Sg A B) u v) =
+    has-inverse/Equiv
+      ( Path A u.1 v.1)
+      ( Path (Sg A B) u v)
+      ( SgPath-prop' A B H u v)
+      ( Sg-path/left A B u v,
+        ( SgPath-prop/right-htpy A B H u v,
+          SgPath-prop/left-htpy A B H u v))
+
+  SgPath-prop/Equiv' (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg A B)
+                        : Equiv (Path (Sg A B) u v) (Path A u.1 v.1) =
+    has-inverse/Equiv
+      ( Path (Sg A B) u v)
+      ( Path A u.1 v.1)
+      ( Sg-path/left A B u v)
+      ( SgPath-prop' A B H u v,
+        ( SgPath-prop/left-htpy A B H u v,
+          SgPath-prop/right-htpy A B H u v))
+    #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

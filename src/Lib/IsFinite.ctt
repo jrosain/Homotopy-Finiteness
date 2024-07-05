@@ -93,6 +93,10 @@ is-finite/is-finite-Prop-trunc (A : U) (is-finite-A : is-finite A) : is-finite (
       ( Prop-trunc/is-prop A)
       ( is-finite/is-decidable-Prop-trunc A is-finite-A))
 
+is-contr/is-finite (X : U) (H : is-contr X) : is-finite X =
+  count/is-finite X
+    ( count/contr-count X H)
+
 has-cardinality (X : U) : U =
   Sg Nat
     ( \ k. mere-equiv (Fin k) X)
@@ -690,3 +694,75 @@ has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-
       ( is-finite-A)
 
 unlock Coprod/Eq/map
+
+is-contr/is-finite-is-decidable/neg-Path (A : U) (a : A) (k : Nat) (e : Equiv (Fin (suc (suc k))) A) (h : (x : A) -> Path A a x)
+                                            : Coprod (Path (Fin (suc (suc k))) (inr star) (Equiv/inv-map (Fin (suc (suc k))) A e a))
+                                                     (neg (Path (Fin (suc (suc k))) (inr star) (Equiv/inv-map (Fin (suc (suc k))) A e a)))
+                                              -> Sg A (\ x. neg (Path A a x)) = split
+  inl p -> let x : A = Equiv/map (Fin (suc (suc k))) A e (inl (inr star)) in
+          ( x,
+            \ q. Fin/is-path-is-Eq (suc (suc k))
+                ( inr star)
+                ( inl (inr star))
+                ( comp-n
+                  ( Fin (suc (suc k))) three-Nat
+                  ( inr star)
+                  ( Equiv/inv-map (Fin (suc (suc k))) A e a) p
+                  ( Equiv/inv-map (Fin (suc (suc k))) A e x)
+                  ( ap A (Fin (suc (suc k))) (Equiv/inv-map (Fin (suc (suc k))) A e) a x q)
+                  ( inl (inr star))
+                  ( Equiv/inv-left-htpy (Fin (suc (suc k))) A e (inl (inr star)))))
+  inr f -> let x : A = Equiv/map (Fin (suc (suc k))) A e (inr star) in
+          ( x,
+            \ q. f (comp ( Fin (suc (suc k))) (inr star)
+                        ( Equiv/inv-map (Fin (suc (suc k))) A e x)
+                        ( inv (Fin (suc (suc k))) (Equiv/inv-map (Fin (suc (suc k))) A e x) (inr star) (Equiv/inv-left-htpy (Fin (suc (suc k))) A e (inr star)))
+                        ( Equiv/inv-map (Fin (suc (suc k))) A e a)
+                        ( ap A (Fin (suc (suc k))) (Equiv/inv-map (Fin (suc (suc k))) A e) x a (inv A a x q))))
+
+is-contr/is-finite-is-decidable/s (A : U) : (k : Nat) -> Equiv (Fin (suc k)) A -> is-decidable (is-contr A) = split
+  zero -> \ e. inl (is-contr/is-contr-equiv' (Fin one-Nat) A e (Fin/fin-one-is-contr))
+  suc k -> \ e. inr (\ t. let u : Sg A (\ x. neg (Path A t.1 x)) = ( is-contr/is-finite-is-decidable/neg-Path A t.1 k e t.2
+                                                              ( Fin/decidable-eq (suc (suc k)) (inr star) (Equiv/inv-map (Fin (suc (suc k))) A e t.1)))
+                       in u.2 (t.2 u.1))
+
+is-contr/is-finite-is-decidable' (A : U) : (k : Nat) -> Equiv (Fin k) A -> is-decidable (is-contr A) = split
+  zero -> \ e. inr (\ t. Equiv/inv-map (Fin zero) A e t.1)
+  suc k -> is-contr/is-finite-is-decidable/s A k
+
+is-contr/is-finite-is-decidable (A : U) : is-finite A -> is-decidable (is-contr A) =
+  rec-Prop-trunc
+    ( count A)
+    ( is-decidable/Prop
+      ( is-contr A)
+      ( is-contr/is-prop A))
+    ( \ c. is-contr/is-finite-is-decidable' A (number-of-elements A c) (count/Equiv A c))
+
+is-finite/is-finite-Equiv (A B : U) (HA : is-finite A) (HB : is-finite B) : is-finite (Equiv A B) =
+  rec-Prop-trunc
+    ( count A)
+    ( is-finite/Prop (Equiv A B))
+    ( \ cA. rec-Prop-trunc
+           ( count B)
+           ( is-finite/Prop (Equiv A B))
+           ( \ cB. is-finite/closed-Sg
+                  ( A -> B)
+                  ( is-equiv A B)
+                  ( is-finite/Pi A
+                    ( \ _. B) HA
+                    ( \ _. HB))
+                  ( \ f. is-finite/Pi B
+                        ( \ y. is-contr (Fib A B f y)) HB
+                        ( \ y. is-decidable/is-finite
+                              ( is-contr (Fib A B f y))
+                              ( is-contr/is-prop (Fib A B f y))
+                              ( is-contr/is-finite-is-decidable
+                                ( Fib A B f y)
+                                ( count/is-finite
+                                  ( Fib A B f y)
+                                  ( count/closed-Sg A
+                                    ( \ x. Path B y (f x)) cA
+                                    ( \ x. count/is-decidable-is-countable
+                                          ( Path B y (f x))
+                                          ( count/is-set B cB y (f x))
+                                          ( count/has-decidable-eq B cB y (f x))))))))) HB) HA

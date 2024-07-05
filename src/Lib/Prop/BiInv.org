@@ -177,4 +177,3 @@ Now that we have shown that =g= is bi-invertible, we can use the 3-for-2 propert
                                      (K : is-bi-inv B D (map/comp B C D h g)) : is-bi-inv C D h =
     is-bi-inv/is-bi-inv-comp-right B C D g h (is-bi-inv-comp/is-bi-inv-middle-map A B C D f g h H K) K
 #+end_src
-
