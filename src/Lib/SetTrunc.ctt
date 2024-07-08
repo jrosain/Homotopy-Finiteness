@@ -85,15 +85,13 @@ Set-trunc/is-surjective (X : U) : is-surj X (Set-trunc X) (\ x. Set-trunc/unit x
     ( \ x. Prop-trunc/Prop (Fib X (Set-trunc X) (\ z. Set-trunc/unit z) x))
     ( \ x. Prop-trunc/unit (x, refl (Set-trunc X) (Set-trunc/unit x)))
 
-Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+Set-trunc/relation/map (X : U) (x y : X) : (p : mere-eq X x y) -> Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
   rec-Prop-trunc
     ( Path X x y)
     ( Set-trunc/eq/Prop X
       ( Set-trunc/unit x)
       ( Set-trunc/unit y))
-    ( J X x
-      ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
-      ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
+    ( ap X (Set-trunc X) (\ z. Set-trunc/unit z) x y)
 
 Set-trunc/relation (X : U) : reflecting-map-Eq-Rel X (mere-eq/Eq-Rel X) (Set-trunc X) =
   ( (\ x. Set-trunc/unit x),

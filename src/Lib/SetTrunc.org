@@ -137,15 +137,13 @@ Of course, sending an element to its set truncation is surjective.
 ** Set truncation is a set quotient
 We show that set truncation is actually a type that is quotiented by the equivalence relation that is the mere equality.
 #+begin_src ctt
-  Set-trunc/relation/map (X : U) (x y : X) (p : mere-eq X x y) : Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
+  Set-trunc/relation/map (X : U) (x y : X) : (p : mere-eq X x y) -> Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit y) =
     rec-Prop-trunc
       ( Path X x y)
       ( Set-trunc/eq/Prop X
         ( Set-trunc/unit x)
         ( Set-trunc/unit y))
-      ( J X x
-        ( \ z _. Path (Set-trunc X) (Set-trunc/unit x) (Set-trunc/unit z))
-        ( refl (Set-trunc X) (Set-trunc/unit x)) y) p
+      ( ap X (Set-trunc X) (\ z. Set-trunc/unit z) x y)
 
   Set-trunc/relation (X : U) : reflecting-map-Eq-Rel X (mere-eq/Eq-Rel X) (Set-trunc X) =
     ( (\ x. Set-trunc/unit x),
@@ -295,9 +293,6 @@ We have shown that || X ||_0 \simeq X/||x = y||. Moreover, quotienting is effect
       ( Set-trunc/is-effective X x y)
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
-
 ** Map between truncations
 If there is a map between A and B, then there is a map between the set truncations of A and B.
    #+begin_src ctt
@@ -394,9 +389,6 @@ We have an equivalence ||A||_0 \times ||B||_0 \simeq ||A \times B||_0.
   unlock Set/closed-Prod/is-set Set-trunc/is-set
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
-
 ** Distribution over coproduct
 We also have an equivalence || A ||_0 + || B ||_0 \simeq || A + B ||_0. Maps:
 #+begin_src ctt
@@ -478,9 +470,6 @@ Equivalence:
           Set-trunc/Coprod/right-htpy A B))
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
-
 ** Closure of contractibility
 If =A= is contractible, then the set truncation of =A= is also contractible.
 #+begin_src ctt
@@ -539,9 +528,6 @@ Homotopies:
       ( Set-trunc (Set/type X))
       ( Set/Equiv-Set-trunc X)
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 ** Connected type
 A type is connected whenever its set truncation is contractible.

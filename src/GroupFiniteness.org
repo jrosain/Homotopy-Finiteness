@@ -7,26 +7,27 @@
   module GroupFiniteness where
   #+end_src
 
-This file is an application of the [[HomotopyFiniteness.org][Homotopy Finiteness]] to semi-groups and groups.
+This file is an application of the [[file:HomotopyFiniteness.org][Homotopy Finiteness]] to semigroups and groups.
 
 ** Packages imports
 
    #+begin_src ctt
   import Lib.Groups
-  import Lib.SetTrunc
+  -- import HomotopyFiniteness
+  import Lib/SetTrunc
    #+end_src
 
-** Semi-Groups of order
+** Semigroups of order
 
-As a group is /morally/ a semi-group augmented with the property =is-group=, we start by showing that semi-groups of order =n= have a finite number of connected components (read: there is a finite number of semi-groups of order =n= up to isomorphism). A semi-group of order =n= is a semi-group =G= such that there is a mere bijection between =G= and =Fin n=.
+As a group is /morally/ a semigroup augmented with the property =is-group=, we start by showing that semigroups of order =n= have a finite number of connected components (read: there is a finite number of semigroups of order =n= up to isomorphism). A semigroup of order =n= is a semigroup =G= such that there is a mere bijection between =G= and =Fin n=.
 #+begin_src ctt
-  Semi-Group-of-Order (n : Nat) : U =
-    Sg Semi-Group (\ G. mere-equiv (Fin n) (Semi-Group/type G))
+  Semigroup-of-Order (n : Nat) : U =
+    Sg Semigroup (\ G. mere-equiv (Fin n) (Semigroup/type G))
 #+end_src
 
-Recall that a Semi-Group is defined as follows: \Sigma_{X: Set}(has-assoc-op(X)). But as || Fin n \simeq X ||, X is a set; thus we have a redundant information. As such, we want to show that the type of semi-groups of order n are equivalent to the following type.
+Recall that a Semigroup is defined as follows: \Sigma_{X: Set}(has-assoc-op(X)). But as || Fin n \simeq X ||, X is a set; thus we have a redundant information. As such, we want to show that the type of semigroups of order n are equivalent to the following type.
 #+begin_src ctt
-  Semi-Group-of-Order' (n : Nat) : U =
+  Semigroup-of-Order' (n : Nat) : U =
     Sg (Sg U (\ X. mere-equiv (Fin n) X)) (\ X. has-assoc-op X.1)
 #+end_src
 
@@ -59,107 +60,106 @@ Indeed, it is easy to show that has-assoc-op is \pi_0-finite; in fact, it is fin
 
 Moreover, it is also easy to show that \Sigma_{(X: U)}|| Fin n \simeq X || is \pi_k-finite, forall k. First, we show that \Sigma_{(X: U)}|| Fin n \simeq X || is contractible. Indeed, its center of contraction is (Fin n, refl-Equiv) and by univalence, any X such that || Fin n \simeq X ||, we have Fin n = X as we show a property.
 #+begin_src ctt
-  -- mere-equiv-Fin/is-finite-Set-trunc (n : Nat) : is-conn (Sg U (\ X. mere-equiv (Fin n) X)) = 
-  --   let center-of-contraction : Sg U (\ X. mere-equiv (Fin n) X) = (Fin n, Prop-trunc/unit (Equiv/refl (Fin n))) in
-  --   ( Set-trunc/unit (center-of-contraction),
-  --     ( ind-Set-trunc/Prop
-  --       ( Sg U (\ X. mere-equiv (Fin n) X))
-  --       ( \ u. Set-trunc/eq/Prop
-  --             ( Sg U (\ X. mere-equiv (Fin n) X))
-  --             ( Set-trunc/unit center-of-contraction) u)
-  --       ( \ u. let X : U = u.1 in
-  --             rec-Prop-trunc
-  --             ( mere-equiv (Fin n) X)
-  --             ( Set-trunc/eq/Prop
-  --               ( Sg U (\ X. mere-equiv (Fin n) X))
-  --               ( Set-trunc/unit center-of-contraction)
-  --               ( Set-trunc/unit u))
-  --             ( \ e. Set-trunc/is-effective/inv-map
-  --                   ( Sg U (\ X. mere-equiv (Fin n) X))
-  --                   ( center-of-contraction) u
-  --                   ( Prop-trunc/unit
-  --                     ( SgPath-prop U
-  --                       ( mere-equiv (Fin n))
-  --                       ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X))
-  --                       ( center-of-contraction) u
-  --                       ( equiv-to-path (Fin n) X e)))) u.2)))
+  mere-equiv-Fin/is-conn-Set-trunc (n : Nat) : is-conn (Sg U (\ X. mere-equiv (Fin n) X)) = 
+    let center-of-contraction : Sg U (\ X. mere-equiv (Fin n) X) = (Fin n, Prop-trunc/unit (Equiv/refl (Fin n))) in
+    ( Set-trunc/unit (center-of-contraction),
+      ( ind-Set-trunc/Prop
+	( Sg U (\ X. mere-equiv (Fin n) X))
+	( \ u. Set-trunc/eq/Prop
+	      ( Sg U (\ X. mere-equiv (Fin n) X))
+	      ( Set-trunc/unit center-of-contraction) u)
+	( \ u. let X : U = u.1 in
+	      rec-Prop-trunc
+	      ( Equiv (Fin n) X)
+	      ( Set-trunc/eq/Prop
+		( Sg U (\ X'. mere-equiv (Fin n) X'))
+		( Set-trunc/unit center-of-contraction)
+		( Set-trunc/unit u))
+	      ( \ e. Set-trunc/is-effective/inv-map
+		    ( Sg U (\ X'. mere-equiv (Fin n) X'))
+		    ( center-of-contraction) u
+		    ( Prop-trunc/unit
+		      ( SgPath-prop U
+			( mere-equiv (Fin n))
+			( \ X'. Prop-trunc/is-prop (Equiv (Fin n) X'))
+			( center-of-contraction) u
+			( equiv-to-path (Fin n) X e)))) u.2)))
 #+end_src
 Using this lemma, we show that \Sigma_{(X: U)}Fin n \simeq X is \pi_k finite for any k.
 #+begin_src ctt
   -- mere-equiv-Fin/is-htpy-finite (n : Nat) : (k : Nat) -> is-htpy-finite k (Sg U (mere-equiv (Fin n))) = split
   --   zero -> is-contr/is-finite
-  --           ( Set-trunc (Sg U (mere-equiv (Fin n))))
-  --           ( mere-equiv-Fin/is-finite-Set-trunc n)
-  --   suc n ->
-  --     ( mere-equiv-Fin/is-htpy-finite n zero,
+  -- 	  ( Set-trunc (Sg U (mere-equiv (Fin n))))
+  -- 	  ( mere-equiv-Fin/is-conn-Set-trunc n)
+  --   suc k ->
+  --     ( mere-equiv-Fin/is-htpy-finite k zero,
   --       \ X Y.
-  --         is-htpy-finite/closed-Equiv
-  --           ( Path (Sg U (mere-equiv (Fin n))) X Y)
-  --           ( Path U X.1 Y.1)
-  --           ( SgPath-prop/Equiv' U
-  --             ( mere-equiv (Fin n))
-  --             ( \ Z. Prop-trunc/is-prop (mere-equiv (Fin n) Z)) X Y) n
-  --           ( is-htpy-finite/closed-Equiv
-  --             ( Path U X.1 Y.1)
-  --             ( Equiv X.1 Y.1)
-  --             ( univalence' X.1 Y.1) n
-  --             ( is-finite/is-htpy-finite 
-  --               ( Equiv X.1 Y.1)
-  --               ( is-finite/is-finite-Equiv X.1 Y.1
-  --                 ( has-cardinality/is-finite X.1 (n, X.2))
-  --                 ( has-cardinality/is-finite Y.1 (n, Y.2))) n)))
+  -- 	is-htpy-finite/closed-Equiv
+  -- 	  ( Path (Sg U (mere-equiv (Fin n))) X Y)
+  -- 	  ( Path U X.1 Y.1)
+  -- 	  ( SgPath-prop/Equiv' U
+  -- 	    ( mere-equiv (Fin n))
+  -- 	    ( \ Z. Prop-trunc/is-prop (mere-equiv (Fin n) Z)) X Y) n
+  -- 	  ( is-htpy-finite/closed-Equiv
+  -- 	    ( Path U X.1 Y.1)
+  -- 	    ( Equiv X.1 Y.1)
+  -- 	    ( univalence' X.1 Y.1) k
+  -- 	    ( is-finite/is-htpy-finite 
+  -- 	      ( Equiv X.1 Y.1)
+  -- 	      ( is-finite/is-finite-Equiv X.1 Y.1
+  -- 		( has-cardinality/is-finite X.1 (n, X.2))
+  -- 		( has-cardinality/is-finite Y.1 (n, Y.2))) k)))
 #+end_src
-As homotopy finiteness is closed under equivalence, the result follows if we can show that Semi-Group-of-Order and Semi-Group-of-Order' are equivalent. First, we show that \Sigma (\Sigma_{(X: U)} is-set) || Fin n \simeq X || is equivalent to \Sigma_{(X: U)}|| Fin n \simeq X || (i.e., we remove a redundant information).
+As homotopy finiteness is closed under equivalence, the result follows if we can show that Semigroup-of-Order and Semigroup-of-Order' are equivalent. First, we show that \Sigma (\Sigma_{(X: U)} is-set) || Fin n \simeq X || is equivalent to \Sigma_{(X: U)}|| Fin n \simeq X || (i.e., we remove a redundant information).
 #+begin_src ctt
-  Semi-Group-of-Order/Equiv/map (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
+  Semigroup-of-Order/Equiv/map (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
                                    : Sg U (mere-equiv (Fin n)) =
     (t.1.1, t.2)
 
-  Semi-Group-of-Order/Equiv/inv-map (n : Nat) (t : Sg U (mere-equiv (Fin n)))
+  Semigroup-of-Order/Equiv/inv-map (n : Nat) (t : Sg U (mere-equiv (Fin n)))
                                        :  (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) =
     ( ( t.1, is-finite/is-set t.1 (has-cardinality/is-finite t.1 (n, t.2))),
       t.2)
 
-  Semi-Group-of-Order/Equiv/right-htpy (n : Nat) (t : Sg U (mere-equiv (Fin n)))
+  Semigroup-of-Order/Equiv/right-htpy (n : Nat) (t : Sg U (mere-equiv (Fin n)))
                                           : Path (Sg U (mere-equiv (Fin n)))
-                                                 (Semi-Group-of-Order/Equiv/map n (Semi-Group-of-Order/Equiv/inv-map n t)) t =
+                                                 (Semigroup-of-Order/Equiv/map n (Semigroup-of-Order/Equiv/inv-map n t)) t =
     SgPath-prop U
       ( mere-equiv (Fin n))
       ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X))
-      ( Semi-Group-of-Order/Equiv/map n (Semi-Group-of-Order/Equiv/inv-map n t)) t
+      ( Semigroup-of-Order/Equiv/map n (Semigroup-of-Order/Equiv/inv-map n t)) t
       ( refl U t.1)
 
   lock Prop-trunc/is-prop is-set/is-prop has-cardinality/is-finite is-finite/is-set
-  Semi-Group-of-Order/Equiv/left-htpy (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
+  Semigroup-of-Order/Equiv/left-htpy (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
                                          : Path (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
-                                                (Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)) t =
+                                                (Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)) t =
     SgPath-prop (Sg U is-set)
       ( \ X. mere-equiv (Fin n) X.1)
       ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X.1))
-      ( Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)) t
+      ( Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)) t
       ( SgPath-prop U
         ( is-set)
         ( is-set/is-prop)
-        ( Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)).1 t.1
+        ( Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)).1 t.1
         ( refl U t.1.1))
 
-  Semi-Group-of-Order/Equiv' (n : Nat) : Equiv (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (Sg U (mere-equiv (Fin n))) =
+  Semigroup-of-Order/Equiv' (n : Nat) : Equiv (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (Sg U (mere-equiv (Fin n))) =
     has-inverse/Equiv
       ( Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
       ( Sg U (mere-equiv (Fin n)))
-      ( Semi-Group-of-Order/Equiv/map n)
-      ( Semi-Group-of-Order/Equiv/inv-map n,
-        ( Semi-Group-of-Order/Equiv/right-htpy n,
-          Semi-Group-of-Order/Equiv/left-htpy n))
+      ( Semigroup-of-Order/Equiv/map n)
+      ( Semigroup-of-Order/Equiv/inv-map n,
+        ( Semigroup-of-Order/Equiv/right-htpy n,
+          Semigroup-of-Order/Equiv/left-htpy n))
 #+end_src
 Which straightforwardly implies the result.
 #+begin_src ctt
-  lock mere-equiv Fin is-set has-assoc-op
-  Semi-Group-of-Order/Equiv (n : Nat) : Equiv (Semi-Group-of-Order n) (Semi-Group-of-Order' n) =
+  Semigroup-of-Order/Equiv (n : Nat) : Equiv (Semigroup-of-Order n) (Semigroup-of-Order' n) =
     Equiv/trans
-      ( Semi-Group-of-Order n)
+      ( Semigroup-of-Order n)
       ( Sg (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (\ t. has-assoc-op t.1.1))
-      ( Semi-Group-of-Order' n)
+      ( Semigroup-of-Order' n)
       ( Equiv/assoc-Sg
         ( Sg U is-set)
         ( \ X. has-assoc-op X.1)
@@ -168,8 +168,131 @@ Which straightforwardly implies the result.
         ( Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
         ( Sg U (mere-equiv (Fin n)))
         ( \ t. has-assoc-op t.1)
-        ( Semi-Group-of-Order/Equiv' n))      
+        ( Semigroup-of-Order/Equiv' n))      
   unlock Prop-trunc/is-prop is-set/is-prop has-cardinality/is-finite is-finite/is-set
+#+end_src
+Combining these facts, we can show that =Semigroup-of-Order n= has a finite number of connected components.
+
+TODO: update the proof with the final version of the closure of htpy finiteness by \Sigma-types to show that it is, in fact, \pi_k-finite for k \in Nat.
+#+begin_src ctt
+  -- Semigroup-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
+  --   is-htpy-finite/closed-Equiv
+  --     ( Semigroup-of-Order n)
+  --     ( Semigroup-of-Order' n)
+  --     ( Semigroup-of-Order/Equiv n)
+  --     ( zero)
+  --     ( is-htpy-finite/closed-Sg/base
+  --       ( Sg U (\ X. mere-equiv (Fin n) X))
+  --       ( \ X. has-assoc-op X.1)
+  --       ( mere-equiv-Fin/is-conn-Set-trunc n)
+  --       ( mere-equiv-Fin/is-htpy-finite n one-Nat)
+  --       ( \ X. is-finite/is-htpy-finite
+  -- 	    ( has-assoc-op X.1)
+  -- 	    ( has-assoc-op/is-finite X.1
+  -- 	      ( has-cardinality/is-finite X.1 n X.2))
+  -- 	    ( zero)))
+#+end_src
+Hence, we can compute the number of semigroups of order =n= up to isomorphism.
+#+begin_src ctt
+  -- number-of-Semigroup-of-Order (n : Nat) : Nat =
+  --   card
+  --     ( Set-trunc (Semigroup-of-Order n))
+  --     ( Semigroup-of-Order/has-finite-connected-components n)
+#+end_src
+
+** Groups of order
+
+Faithful to the definition of =Semigroup-of-Order n=, a group of order =n= is a group =G= such that there is a mere equivalence between =Fin n= and =G=.
+#+begin_src ctt
+  Group-of-Order (n : Nat) : U =
+    Sg Group (\ G. mere-equiv (Fin n) (Group/type G))
+#+end_src
+Though, like =Semigroup-of-Order n=, we will show that it is equivalent to the following definition.
+#+begin_src ctt
+  Group-of-Order' (n : Nat) : U =
+    Sg (Semigroup-of-Order n) (\ G. is-group G.1)
+#+end_src
+As we have already shown in the previous section that =Semigroup-of-Order n= is \pi_k-finite for k \in Nat, we show that =is-group= is finite whenever the underlying type is finite in two steps. First, we show that =is-unital= is finite.
+#+begin_src ctt
+  is-unital/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-unital G) =
+    is-finite/closed-Sg
+      ( Semigroup/type G)
+      ( \ e. (left-unit-law G e) * (right-unit-law G e)) H
+      ( is-finite/Pi
+	( Semigroup/type G)
+	( \ e. (left-unit-law G e) * (right-unit-law G e)) H
+	( \ e. is-finite/closed-Prod
+	      ( left-unit-law G e)
+	      ( right-unit-law G e)
+	      ( is-finite/Pi
+		( Semigroup/type G)
+		( \ y. Path (Semigroup/type G) (Semigroup/op G e y) y) H
+		( \ y. is-decidable/is-finite
+		      ( Path (Semigroup/type G) (Semigroup/op G e y) y)
+		      ( Semigroup/is-set G (Semigroup/op G e y) y)
+		      ( is-finite/has-decidable-equality
+			( Semigroup/type G) H (Semigroup/op G e y) y)))
+	      ( is-finite/Pi
+		( Semigroup/type G)
+		( \ x. Path (Semigroup/type G) (Semigroup/op G x e) x) H
+		( \ x. is-decidable/is-finite
+		      ( Path (Semigroup/type G) (Semigroup/op G x e) x)
+		      ( Semigroup/is-set G (Semigroup/op G x e) x)
+		      ( is-finite/has-decidable-equality
+			( Semigroup/type G) H (Semigroup/op G x e) x)))))
+#+end_src
+And then, we show that =is-group= is also finite.
+#+begin_src ctt
+  is-group/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-group G) =
+    is-finite/closed-Sg
+      ( is-unital G)
+      ( is-group' G)
+    ( is-unital/is-finite G H)
+    ( \ e. is-finite/closed-Sg
+	  ( Semigroup/map G G)
+	  ( \ i. ((x : Semigroup/type G) -> left-inv (G, e) x (i x)) * ((x : Semigroup/type G) -> right-inv (G, e) x (i x)))
+	  ( is-finite/Pi
+	    ( Semigroup/type G)
+	    ( \ _. Semigroup/type G) H
+	    ( \ _. H))
+	  ( \ i. is-finite/closed-Prod
+		( (x : Semigroup/type G) -> left-inv (G, e) x (i x))
+		( (x : Semigroup/type G) -> right-inv (G, e) x (i x))
+		( is-finite/Pi
+		  ( Semigroup/type G)
+		  ( \ x. left-inv (G, e) x (i x)) H
+		  ( \ x. is-decidable/is-finite
+			( Path (Semigroup/type G) (Semigroup/op G (i x) x) e)
+			( Semigroup/is-set G (Semigroup/op G x e) x (i x))
+			( is-finite/has-decidable-equality
+			      ( Semigroup/type G) H (Semigroup/op G (i x) x) e)))
+		( is-finite/Pi
+		  ( Semigroup/type G)
+		  ( \ x. left-inv (G, e) (i x) x) H
+		  ( \ x. is-decidable/is-finite
+			( Path (Semigroup/type G) (Semigroup/op G x (i x)) e)
+			( Semigroup/is-set G (Semigroup/op G x e) (i x) x)
+			( is-finite/has-decidable-equality
+			      ( Semigroup/type G) H (Semigroup/op G x (i x)) e)))))
+#+end_src
+As =Group-of-Order n= and =Group-of-Order' n= are equivalent:
+#+begin_src ctt
+  Group-of-Order/Equiv (n : Nat) : Equiv (Group-of-Order n) (Group-of-Order' n) =
+    Equiv/assoc-Sg
+      ( Semigroup)
+      ( is-group)
+      ( \ G. mere-equiv (Fin n) G.1)
+#+end_src
+the result follows.
+#+begin_src ctt
+  -- Group-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite n (Group-of-Order n) =
+#+end_src
+Hence, we can compute the number of groups of finite order =n= up to isomorphism.
+#+begin_src ctt
+  -- number-of-Group-of-Order (n : Nat) : Nat =
+  --   card
+  --     ( Set-trunc (Group-of-Order n))
+  --     ( Group-of-Order/has-finite-connected-components n)
 #+end_src
 
 #+RESULTS:

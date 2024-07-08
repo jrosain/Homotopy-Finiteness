@@ -136,9 +136,6 @@ A proposition is finite iff it is decidable.
         ( is-finite/is-decidable-Prop-trunc A is-finite-A))
     #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
-
 *** Contractible type is finite
     #+begin_src ctt
   is-contr/is-finite (X : U) (H : is-contr X) : is-finite X =
@@ -836,8 +833,6 @@ As we prove a property, it holds for any finite type.
   unlock Coprod/Eq/map
     #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
 ** It is decidable to know whether a finite type is contractible or not
    #+begin_src ctt
   is-contr/is-finite-is-decidable/neg-Path (A : U) (a : A) (k : Nat) (e : Equiv (Fin (suc (suc k))) A) (h : (x : A) -> Path A a x)

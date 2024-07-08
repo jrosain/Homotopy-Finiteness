@@ -1,12 +1,13 @@
 module GroupFiniteness where
 
 import Lib.Groups
-import Lib.SetTrunc
+-- import HomotopyFiniteness
+import Lib/SetTrunc
 
-Semi-Group-of-Order (n : Nat) : U =
-  Sg Semi-Group (\ G. mere-equiv (Fin n) (Semi-Group/type G))
+Semigroup-of-Order (n : Nat) : U =
+  Sg Semigroup (\ G. mere-equiv (Fin n) (Semigroup/type G))
 
-Semi-Group-of-Order' (n : Nat) : U =
+Semigroup-of-Order' (n : Nat) : U =
   Sg (Sg U (\ X. mere-equiv (Fin n) X)) (\ X. has-assoc-op X.1)
 
 has-assoc-op/is-finite (X : U) (H : is-finite X) : is-finite (has-assoc-op X) =
@@ -33,101 +34,100 @@ has-assoc-op/is-finite (X : U) (H : is-finite X) : is-finite (has-assoc-op X) =
                                 ( h (h x y) z)
                                 ( h x (h y z)))))))
 
--- mere-equiv-Fin/is-finite-Set-trunc (n : Nat) : is-conn (Sg U (\ X. mere-equiv (Fin n) X)) = 
---   let center-of-contraction : Sg U (\ X. mere-equiv (Fin n) X) = (Fin n, Prop-trunc/unit (Equiv/refl (Fin n))) in
---   ( Set-trunc/unit (center-of-contraction),
---     ( ind-Set-trunc/Prop
---       ( Sg U (\ X. mere-equiv (Fin n) X))
---       ( \ u. Set-trunc/eq/Prop
---             ( Sg U (\ X. mere-equiv (Fin n) X))
---             ( Set-trunc/unit center-of-contraction) u)
---       ( \ u. let X : U = u.1 in
---             rec-Prop-trunc
---             ( mere-equiv (Fin n) X)
---             ( Set-trunc/eq/Prop
---               ( Sg U (\ X. mere-equiv (Fin n) X))
---               ( Set-trunc/unit center-of-contraction)
---               ( Set-trunc/unit u))
---             ( \ e. Set-trunc/is-effective/inv-map
---                   ( Sg U (\ X. mere-equiv (Fin n) X))
---                   ( center-of-contraction) u
---                   ( Prop-trunc/unit
---                     ( SgPath-prop U
---                       ( mere-equiv (Fin n))
---                       ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X))
---                       ( center-of-contraction) u
---                       ( equiv-to-path (Fin n) X e)))) u.2)))
+mere-equiv-Fin/is-conn-Set-trunc (n : Nat) : is-conn (Sg U (\ X. mere-equiv (Fin n) X)) = 
+  let center-of-contraction : Sg U (\ X. mere-equiv (Fin n) X) = (Fin n, Prop-trunc/unit (Equiv/refl (Fin n))) in
+  ( Set-trunc/unit (center-of-contraction),
+    ( ind-Set-trunc/Prop
+      ( Sg U (\ X. mere-equiv (Fin n) X))
+      ( \ u. Set-trunc/eq/Prop
+	    ( Sg U (\ X. mere-equiv (Fin n) X))
+	    ( Set-trunc/unit center-of-contraction) u)
+      ( \ u. let X : U = u.1 in
+	    rec-Prop-trunc
+	    ( Equiv (Fin n) X)
+	    ( Set-trunc/eq/Prop
+	      ( Sg U (\ X'. mere-equiv (Fin n) X'))
+	      ( Set-trunc/unit center-of-contraction)
+	      ( Set-trunc/unit u))
+	    ( \ e. Set-trunc/is-effective/inv-map
+		  ( Sg U (\ X'. mere-equiv (Fin n) X'))
+		  ( center-of-contraction) u
+		  ( Prop-trunc/unit
+		    ( SgPath-prop U
+		      ( mere-equiv (Fin n))
+		      ( \ X'. Prop-trunc/is-prop (Equiv (Fin n) X'))
+		      ( center-of-contraction) u
+		      ( equiv-to-path (Fin n) X e)))) u.2)))
 
 -- mere-equiv-Fin/is-htpy-finite (n : Nat) : (k : Nat) -> is-htpy-finite k (Sg U (mere-equiv (Fin n))) = split
 --   zero -> is-contr/is-finite
---           ( Set-trunc (Sg U (mere-equiv (Fin n))))
---           ( mere-equiv-Fin/is-finite-Set-trunc n)
---   suc n ->
---     ( mere-equiv-Fin/is-htpy-finite n zero,
+-- 	  ( Set-trunc (Sg U (mere-equiv (Fin n))))
+-- 	  ( mere-equiv-Fin/is-conn-Set-trunc n)
+--   suc k ->
+--     ( mere-equiv-Fin/is-htpy-finite k zero,
 --       \ X Y.
---         is-htpy-finite/closed-Equiv
---           ( Path (Sg U (mere-equiv (Fin n))) X Y)
---           ( Path U X.1 Y.1)
---           ( SgPath-prop/Equiv' U
---             ( mere-equiv (Fin n))
---             ( \ Z. Prop-trunc/is-prop (mere-equiv (Fin n) Z)) X Y) n
---           ( is-htpy-finite/closed-Equiv
---             ( Path U X.1 Y.1)
---             ( Equiv X.1 Y.1)
---             ( univalence' X.1 Y.1) n
---             ( is-finite/is-htpy-finite 
---               ( Equiv X.1 Y.1)
---               ( is-finite/is-finite-Equiv X.1 Y.1
---                 ( has-cardinality/is-finite X.1 (n, X.2))
---                 ( has-cardinality/is-finite Y.1 (n, Y.2))) n)))
+-- 	is-htpy-finite/closed-Equiv
+-- 	  ( Path (Sg U (mere-equiv (Fin n))) X Y)
+-- 	  ( Path U X.1 Y.1)
+-- 	  ( SgPath-prop/Equiv' U
+-- 	    ( mere-equiv (Fin n))
+-- 	    ( \ Z. Prop-trunc/is-prop (mere-equiv (Fin n) Z)) X Y) n
+-- 	  ( is-htpy-finite/closed-Equiv
+-- 	    ( Path U X.1 Y.1)
+-- 	    ( Equiv X.1 Y.1)
+-- 	    ( univalence' X.1 Y.1) k
+-- 	    ( is-finite/is-htpy-finite 
+-- 	      ( Equiv X.1 Y.1)
+-- 	      ( is-finite/is-finite-Equiv X.1 Y.1
+-- 		( has-cardinality/is-finite X.1 (n, X.2))
+-- 		( has-cardinality/is-finite Y.1 (n, Y.2))) k)))
 
-Semi-Group-of-Order/Equiv/map (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
+Semigroup-of-Order/Equiv/map (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
                                  : Sg U (mere-equiv (Fin n)) =
   (t.1.1, t.2)
 
-Semi-Group-of-Order/Equiv/inv-map (n : Nat) (t : Sg U (mere-equiv (Fin n)))
+Semigroup-of-Order/Equiv/inv-map (n : Nat) (t : Sg U (mere-equiv (Fin n)))
                                      :  (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) =
   ( ( t.1, is-finite/is-set t.1 (has-cardinality/is-finite t.1 (n, t.2))),
     t.2)
 
-Semi-Group-of-Order/Equiv/right-htpy (n : Nat) (t : Sg U (mere-equiv (Fin n)))
+Semigroup-of-Order/Equiv/right-htpy (n : Nat) (t : Sg U (mere-equiv (Fin n)))
                                         : Path (Sg U (mere-equiv (Fin n)))
-                                               (Semi-Group-of-Order/Equiv/map n (Semi-Group-of-Order/Equiv/inv-map n t)) t =
+                                               (Semigroup-of-Order/Equiv/map n (Semigroup-of-Order/Equiv/inv-map n t)) t =
   SgPath-prop U
     ( mere-equiv (Fin n))
     ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X))
-    ( Semi-Group-of-Order/Equiv/map n (Semi-Group-of-Order/Equiv/inv-map n t)) t
+    ( Semigroup-of-Order/Equiv/map n (Semigroup-of-Order/Equiv/inv-map n t)) t
     ( refl U t.1)
 
 lock Prop-trunc/is-prop is-set/is-prop has-cardinality/is-finite is-finite/is-set
-Semi-Group-of-Order/Equiv/left-htpy (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
+Semigroup-of-Order/Equiv/left-htpy (n : Nat) (t : Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
                                        : Path (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
-                                              (Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)) t =
+                                              (Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)) t =
   SgPath-prop (Sg U is-set)
     ( \ X. mere-equiv (Fin n) X.1)
     ( \ X. Prop-trunc/is-prop (Equiv (Fin n) X.1))
-    ( Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)) t
+    ( Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)) t
     ( SgPath-prop U
       ( is-set)
       ( is-set/is-prop)
-      ( Semi-Group-of-Order/Equiv/inv-map n (Semi-Group-of-Order/Equiv/map n t)).1 t.1
+      ( Semigroup-of-Order/Equiv/inv-map n (Semigroup-of-Order/Equiv/map n t)).1 t.1
       ( refl U t.1.1))
 
-Semi-Group-of-Order/Equiv' (n : Nat) : Equiv (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (Sg U (mere-equiv (Fin n))) =
+Semigroup-of-Order/Equiv' (n : Nat) : Equiv (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (Sg U (mere-equiv (Fin n))) =
   has-inverse/Equiv
     ( Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
     ( Sg U (mere-equiv (Fin n)))
-    ( Semi-Group-of-Order/Equiv/map n)
-    ( Semi-Group-of-Order/Equiv/inv-map n,
-      ( Semi-Group-of-Order/Equiv/right-htpy n,
-        Semi-Group-of-Order/Equiv/left-htpy n))
+    ( Semigroup-of-Order/Equiv/map n)
+    ( Semigroup-of-Order/Equiv/inv-map n,
+      ( Semigroup-of-Order/Equiv/right-htpy n,
+        Semigroup-of-Order/Equiv/left-htpy n))
 
-lock mere-equiv Fin is-set has-assoc-op
-Semi-Group-of-Order/Equiv (n : Nat) : Equiv (Semi-Group-of-Order n) (Semi-Group-of-Order' n) =
+Semigroup-of-Order/Equiv (n : Nat) : Equiv (Semigroup-of-Order n) (Semigroup-of-Order' n) =
   Equiv/trans
-    ( Semi-Group-of-Order n)
+    ( Semigroup-of-Order n)
     ( Sg (Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1)) (\ t. has-assoc-op t.1.1))
-    ( Semi-Group-of-Order' n)
+    ( Semigroup-of-Order' n)
     ( Equiv/assoc-Sg
       ( Sg U is-set)
       ( \ X. has-assoc-op X.1)
@@ -136,5 +136,106 @@ Semi-Group-of-Order/Equiv (n : Nat) : Equiv (Semi-Group-of-Order n) (Semi-Group-
       ( Sg (Sg U is-set) (\ X. mere-equiv (Fin n) X.1))
       ( Sg U (mere-equiv (Fin n)))
       ( \ t. has-assoc-op t.1)
-      ( Semi-Group-of-Order/Equiv' n))      
+      ( Semigroup-of-Order/Equiv' n))      
 unlock Prop-trunc/is-prop is-set/is-prop has-cardinality/is-finite is-finite/is-set
+
+-- Semigroup-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
+--   is-htpy-finite/closed-Equiv
+--     ( Semigroup-of-Order n)
+--     ( Semigroup-of-Order' n)
+--     ( Semigroup-of-Order/Equiv n)
+--     ( zero)
+--     ( is-htpy-finite/closed-Sg/base
+--       ( Sg U (\ X. mere-equiv (Fin n) X))
+--       ( \ X. has-assoc-op X.1)
+--       ( mere-equiv-Fin/is-conn-Set-trunc n)
+--       ( mere-equiv-Fin/is-htpy-finite n one-Nat)
+--       ( \ X. is-finite/is-htpy-finite
+-- 	    ( has-assoc-op X.1)
+-- 	    ( has-assoc-op/is-finite X.1
+-- 	      ( has-cardinality/is-finite X.1 n X.2))
+-- 	    ( zero)))
+
+-- number-of-Semigroup-of-Order (n : Nat) : Nat =
+--   card
+--     ( Set-trunc (Semigroup-of-Order n))
+--     ( Semigroup-of-Order/has-finite-connected-components n)
+
+Group-of-Order (n : Nat) : U =
+  Sg Group (\ G. mere-equiv (Fin n) (Group/type G))
+
+Group-of-Order' (n : Nat) : U =
+  Sg (Semigroup-of-Order n) (\ G. is-group G.1)
+
+lock is-finite left-unit-law right-unit-law 
+is-unital/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-unital G) =
+  is-finite/closed-Sg
+    ( Semigroup/type G)
+    ( \ e. (left-unit-law G e) * (right-unit-law G e)) H
+    ( is-finite/Pi
+      ( Semigroup/type G)
+      ( \ e. (left-unit-law G e) * (right-unit-law G e)) H
+      ( \ e. is-finite/closed-Prod
+	    ( left-unit-law G e)
+	    ( right-unit-law G e)
+	    ( is-finite/Pi
+	      ( Semigroup/type G)
+	      ( \ y. Path (Semigroup/type G) (Semigroup/op G e y) y) H
+	      ( \ y. is-decidable/is-finite
+		    ( Path (Semigroup/type G) (Semigroup/op G e y) y)
+		    ( Semigroup/is-set G (Semigroup/op G e y) y)
+		    ( is-finite/has-decidable-equality
+		      ( Semigroup/type G) H (Semigroup/op G e y) y)))
+	    ( is-finite/Pi
+	      ( Semigroup/type G)
+	      ( \ x. Path (Semigroup/type G) (Semigroup/op G x e) x) H
+	      ( \ x. is-decidable/is-finite
+		    ( Path (Semigroup/type G) (Semigroup/op G x e) x)
+		    ( Semigroup/is-set G (Semigroup/op G x e) x)
+		    ( is-finite/has-decidable-equality
+		      ( Semigroup/type G) H (Semigroup/op G x e) x)))))
+
+is-group/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-group G) =
+  is-finite/closed-Sg
+    ( is-unital G)
+    ( is-group' G)
+  ( is-unital/is-finite G H)
+  ( \ e. is-finite/closed-Sg
+	( Semigroup/map G G)
+	( \ i. ((x : Semigroup/type G) -> left-inv (G, e) x (i x)) * ((x : Semigroup/type G) -> right-inv (G, e) x (i x)))
+	( is-finite/Pi
+	  ( Semigroup/type G)
+	  ( \ _. Semigroup/type G) H
+	  ( \ _. H))
+	( \ i. is-finite/closed-Prod
+	      ( (x : Semigroup/type G) -> left-inv (G, e) x (i x))
+	      ( (x : Semigroup/type G) -> right-inv (G, e) x (i x))
+	      ( is-finite/Pi
+		( Semigroup/type G)
+		( \ x. left-inv (G, e) x (i x)) H
+		( \ x. is-decidable/is-finite
+		      ( Path (Semigroup/type G) (Semigroup/op G (i x) x) e)
+		      ( Semigroup/is-set G (Semigroup/op G x e) x (i x))
+		      ( is-finite/has-decidable-equality
+			    ( Semigroup/type G) H (Semigroup/op G (i x) x) e)))
+	      ( is-finite/Pi
+		( Semigroup/type G)
+		( \ x. left-inv (G, e) (i x) x) H
+		( \ x. is-decidable/is-finite
+		      ( Path (Semigroup/type G) (Semigroup/op G x (i x)) e)
+		      ( Semigroup/is-set G (Semigroup/op G x e) (i x) x)
+		      ( is-finite/has-decidable-equality
+			    ( Semigroup/type G) H (Semigroup/op G x (i x)) e)))))
+
+Group-of-Order/Equiv (n : Nat) : Equiv (Group-of-Order n) (Group-of-Order' n) =
+  Equiv/assoc-Sg
+    ( Semigroup)
+    ( is-group)
+    ( \ G. mere-equiv (Fin n) G.1)
+
+-- Group-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite n (Group-of-Order n) =
+
+-- number-of-Group-of-Order (n : Nat) : Nat =
+--   card
+--     ( Set-trunc (Group-of-Order n))
+--     ( Group-of-Order/has-finite-connected-components n)
