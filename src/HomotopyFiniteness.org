@@ -1,3 +1,4 @@
+#+TITLE: Homotopy Finiteness
 #+NAME: Homotopy Finiteness
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,13 @@
   module HomotopyFiniteness where
   #+end_src
 
-This file is a formalization of the proof presented by Rijke in his [[https://www.cirm-math.fr/RepOrga/2689/Slides/s_rijke_3.pdf][CIRM talk]] about the finiteness of groups of finite order /k/.
+This file is a formalization of the proof presented by Rijke in his [[https://www.cirm-math.fr/RepOrga/2689/Slides/s_rijke_3.pdf][CIRM talk]] about the finiteness of structures up to isomorphism.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Lib/IsFinite.org][Lib/IsFinite]]
+   - [[file:Lib/SetTrunc.org][Lib/SetTrunc]]
    #+begin_src ctt
   import Lib.IsFinite
   import Lib.SetTrunc
@@ -626,8 +630,8 @@ Adding the connectedness hypothesis, we show that || \Sigma_{x: A}B(x) ||_0 has 
 Finally, we show the base case of the homotopy finite being closed under \Sigma-types.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/base (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
-                                (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
-                                   : is-htpy-finite zero (Sg A B) =
+				(is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+				   : is-htpy-finite zero (Sg A B) =
     is-htpy-finite/closed-Sg/base' A B H is-htpy-finite-A is-htpy-finite-B
       ( is-htpy-finite/closed-Sg/has-decidable-equality A B is-htpy-finite-A H is-htpy-finite-B)
 #+end_src

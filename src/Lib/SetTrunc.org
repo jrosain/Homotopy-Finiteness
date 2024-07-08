@@ -1,3 +1,4 @@
+#+TITLE: Set Truncation
 #+NAME: SetTrunc
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,16 @@
   module Lib.SetTrunc where
   #+end_src
 
-This file defines set truncation.
+This file defines the set truncation of a type as a higher inductive type (as done in the HoTT book, \S6.9). The set truncation of a type =X= is the ``best approximation'' of =X= as a set. As such, every map from =X= to a set =A= has a unique extension from the set truncation of =X= to =A=. We're also going to show that set truncating can be obtained by quotienting a type by its mere equality. It means that, in fact, only one representant of identifiable points are chosen. For instance, set truncating the type of singleton will give a single point, as any singleton is equivalent to any other and hence, by univalence, they are all identifiable between themselves.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:IsFinite.org][Lib/IsFinite]]
+   - [[file:PropTrunc.org][Lib/PropTrunc]]
+   - [[file:SetQuotients.org][Lib/SetQuotients]] 
+   - [[file:Prop/Levels.org][Lib/Prop/Levels]]
+   - [[file:Prop/Paths.org][Lib/Prop/Paths]]
    #+begin_src ctt
   import Lib.SetQuotients
   import Lib.Prop.Levels
@@ -651,4 +658,3 @@ We show that if || A ||_0 is finite with k elements, then there merely exists an
 
 #+RESULTS:
 : Typecheck has succeeded.
-

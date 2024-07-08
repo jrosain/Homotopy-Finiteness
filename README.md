@@ -6,6 +6,9 @@ finite [3] in [Jonas Hoefer's prototype](https://github.com/JonasHoefer/poset-ty
 The goal of this implementation is to better understand the computations done and, if possible,
 derive and formalise a new proof, "better" (for some definition of better) proof.
 
+An HTML rendering of the formalization is available at [this
+URL](https://jrosain.github.io/Homotopy-Finiteness/).
+
 ## Setup
 
 Everything needed to execute this project is bundled into this repository. Beware that the cloning

@@ -1,13 +1,13 @@
 #+NAME: index
-#+TITLE: Homotopy Finiteness | HTML Viewer
+#+TITLE: Homotopy Finiteness
 #+AUTHOR: Johann Rosain
 
 * Homotopy Finiteness
 
 This webpage is a mirror of the formalisation of Rijke's proof that the number of groups of finite order is finite [3] in [[https://github.com/JonasHoefer/poset-type-theory/][Jonas Hoefer's prototype]], offered to have a better viewing experience than on GitHub.
 
-The repository is organized as follows:
+You can start consulting the files by one of the following:
   - src/GroupFiniteness.html: the application of homotopy finiteness to groups.
   - src/HomotopyFiniteness.html: the main proof of this formalization.
-  - src/Lib: a set of standard lemmas and theorem of Homotopy type theory.
-    
+
+Then, in each file, the imports are linked to facilitate browsing.

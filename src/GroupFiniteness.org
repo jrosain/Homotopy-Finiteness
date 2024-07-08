@@ -1,3 +1,4 @@
+#+TITLE: Group Finiteness
 #+NAME: Group Finiteness
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,13 @@
   module GroupFiniteness where
   #+end_src
 
-This file is an application of the [[file:HomotopyFiniteness.org][Homotopy Finiteness]] to semigroups and groups.
+This file is an application of the [[file:HomotopyFiniteness.org][Homotopy Finiteness]] to semigroups and groups. The goal is to compute the number of groups of finite order up to isomorphism, and to analyze the computations of the proof to better understand what's going on.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:HomotopyFiniteness.org][HomotopyFiniteness]]
+   - [[file:Lib/Groups.org][Lib/Groups]]
    #+begin_src ctt
   import Lib.Groups
   import HomotopyFiniteness
