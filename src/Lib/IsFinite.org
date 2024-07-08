@@ -7,7 +7,7 @@
   module Lib.IsFinite where
 #+end_src
 
-Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[PropTrunc.org][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
+Finite types are types that can be counted. However, when defining finite types, we do not especially care about the counting, we only care about the fact that /it can be counted/, which translates in the definition by using [[file:PropTrunc.org][propositional truncation]]. However, this definition is not practical as it does not give the number of elements. Hence, we also show that finite types are /logically equivalent/ to types with cardinalities.
 
 ** Packages imports
 

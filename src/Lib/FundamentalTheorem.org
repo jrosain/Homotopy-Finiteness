@@ -383,7 +383,7 @@ By the theorem =fam-equiv/Equiv-tot=, if the family of maps =f= is an equivalenc
 #+end_src
 
 ** The structure identity principle
-This result leads to another result that helps characterize structures. It is easy to show: we use the fact that we can make =y= and =z= commute in the types. Then, \Sigma (\Sigma A C) \cdot is contractible as \Sigma A C is contractible (using [[Prop/Contr.org][Sg/is-contr']]).
+This result leads to another result that helps characterize structures. It is easy to show: we use the fact that we can make =y= and =z= commute in the types. Then, \Sigma (\Sigma A C) \cdot is contractible as \Sigma A C is contractible (using [[file:Prop/Contr.org][Sg/is-contr']]).
 
 First, let us show that we can make the types commute.
 #+begin_src ctt
