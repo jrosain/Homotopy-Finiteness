@@ -1,3 +1,4 @@
+#+TITLE: Set Quotients
 #+NAME: Set Quotients
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,15 @@
   module Lib.SetQuotients where
   #+end_src
 
-This file contains the definition and properties of set quotients as an Higher Inductive Type (see the HoTT book, section 6.10).
+This file defines set quotients, i.e., types quotiented by an equivalence relation to a set, and show that the equality when quotienting is /effective/; that is, that equality on a set quotient corresponds to the equivalence relation it is quotiented from. This file mostly follows the HoTT book, \S6.10.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:EquivalenceRelations.org][Lib/EquivalenceRelations]]
+   - [[file:Image.org][Lib/Image]]
+   - [[file:Prop/Set.org][Lib/Prop/Set]]
+   - [[file:Prop/Levels.org][Lib/Prop/Levels]]
    #+begin_src ctt
   import Lib.Prop.Set
   import Lib.Prop.Levels

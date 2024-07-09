@@ -928,16 +928,137 @@ We can also show that the set truncation of im (f \circ inl) is equivalent to A1
     \ a. Set-trunc/unit
 	( im/q A1 B (\ x. f (inl x)) a)
 #+end_src
-Indeed, this function is both surjective and injective.
+Indeed, this function is both surjective;
 #+begin_src ctt
   im-Set-trunc-map/is-surj (A1 A2 B : U) (f : Coprod A1 A2 -> B)
 				    : is-surj A1 (Set-trunc (im A1 B (\ x. f (inl x)))) (im-Set-trunc/map A1 A2 B f) =
-  
+    is-surj/comp A1
+      ( im A1 B (\ x. f (inl x)))
+      ( Set-trunc (im A1 B (\ x. f (inl x))))
+      ( \ x. Set-trunc/unit x)
+      ( Set-trunc/is-surjective
+	( im A1 B (\ x. f (inl x))))
+      ( im/q A1 B (\ x. f (inl x)))
+      ( im/q/is-surj A1 B (\ x. f (inl x)))
 #+end_src
+and injective.
+#+begin_src ctt
+  im-Set-trunc-map/is-inj (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
+			  (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			  (x y : A1) (p : Path (Set-trunc (im A1 B (\ z. f (inl z)))) (im-Set-trunc/map A1 A2 B f x) (im-Set-trunc/map A1 A2 B f y))
+				: Path A1 x y =
+    rec-Prop-trunc
+      ( Path (im A1 B (\ z. f (inl z))) (im/q A1 B (\ z. f (inl z)) x) (im/q A1 B (\ z. f (inl z)) y))
+      ( Set/eq/Prop
+	( A1, is-set-A1) x y)
+      ( \ q. Coprod/inl-inj A1 A2 x y
+	    ( map-Equiv/is-injective
+	      ( Coprod A1 A2)
+	      ( Set-trunc B) e
+	      ( inl x)
+	      ( inl y)
+	      ( comp-n
+		( Set-trunc B) three-Nat
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
+		( Set-trunc/unit (f (inl x)))
+		( inv
+		  ( Set-trunc B)
+		  ( Set-trunc/unit (f (inl x)))
+		  ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
+		  ( H (inl x)))
+		( Set-trunc/unit (f (inl y)))
+		( ap B (Set-trunc B) (\ z. Set-trunc/unit z) (f (inl x)) (f (inl y)) (\ i. (q i).1))
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl y))
+		( H (inl y)))))
+      ( Set-trunc/is-effective/map
+	( im A1 B (\ z. f (inl z)))
+	( im/q A1 B (\ z. f (inl z)) x)
+	( im/q A1 B (\ z. f (inl z)) y) p)
+#+end_src
+Hence, it is an equivalence.
+#+begin_src ctt
+  im-Set-trunc/is-equiv-map (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
+			    (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			       : is-equiv A1 (Set-trunc (im A1 B (\ x. f (inl x)))) (im-Set-trunc/map A1 A2 B f) =
+    is-inj-is-surj/is-equiv A1
+      ( Set-trunc (im A1 B (\ x. f (inl x))))
+      ( Set-trunc/is-set
+	( im A1 B (\ x. f (inl x))))
+      ( im-Set-trunc/map A1 A2 B f)
+      ( im-Set-trunc-map/is-surj A1 A2 B f)
+      ( im-Set-trunc-map/is-inj A1 A2 B f e is-set-A1 H)
+#+end_src
+That is, we have an equivalence between A1 and the set truncation of the image of f \circ inl.
+#+begin_src ctt
+  im-Set-trunc/Equiv (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
+		     (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			: Equiv A1 (Set-trunc (im A1 B (\ x. f (inl x)))) =
+    ( im-Set-trunc/map A1 A2 B f,
+      im-Set-trunc/is-equiv-map A1 A2 B f e is-set-A1 H)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 *** Closure under \Sigma-types
 We start to show the inductive case of the base case of the induction, i.e., A is \pi_1-finite and has at least one connected component, and B(x) is \pi_0-finite forall x.
-
+#+begin_src ctt
+  is-htpy-finite/closed-Sg/z' (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-nat A)
+			      (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+			      (IH : (A : U) -> (B : A -> U) -> is-htpy-finite one-Nat A -> ((x : A) -> is-htpy-finite zero (B x))
+					    -> (e : Equiv (Fin k) (Set-trunc A)) -> is-htpy-finite zero (Sg A B))
+						: (k : Nat) -> (e : Equiv (Fin (suc k)) (Set-trunc A))
+						  -> is-htpy-finite zero (Sg A B) = split
+    zero -> \ e.
+      is-htpy-finite/closed-Sg/base A B
+	( is-contr/is-contr-equiv'
+	  ( Fin one-Nat)
+	  ( Set-trunc A) e
+	  ( Fin/fin-one-is-contr))
+	( is-htpy-finite-A)
+	( is-htpy-finite-B)
+    suc k -> \ e.
+      rec-Prop-trunc
+	( Sg (Fin (suc k) -> A) (\ f. Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f (inl z))) (Equiv/map (Fin (suc k)) (Set-trun A) e)))
+	( is-htpy-finite/Prop zero (Sg A B))
+	( \ k.
+	  let f : (Fin (suc k) -> A) = k.1
+	      H : Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f (inl z))) (Equiv/map (Fin (suc k)) (Set-trun A) e) = k.2
+	      e' : Equiv (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A = codomain-is-coproduct (Fin k) Unit A f e H
+	  in
+	  is-htpy-finite/closed-Equiv
+	    ( Sg A B)
+	    ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
+	    ( Equiv/trans
+	      ( Sg A B)
+	      ( Sg (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x))))
+		  (\ u. B (Equiv/map (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' u)))
+	      ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
+	      ( Sg/equiv-base' 
+		( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1)))) A B e')
+	      ( Equiv/Sg-distr-over-coprod
+		( im (Fin k) A (\ x. f (inl x)))
+		( im Unit A (\ x. f (inr x)))
+		( \ u. B (Equiv/map (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' u)))) zero
+	    ( is-htpy-finite/closed-Coprod zero
+	      ( Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1)))
+	      ( Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1)))
+	      ( IH
+		( im (Fin k) A (\ x. f (inl x)))
+		( \ t. B (t.1))
+		( is-htpy-finite/Coprod/left 
+		  ( im (Fin k) A (\ x. f (inl x)))
+		  ( im Unit A (\ x. f (inr x))) one-Nat
+		  ( is-htpy-finite/closed-Equiv
+		    ( Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' one-Nat
+		    ( is-htpy-finite-A)))
+		( \ t. is-htpy-finite-B t.1)
+		( im-Set-trunc/Equiv 
+		  ( Fin k) Unit A f e
+		  ( count/is-set (Fin k) (count/fin-count k)) H))
+	      ( {- TODO: htpy finiteness of im Unit -})))
+	( is-finite-Set-trunc/has-Equiv-map A (suc k) e)
+#+end_src
 
 #+begin_src ctt
   -- is-htpy-finite/closed-Sg/z (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-Nat A)

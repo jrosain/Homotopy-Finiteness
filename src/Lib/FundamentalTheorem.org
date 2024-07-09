@@ -363,11 +363,20 @@ To conlude, =equiv-base-map= is a contractible map iff =f= is a contractible map
   Sg/equiv-base-is-equiv (A B : U) (C : B -> U) (f : A -> B) (H : is-equiv A B f) : is-equiv (Sg A (\ x. C (f x))) (Sg B C) (Sg/equiv-base-map A B C f) =
     \ t.
       is-bi-inv/is-contr-is-bi-inv (Fib (Sg A (\ x. C (f x))) (Sg B C) (Sg/equiv-base-map A B C f) t)
-                                   (Fib A B f t.1) (Sg/equiv-base-fib-map A B C f t) (Sg/equiv-base-is-bi-inv A B C f t) (H t.1)
+				   (Fib A B f t.1) (Sg/equiv-base-fib-map A B C f t) (Sg/equiv-base-is-bi-inv A B C f t) (H t.1)
 
   Sg/equiv-base (A B : U) (C : B -> U) (e : Equiv A B) : Equiv (Sg A (\ x. C (Equiv/map A B e x))) (Sg B C) =
     (Sg/equiv-base-map A B C (Equiv/map A B e), Sg/equiv-base-is-equiv A B C (Equiv/map A B e) (Equiv/is-equiv A B e))
+
+  Sg/equiv-base' (A B : U) (C : B -> U) (e : Equiv A B) : Equiv (Sg B C) (Sg A (\ x. C (Equiv/map A B e x))) =
+    Equiv/sym
+      ( Sg A (\ x. C (Equiv/map A B e x)))
+      ( Sg B C)
+      ( Sg/equiv-base A B C e)
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** The fundamental theorem
 We use the previous result to show the fundamental theorem of identity, that is: the family of maps f : (x : A) \to (a = x) \to B x is a family of equivalences iff the total space (\Sigma A B) is contractible.

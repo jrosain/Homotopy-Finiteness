@@ -622,38 +622,23 @@ is surjective whenever =f= is surjective.
 We show that if || A ||_0 is finite with k elements, then there merely exists an f : Fin k \to A such that |\cdot|_0 \circ f is an equivalence. Morally, |\cdot|_0 \circ f is the equivalence between Fin k and || A ||_0.
 #+begin_src ctt
   is-finite-Set-trunc/Prop-trunc-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
-                                        : Prop-trunc ((x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x)) =
+					: Prop-trunc ((x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x)) =
     Fin/choice k
       ( \ x. Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
       ( \ x. Set-trunc/is-surjective A
-              ( Equiv/map (Fin k) (Set-trunc A) e x))
+	      ( Equiv/map (Fin k) (Set-trunc A) e x))
 
-  lock Prop-trunc/is-prop has-cardinality/is-prop
-  is-finite-Set-trunc/has-Equiv-map (A : U) (H : is-finite (Set-trunc A))
-                                       : Prop-trunc (Sg (Fin (card (Set-trunc A) H) -> A) (\ f. is-equiv (Fin (card (Set-trunc A) H)) (Set-trunc A) (\ z. Set-trunc/unit (f z)))) =
-    let cardinality : has-cardinality (Set-trunc A) = is-finite/has-cardinality (Set-trunc A) H
-        k : Nat = cardinality.1
-        eq : Prop-trunc (Equiv (Fin k) (Set-trunc A)) = cardinality.2
-    in
+  is-finite-Set-trunc/has-Equiv-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
+				       : Prop-trunc (Sg ((Fin k) -> A)
+						       (\ f. (x : Fin k) -> Path (Set-trunc A) (Set-trunc/unit (f x)) (Equiv/map (Fin k) (Set-trunc A) e x))) =
     rec-Prop-trunc
-      ( Equiv (Fin k) (Set-trunc A))
+      ( (x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
       ( Prop-trunc/Prop
-          ( Sg (Fin k -> A) (\ f. is-equiv (Fin k) (Set-trunc A) (\ z. Set-trunc/unit (f z)))))
-      ( \ e. rec-Prop-trunc
-              ( (x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
-              ( Prop-trunc/Prop
-                ( Sg (Fin k -> A) (\ f. is-equiv (Fin k) (Set-trunc A) (\ z. Set-trunc/unit (f z)))))
-              ( \ g. Prop-trunc/unit
-                    ( \ x. (g x).1,
-                      tr
-                      ( Fin k -> Set-trunc A)
-                      ( Equiv/map (Fin k) (Set-trunc A) e)
-                      ( \ x. Set-trunc/unit (g x).1)
-                      ( eq-htpy' (Fin k) (Set-trunc A) (Equiv/map (Fin k) (Set-trunc A) e) (\ x. Set-trunc/unit (g x).1) (\ x. (g x).2))
-                      ( is-equiv (Fin k) (Set-trunc A))
-                      ( Equiv/is-equiv (Fin k) (Set-trunc A) e)))
-              ( is-finite-Set-trunc/Prop-trunc-map A k e)) eq
-  unlock Prop-trunc/is-prop has-cardinality/is-prop
+	( Sg (Fin k -> A) (\ f. (x : Fin k) -> Path (Set-trunc A) (Set-trunc/unit (f x)) (Equiv/map (Fin k) (Set-trunc A) e x))))
+      ( \ g. Prop-trunc/unit
+	    ( \ x. (g x).1,
+	      \ x. inv (Set-trunc A) (Equiv/map (Fin k) (Set-trunc A) e x) (Set-trunc/unit (g x).1) (g x).2))
+      ( is-finite-Set-trunc/Prop-trunc-map A k e)
 #+end_src
 
 #+RESULTS:
