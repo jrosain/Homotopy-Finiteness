@@ -1,3 +1,4 @@
+#+TITLE: Maps Images
 #+NAME: Image
 #+AUTHOR: Johann Rosain
 
@@ -7,14 +8,19 @@
   module Lib.Image where
   #+end_src
 
-This file defines what it means to be surjective and some associated properties.
+This file defines the notion of /image/ in univalent mathematics, and the associated notion of /surjectiveness/ of a function. These notions are defined using [[file:PropTrunc.org][propositional truncation]] as they would give too much /structure/ to the function otherwise.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[https://github.com/JonasHoefer/poset-type-theory/blob/main/library/Prelude.ctt][Prelude.ctt]]
+   - [[file:PropTrunc.org][Lib/PropTrunc]]
+   - [[file:Prop/Levels.org][Lib/Prop/Levels]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.PropTrunc
   import Lib.Prop.Levels
+  import Lib.Prop.Equiv
    #+end_src
 
 ** Image 
@@ -76,6 +82,71 @@ A map f : A \to B is surjective if for all b : B, there exists an unspecified x 
   is-surj/Prop (A B : U) (f : A -> B) : UU-Prop =
     ( is-surj A B f,
       is-surj/is-prop A B f)
+#+end_src
+The image quotient is surjective.
+#+begin_src ctt
+  im/q/is-surj (A X : U) (f : A -> X) : is-surj A (im A X f) (im/q A X f) =
+    \ t.
+      rec-Prop-trunc
+	( Fib A X f t.1)
+	( Prop-trunc/Prop (Fib A (im A X f) (im/q A X f) t))
+	( \ u.
+	  Prop-trunc/unit
+	  ( u.1,
+	    SgPath-prop X
+	      ( \ z. Prop-trunc (Fib A X f z))
+	      ( \ z. Prop-trunc/is-prop (Fib A X f z)) t
+	      ( im/q A X f u.1)
+	      ( u.2))) t.2            
+#+end_src
+The composition of two surjective maps is surjective.
+#+begin_src ctt
+  is-surj/comp (A B C : U) (g : B -> C) (is-surj-g : is-surj B C g) (f : A -> B) (is-surj-f : is-surj A B f)
+		      : is-surj A C (\ x. g (f x)) =
+    \ c.
+      rec-Prop-trunc
+      ( Fib B C g c)
+      ( Prop-trunc/Prop (Fib A C (\ x. g (f x)) c))
+      ( \ t. rec-Prop-trunc
+	    ( Fib A B f t.1)
+	    ( Prop-trunc/Prop (Fib A C (\ x. g (f x)) c))
+	    ( \ u.
+		Prop-trunc/unit
+		( u.1,
+		  comp C c
+		  ( g t.1) t.2
+		  ( g (f u.1))
+		  ( ap B C g t.1 (f u.1) u.2))) (is-surj-f t.1))
+      ( is-surj-g c)          
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+** injection + surjection = equivalence
+
+We show that if a map f is injective and surjective and its codomain is a set, then it is an equivalence. In fact, we do not need that the codomain is a set but it greatly simplifies the proof and it's the only case used in this formalization.
+#+begin_src ctt
+
+  is-inj-is-surj/is-equiv (A B : U) (is-set-B : is-set B) (f : A -> B) (is-surj-f : is-surj A B f) (is-inj-f : (x y : A) -> Path B (f x) (f y) -> Path A x y)
+			       : is-equiv A B f =
+    \ y.
+      rec-Prop-trunc
+      ( Fib A B f y)
+      ( is-contr (Fib A B f y),
+	is-contr/is-prop (Fib A B f y))
+      ( \ v.
+	let p : is-prop (Fib A B f y) =
+	( \ t u.
+	  SgPath-prop A
+	  ( \ x. Path B y (f x))
+	  ( \ x. is-set-B y (f x)) t u
+	  ( is-inj-f t.1 u.1
+	  ( comp B (f t.1) y
+	    ( inv B y (f t.1) t.2)
+	    ( f u.1) u.2))) in
+	  ( v, p v))
+      ( is-surj-f y)
 #+end_src
 
 #+RESULTS:

@@ -1,3 +1,4 @@
+#+TITLE: Propositional Truncation
 #+NAME: PropTrunc
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,13 @@
   module Lib.PropTrunc where
   #+end_src
 
-This file defines the propositional truncation. It is useful when wanting to show that a certain type is inhabited, without exhibiting its inhabitant.
+This file defines the propositional truncation as a higher inductive type. It is useful when wanting to show that a certain type is inhabited, without exhibiting its inhabitant.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:EquivalenceRelations.org][Lib/EquivalenceRelations]]
+   - [[file:Prop/Proposition.org][Lib/Prop/Proposition]]
    #+begin_src ctt
   import Lib.Prop.Proposition
   import Lib.EquivalenceRelations

@@ -1,3 +1,4 @@
+#+TITLE: Equivalences
 #+NAME: Equiv
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,20 @@
   module Lib.Prop.Equiv where
   #+end_src
 
-This file regroups the properties of =Equiv= and =is-equiv= that are not provided by the standard library.
+This file states multiple properties of equivalences. First, it shows that equivalences are an equivalence relation. Then, it shows closure and 3-for-2 properties. It defines an utility to chain equivalences. Finally, it shows equivalences between multiple types.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/ContrMap.org][Lib/ContrMap]]
+   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/QInv.org][Lib/QInv]]
+   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Map.org][Lib/Data/Map]]
+   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Empty.org][Lib/Data/Empty]]
+   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Decidability.org][Lib/Data/Decidability]]
+   - [[file:Contr.org][Lib/Prop/Contr]]
+   - [[file:Paths.org][Lib/Prop/Paths]]
+   - [[file:Sg.org][Lib/Prop/Sg]]
+   - [[file:Unit.org][Lib/Prop/Unit]]
    #+begin_src ctt
   import Lib.Prop.Contr
   import Lib.Prop.Sg
@@ -177,6 +188,21 @@ If =A= and =B= are two equivalent types, then there is also an equivalence betwe
 #+begin_src ctt
   Equiv/Equiv-id (A B : U) (e : Equiv A B) (x y : A) : Equiv (Path A x y) (Path B (Equiv/map A B e x) (Equiv/map A B e y)) =
     (ap A B (Equiv/map A B e) x y, Equiv/is-inj A B (Equiv/map A B e) (Equiv/is-equiv A B e) x y)
+#+end_src
+
+*** Equivalences are injective
+Obviously, if =e(x) = e(y)= for some equivalence =e=, then =x = y=.
+#+begin_src ctt
+  map-Equiv/is-injective (A B : U) (e : Equiv A B) (x y : A) (p : Path B (Equiv/map A B e x) (Equiv/map A B e y))
+			      : Path A x y =
+    comp-n A three-Nat x
+      ( Equiv/inv-map A B e (Equiv/map A B e x))
+      ( inv A
+	( Equiv/inv-map A B e (Equiv/map A B e x)) x
+	( Equiv/inv-left-htpy A B e x))
+      ( Equiv/inv-map A B e (Equiv/map A B e y))
+      ( ap B A (Equiv/inv-map A B e) (Equiv/map A B e x) (Equiv/map A B e y) p) y
+      ( Equiv/inv-left-htpy A B e y)
 #+end_src
 
 ** Chain of equivalences

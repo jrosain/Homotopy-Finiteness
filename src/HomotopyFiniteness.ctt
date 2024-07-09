@@ -518,73 +518,299 @@ is-htpy-finite/closed-Sg/has-decidable-equality (A : U) (B : A -> U) (is-finite-
     ( is-conn/is-inhabited A is-conn-A)
 
 is-htpy-finite/closed-Sg/base (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
-                              (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
-                                 : is-htpy-finite zero (Sg A B) =
+			      (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+				 : is-htpy-finite zero (Sg A B) =
   is-htpy-finite/closed-Sg/base' A B H is-htpy-finite-A is-htpy-finite-B
     ( is-htpy-finite/closed-Sg/has-decidable-equality A B is-htpy-finite-A H is-htpy-finite-B)
 
-is-htpy-finite/closed-Sg/Fin : (k : Nat) (B : Fin (suc k) -> U) (is-htpy-finite-Fin : is-htpy-finite one-Nat (Fin (suc k)))
-                               (is-htpy-finite-B : (x : Fin (suc k)) -> is-htpy-finite zero (B x))
-                                -> is-htpy-finite zero (Sg (Fin (suc k)) B) = split
-  zero -> \ B is-htpy-finite-Fin is-htpy-finite-B.
-    is-htpy-finite/closed-Sg/base
-      ( Fin one-Nat) B
-      ( Set-trunc/closed-contr
-        ( Fin one-Nat)
-        ( Fin/fin-one-is-contr))
-      ( is-htpy-finite-Fin)
-      ( is-htpy-finite-B)
-  suc k -> \ B is-htpy-finite-Fin is-htpy-finite-B.
-    is-htpy-finite/closed-Equiv
-      ( Sg (Fin (suc (suc k))) B)
-      ( Coprod (Sg (Fin (suc k)) (\ x. B (inl x))) (B (inr star)))
-      ( Equiv/trans
-        ( Sg (Fin (suc (suc k))) B)
-        ( Coprod (Sg (Fin (suc k)) (\ x. B (inl x))) (Sg Unit (\ s. B (inr s))))
-        ( Coprod (Sg (Fin (suc k)) (\ x. B (inl x))) (B (inr star)))
-        ( Equiv/Sg-distr-over-coprod
-          ( Fin (suc k))
-          ( Unit) B)
-        ( Coprod/closed-Equiv
-          ( Sg (Fin (suc k)) (\ x. B (inl x)))
-          ( Sg (Fin (suc k)) (\ x. B (inl x)))
-          ( Sg Unit (\ s. B (inr s)))
-          ( B (inr star))
-          ( Equiv/refl (Sg (Fin (suc k)) (\ x. B (inl x))))
-          ( Equiv/Sg-unit (\ x. B (inr x)))))
-      ( zero)
-      ( is-htpy-finite/closed-Coprod zero
-        ( Sg (Fin (suc k)) (\ x. B (inl x)))
-        ( B (inr star))
-        ( is-htpy-finite/closed-Sg/Fin k
-          ( \ x. B (inl x))
-          ( is-htpy-finite/Coprod/left 
-            ( Fin (suc k)) Unit one-Nat
-            ( is-htpy-finite-Fin))
-          ( \ x. is-htpy-finite-B (inl x)))
-        ( is-htpy-finite-B (inr star)))
+codomain-is-coproduct/map (A1 A2 B : U) (f : Coprod A1 A2 -> B) : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y))) -> B = split
+  inl t -> t.1
+  inr t -> t.1
+
+codomain-is-coproduct/inv-map' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+			       (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			       (y : B) : (x : Coprod A1 A2) -> Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x
+				-> Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y'. f (inr y'))) = split
+  inl x -> \ p.
+    inl
+    ( y,
+      Prop-trunc/closed-Sg/map A1
+      ( \ z. Path B y (f (inl z)))
+      ( Prop-trunc/unit 
+	( x,
+	  Set-trunc/is-effective/map B y
+	  ( f (inl x))
+	  ( comp-n
+	    ( Set-trunc B) three-Nat
+	    ( Set-trunc/unit y)
+	    ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	    ( inv
+	      ( Set-trunc B)
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	      ( Set-trunc/unit y)
+	      ( Equiv/inv-right-htpy
+		( Coprod A1 A2)
+		( Set-trunc B) e
+		( Set-trunc/unit y)))
+	    ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
+	    ( ap ( Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e)
+		 ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) (inl x) p)
+	    ( Set-trunc/unit (f (inl x)))
+	    ( inv
+	      ( Set-trunc B)
+	      ( Set-trunc/unit (f (inl x)))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
+	      ( H (inl x)))))))
+  inr x -> \ p.
+    inr
+    ( y,
+      Prop-trunc/closed-Sg/map A2
+      ( \ z. Path B y (f (inr z)))
+      ( Prop-trunc/unit
+	( x,
+	  Set-trunc/is-effective/map B y
+	  ( f (inr x))
+	  ( comp-n
+	    ( Set-trunc B) three-Nat
+	    ( Set-trunc/unit y)
+	    ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	    ( inv
+	      ( Set-trunc B)
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	      ( Set-trunc/unit y)
+	      ( Equiv/inv-right-htpy
+		( Coprod A1 A2)
+		( Set-trunc B) e
+		( Set-trunc/unit y)))
+	    ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inr x))
+	    ( ap ( Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e)
+		 ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) (inr x) p)
+	    ( Set-trunc/unit (f (inr x)))
+	    ( inv
+	      ( Set-trunc B)
+	      ( Set-trunc/unit (f (inr x)))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inr x))
+	      ( H (inr x)))))))
+
+codomain-is-coproduct/inv-map (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+			      (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			      (y : B) : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y'. f (inr y'))) =
+  codomain-is-coproduct/inv-map' A1 A2 B f e H y
+    ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y))
+    ( refl
+      ( Coprod A1 A2)
+      ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+
+codomain-is-coproduct/right-htpy' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				  (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				  (y : B) : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x)
+				    -> Path B (codomain-is-coproduct/map A1 A2 B f (codomain-is-coproduct/inv-map' A1 A2 B f e H y x p)) y = split
+  inl _ -> \ _. refl B y
+  inr _ -> \ _. refl B y
+
+codomain-is-coproduct/right-htpy (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				 (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				 (y : B) : Path B (codomain-is-coproduct/map A1 A2 B f (codomain-is-coproduct/inv-map A1 A2 B f e H y)) y =
+  codomain-is-coproduct/right-htpy' A1 A2 B f e H y
+    ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y))
+    ( refl
+      ( Coprod A1 A2)
+      ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+
+lock Set-trunc/is-effective/map
+codomain-is-coproduct/left-htpy/inl' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				     (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				     (t : im A1 B (\ x. f (inl x))) (a : A1) (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inl a))
+				       : (u : Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p)
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (inl t) = split
+  inl u -> \ q.
+    Coprod/Eq/map
+    ( im A1 B (\ x. f (inl x)))
+    ( im A2 B (\ y. f (inr y)))
+    ( inl u)
+    ( inl t)
+    ( SgPath-prop B
+      ( \ z. Prop-trunc (Fib A1 B (\ x. f (inl x)) z))
+      ( \ z. Prop-trunc/is-prop (Fib A1 B (\ x. f (inl x)) z)) u t
+      ( \ i. (( Coprod/Eq/eq-map
+	      ( im A1 B (\ x. f (inl x)))
+	      ( im A2 B (\ y. f (inr y)))
+	      ( inl u)
+	      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p) q) i).1))
+  inr v -> \ q.
+    ex-falso
+    ( Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) (inr v) (inl t))
+    ( Coprod/Eq/eq-map 
+      ( im A1 B (\ x. f (inl x)))
+      ( im A2 B (\ y. f (inr y)))
+      ( inr v)
+      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p) q)
+
+codomain-is-coproduct/left-htpy/inl (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				    (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				    (t : im A1 B (\ x. f (inl x)))
+				       : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+					       (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 x p) (inl t) = split
+  inl u -> \ p. codomain-is-coproduct/left-htpy/inl' A1 A2 B f e H t u p
+	      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl u) p)
+	      ( refl
+		( Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+		( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl u) p))
+  inr u -> \ p.
+    ex-falso
+    ( Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+	   (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr u) p) (inl t))
+    ( rec-Prop-trunc
+      ( Fib A1 B (\ x. f (inl x)) t.1)
+      ( Empty/Prop)
+      ( \ w.
+	  let x : A1 = w.1
+	      q : Path B t.1 (f (inl x)) = w.2
+	  in
+	  Coprod/Eq/eq-map A1 A2
+	  ( inr u)
+	  ( inl x)
+	  ( map-Equiv/is-injective
+	    ( Coprod A1 A2) (Set-trunc B) e
+	    ( inr u)
+	    ( inl x)
+	    ( comp-n (Set-trunc B) four-Nat
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inr u))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+	      ( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inr u) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+		   (inv (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inr u) p))
+	      ( Set-trunc/unit t.1)
+	      ( Equiv/inv-right-htpy (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+	      ( Set-trunc/unit (f (inl x)))
+	      ( ap B (Set-trunc B) (\ z. Set-trunc/unit z) t.1 (f (inl x)) q)
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
+	      ( H (inl x)))))
+      ( t.2))
+
+codomain-is-coproduct/left-htpy/inr' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				     (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				     (t : im A2 B (\ y. f (inr y))) (a : A2) (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inr a))
+				       : (u : Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p)
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (inr t) = split
+  inl v -> \ q.
+    ex-falso
+    ( Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) (inl v) (inr t))
+    ( Coprod/Eq/eq-map 
+      ( im A1 B (\ x. f (inl x)))
+      ( im A2 B (\ y. f (inr y)))
+      ( inl v)
+      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p) q)
+  inr u -> \ q.
+    Coprod/Eq/map
+    ( im A1 B (\ x. f (inl x)))
+    ( im A2 B (\ y. f (inr y)))
+    ( inr u)
+    ( inr t)
+    ( SgPath-prop B
+      ( \ z. Prop-trunc (Fib A2 B (\ y. f (inr y)) z))
+      ( \ z. Prop-trunc/is-prop (Fib A2 B (\ y. f (inr y)) z)) u t
+      ( \ i. (( Coprod/Eq/eq-map
+	      ( im A1 B (\ x. f (inl x)))
+	      ( im A2 B (\ y. f (inr y)))
+	      ( inr u)
+	      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p) q) i).1))
+
+codomain-is-coproduct/left-htpy/inr (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				    (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				    (t : im A2 B (\ y. f (inr y)))
+				       : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
+					-> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+					       (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 x p) (inr t) = split
+  inl u -> \ p.
+    ex-falso
+    ( Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+	   (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl u) p) (inr t))
+    ( rec-Prop-trunc
+      ( Fib A2 B (\ y. f (inr y)) t.1)
+      ( Empty/Prop)
+      ( \ w.
+	  let y : A2 = w.1
+	      q : Path B t.1 (f (inr y)) = w.2
+	  in
+	  Coprod/Eq/eq-map A1 A2
+	  ( inl u)
+	  ( inr y)
+	  ( map-Equiv/is-injective
+	    ( Coprod A1 A2) (Set-trunc B) e
+	    ( inl u)
+	    ( inr y)
+	    ( comp-n (Set-trunc B) four-Nat
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl u))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+	      ( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inl u) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+		   (inv (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inl u) p))
+	      ( Set-trunc/unit t.1)
+	      ( Equiv/inv-right-htpy (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+	      ( Set-trunc/unit (f (inr y)))
+	      ( ap B (Set-trunc B) (\ z. Set-trunc/unit z) t.1 (f (inr y)) q)
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inr y))
+	      ( H (inr y)))))
+      ( t.2))
+  inr u -> \ p. codomain-is-coproduct/left-htpy/inr' A1 A2 B f e H t u p
+	      ( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr u) p)
+	      ( refl
+		( Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+		( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr u) p))
+
+codomain-is-coproduct/left-htpy (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+				(H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				   : (x : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) ->
+				    Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
+					 (codomain-is-coproduct/inv-map A1 A2 B f e H (codomain-is-coproduct/map A1 A2 B f x)) x = split
+  inl t -> codomain-is-coproduct/left-htpy/inl A1 A2 B f e H t
+	  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+	  ( refl
+	    ( Coprod A1 A2)
+	    ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+  inr t -> codomain-is-coproduct/left-htpy/inr A1 A2 B f e H t
+	  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+	  ( refl
+	    ( Coprod A1 A2)
+	    ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+
+codomain-is-coproduct (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+		      (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			 : Equiv (Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) B =
+  has-inverse/Equiv
+    ( Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) B
+    ( codomain-is-coproduct/map A1 A2 B f)
+    ( codomain-is-coproduct/inv-map A1 A2 B f e H,
+      ( codomain-is-coproduct/right-htpy A1 A2 B f e H,
+	codomain-is-coproduct/left-htpy A1 A2 B f e H))
+
+im-Set-trunc/map (A1 A2 B : U) (f : Coprod A1 A2 -> B) : A1 -> Set-trunc (im A1 B (\ x. f (inl x))) =
+  \ a. Set-trunc/unit
+      ( im/q A1 B (\ x. f (inl x)) a)
 
 -- is-htpy-finite/closed-Sg/z (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-Nat A)
---                            (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
---                               : (k : Nat) -> (f : (Fin k) -> A) -> (e : Equiv (Fin k) (Set-trunc A)) -> is-htpy-finite zero (Sg A B) = split
+-- 			   (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+-- 			      : (k : Nat) -> (f : (Fin k) -> A) -> (e : Equiv (Fin k) (Set-trunc A)) -> is-htpy-finite zero (Sg A B) = split
 --   zero -> \ f e.
 --     is-htpy-finite/closed-Equiv
 --       ( Sg A B) Empty
 --       ( Equiv/trans
---           ( Sg A B)
---           ( Sg (Fin zero) (\ x. B (f x)))
---           ( Empty)
---           ( Equiv/sym
---             ( Sg (Fin zero) (\ x. B (f x)))
---             ( Sg A B)
---             ( Sg/equiv-base
---               ( Fin zero) A B
---               ( Equiv/sym A Empty
---                 ( Empty/equiv A
---                   ( is-empty-Set-trunc/is-empty
---                     ( Equiv/inv-map Empty (Set-trunc A) e))))))
---           ( Equiv/Equiv-Sg-empty
---             (\ x. B (f x))))
+-- 	  ( Sg A B)
+-- 	  ( Sg (Fin zero) (\ x. B (f x)))
+-- 	  ( Empty)
+-- 	  ( Equiv/sym
+-- 	    ( Sg (Fin zero) (\ x. B (f x)))
+-- 	    ( Sg A B)
+-- 	    ( Sg/equiv-base
+-- 	      ( Fin zero) A B
+-- 	      ( Equiv/sym A Empty
+-- 		( Empty/equiv A
+-- 		  ( is-empty-Set-trunc/is-empty
+-- 		    ( Equiv/inv-map Empty (Set-trunc A) e))))))
+-- 	  ( Equiv/Equiv-Sg-empty
+-- 	    (\ x. B (f x))))
 --       ( zero)
 --       ( Empty/is-htpy-finite zero)
 --   suc k -> \ f e.
@@ -592,14 +818,14 @@ is-htpy-finite/closed-Sg/Fin : (k : Nat) (B : Fin (suc k) -> U) (is-htpy-finite-
 --       ( Sg (Fin (suc k)) ( \ x. B (f x)))
 --       ( Sg A B)
 --       ( Sg/equiv-base 
---         ( Fin (suc k)) A B e)
+-- 	( Fin (suc k)) A B e)
 --       ( zero)
 --       ( is-htpy-finite/closed-Sg/Fin k
---         ( \ x. B (f x))
---         ( is-htpy-finite/closed-Equiv
---           ( Fin (suc k)) A e one-Nat
---           ( is-htpy-finite-A))
---         ( \ x. is-htpy-finite-B (f x)))
+-- 	( \ x. B (f x))
+-- 	( is-htpy-finite/closed-Equiv
+-- 	  ( Fin (suc k)) A e one-Nat
+-- 	  ( is-htpy-finite-A))
+-- 	( \ x. is-htpy-finite-B (f x)))
 
 -- is-htpy-finite/closed-Sg' : (n : Nat) (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite (suc n) A)
 --                               (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n (Sg A B) = split
