@@ -35,8 +35,10 @@ jobs:
             emacs --script .github/workflows/init.el "$f"
             realfile=$(echo "${f%.org}.html" | sed 's/src/html/g')
             mkdir --parents $(dirname "$realfile"); mv "${f%.org}.html" "$realfile"
+            sed -i -e '/<head>/a<link rel="stylesheet" href="/Homotopy-Finiteness/style.css"' "$realfile"
           done
           mv .github/workflows/index.html html/index.html
+          mv .github/workflows/style.css html/style.css
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

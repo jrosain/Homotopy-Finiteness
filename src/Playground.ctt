@@ -1,0 +1,8 @@
+module Playground where
+
+import GroupFiniteness
+
+-- In this file, we try to compute the number of groups of order k up to isomorphism, for a fixed k.
+-- For instance, groups of order 1:
+number-of-Group-of-Order-one : Nat =
+  number-of-Group-of-Order one-Nat  
