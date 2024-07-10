@@ -1,3 +1,4 @@
+#+TITLE: Natural Numbers
 #+NAME: Nat 
 #+AUTHOR: Johann Rosain
 

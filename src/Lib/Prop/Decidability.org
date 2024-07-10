@@ -1,3 +1,4 @@
+#+TITLE: Decidability Properties
 #+NAME: Decidability
 #+AUTHOR: Johann Rosain
 
@@ -11,6 +12,9 @@ This file contains the proof of some properties on decidability.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Decidability.org][Lib/Data/Decidability]]
+   - [[file:Proposition.org][Lib/Prop/Proposition]]
    #+begin_src ctt
   import Lib.Data.Decidability
   import Lib.Prop.Proposition

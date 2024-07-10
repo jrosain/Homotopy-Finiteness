@@ -1,3 +1,4 @@
+#+TITLE: Decidability
 #+NAME: Decidability
 #+AUTHOR: Johann Rosain
 
@@ -11,12 +12,17 @@ This file defines some notions of /decidability/ for types, and proves some deci
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Coprod.org][Lib/Data/Coprod]]
+   - [[file:Empty.org][Lib/Data/Empty]]
+   - [[file:Unit.org][Lib/Data/Unit]]
+   - [[../Prop/Prod.org][Lib/Prop/Prod]]
    #+begin_src ctt
-  import Lib.Data.Empty
-  import Lib.Data.Coprod
-  import Lib.Data.Unit  
-  import Lib.Prop.Prod
   import Stdlib.Prelude
+  import Lib.Data.Coprod
+  import Lib.Data.Empty
+  import Lib.Data.Unit
+  import Lib.Prop.Prod
    #+end_src
 
 ** Definition
@@ -31,9 +37,6 @@ A type =A= has a /decidable equality/ if for all =x, y : A=, =x = y= is decidabl
   has-decidable-equality (A : U) : U =
     (x y : A) -> is-decidable (Path A x y)
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 ** Some results about decidability
 *** Empty is decidable

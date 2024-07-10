@@ -1,3 +1,4 @@
+#+TITLE: Bi-invertible Maps are Quasi-Inverses
 #+NAME: QInv
 #+AUTHOR: Johann Rosain
 
@@ -11,6 +12,9 @@ In univalent mathematics, a map =f= is an equivalence (=is-equiv f=) if it has a
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Data/BiInv.org][Lib/Data/BiInv]]
+   - [[file:Data/QInv.org][Lib/Data/QInv]]
    #+begin_src ctt
   import Lib.Data.BiInv
   import Lib.Data.QInv  

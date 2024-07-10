@@ -1,3 +1,4 @@
+#+TITLE: Propositions Properties
 #+NAME: Proposition
 #+AUTHOR: Johann Rosain
 
@@ -11,15 +12,23 @@ This file shows some properties related to the fact that a type =A= is a proposi
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Decidability.org][Lib/Data/Decidability]]
+   - [[../Data/Map.org][Lib/Data/Map]]
+   - [[../Data/Unit.org][Lib/Data/Unit]]
+   - [[file:Contr.org][Lib/Prop/Contr]]
+   - [[file:Coprod.org][Lib/Prop/Coprod]]
+   - [[file:Equiv.org][Lib/Prop/Equiv]]
+   - [[file:Unit.org][Lib/Prop/Unit]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Data.Decidability
   import Lib.Data.Map
   import Lib.Data.Unit
   import Lib.Prop.Contr
-  import Lib.Prop.Unit
-  import Lib.Prop.Equiv
   import Lib.Prop.Coprod
+  import Lib.Prop.Equiv
+  import Lib.Prop.Unit
    #+end_src
 
 ** Equivalent statements for =is-prop=

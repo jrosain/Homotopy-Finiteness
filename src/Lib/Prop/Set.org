@@ -12,6 +12,9 @@ This file contains properties of sets.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Nat.org][Lib/Data/Nat]]
+   - [[file:Comp.org][Lib/Prop/Comp]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Data.Nat

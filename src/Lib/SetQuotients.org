@@ -15,13 +15,13 @@ This file defines set quotients, i.e., types quotiented by an equivalence relati
 The imported packages can be accessed via the following links:
    - [[file:EquivalenceRelations.org][Lib/EquivalenceRelations]]
    - [[file:Image.org][Lib/Image]]
-   - [[file:Prop/Set.org][Lib/Prop/Set]]
    - [[file:Prop/Levels.org][Lib/Prop/Levels]]
+   - [[file:Prop/Set.org][Lib/Prop/Set]]
    #+begin_src ctt
-  import Lib.Prop.Set
-  import Lib.Prop.Levels
   import Lib.EquivalenceRelations
   import Lib.Image
+  import Lib.Prop.Levels
+  import Lib.Prop.Set
    #+end_src
 
 ** Specification

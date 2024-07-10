@@ -1,3 +1,4 @@
+#+TITLE: Quasi-inverses Properties
 #+NAME: QInv
 #+AUTHOR: Johann Rosain
 
@@ -11,9 +12,12 @@ This file provides some useful properties for quasi-inverses.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Nat.org][Lib/Data/Nat]]
+   - [[../Data/QInv.org][Lib/Data/QInv]]
    #+begin_src ctt
-  import Lib.Data.QInv
   import Lib.Data.Nat  
+  import Lib.Data.QInv
    #+end_src
 
 ** 3-for-2 property for composition

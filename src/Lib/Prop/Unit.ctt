@@ -1,7 +1,7 @@
 module Lib.Prop.Unit where
 
+import Stdlib.Prelude  
 import Lib.Data.Unit
-import Stdlib.Prelude
 
 Unit/uniqueness (x : Unit) : Path Unit star x =
   ind-Unit (\ x'. Path Unit star x')

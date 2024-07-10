@@ -1,3 +1,4 @@
+#+TITLE: Products Properties
 #+NAME: Prod
 #+AUTHOR: Johann Rosain
 
@@ -11,10 +12,13 @@ This file shows some properties of product-types.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../ContrMap.org][Lib/ContrMap]]
+   - [[file:Paths.org][Lib/Prop/Paths]]
    #+begin_src ctt
   import Stdlib.Prelude
-  import Lib.Prop.MiscPaths
   import Lib.ContrMap
+  import Lib.Prop.Paths
    #+end_src
 
 ** Induction principle

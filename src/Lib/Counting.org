@@ -1,3 +1,4 @@
+#+TITLE: Counting
 #+NAME: Counting
 #+AUTHOR: Johann Rosain
 
@@ -7,18 +8,26 @@
   module Lib.Counting where
   #+end_src
 
-This file defines the notion of /counting/ in HoTT, and basic counting properties. 
+This file defines the notion of /counting/ in HoTT following Rijke's introduction to homotopy type theory, \S16, and shows basic counting properties. 
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:FundamentalTheorem.org][Lib/FundamentalTheorem]]
+   - [[file:Hedberg.org][Lib/Hedberg]]
+   - [[file:SubTypes.org][Lib/SubTypes]]
+   - [[file:Data/Fin.org][Lib/Data/Fin]]
+   - [[file:Prop/Equiv.org][Lib/Prop/Equiv]]
+   - [[file:Prop/Fin.org][Lib/Prop/Fin]]
+   - [[file:Prop/Proposition.org][Lib/Prop/Proposition]]
    #+begin_src ctt
-  import Lib.Prop.Equiv
-  import Lib.Data.Fin  
-  import Lib.Prop.Proposition
-  import Lib.Prop.Fin
   import Lib.FundamentalTheorem
   import Lib.Hedberg
   import Lib.SubTypes
+  import Lib.Data.Fin  
+  import Lib.Prop.Equiv
+  import Lib.Prop.Fin
+  import Lib.Prop.Proposition
    #+end_src
 
 ** Lock

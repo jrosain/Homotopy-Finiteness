@@ -1,12 +1,12 @@
 module Lib.Counting where
 
-import Lib.Prop.Equiv
-import Lib.Data.Fin  
-import Lib.Prop.Proposition
-import Lib.Prop.Fin
 import Lib.FundamentalTheorem
 import Lib.Hedberg
 import Lib.SubTypes
+import Lib.Data.Fin  
+import Lib.Prop.Equiv
+import Lib.Prop.Fin
+import Lib.Prop.Proposition
 
 lock has-inverse/is-equiv
 

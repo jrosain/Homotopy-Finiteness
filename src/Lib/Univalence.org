@@ -1,3 +1,4 @@
+#+TITLE: Univalence
 #+NAME: Univalence
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,12 @@
   module Lib.Univalence where
   #+end_src
 
-This file shows some properties that follows from univalence.
+This file shows the univalence and applies the fundamental theorem of identity to univalence.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:FundamentalTheorem.org][Lib/FundamentalTheorem]]
 #+begin_src ctt
   import Stdlib.Prelude
   import Lib.FundamentalTheorem

@@ -38,7 +38,8 @@ rec-Set-trunc/Prop (A : U) (B : UU-Prop) (f : A -> Prop/type B) : Set-trunc A ->
   rec-Set-trunc A
     ( Prop/Set B) f
 
-ind-Set-trunc (A : U) (B : (x : Set-trunc A) -> UU-Set) (f : (x : A) -> Set/type (B (Set-trunc/unit x))) : (x : Set-trunc A) -> Set/type (B x) = split
+ind-Set-trunc (A : U) (B : (x : Set-trunc A) -> UU-Set) (f : (x : A) -> Set/type (B (Set-trunc/unit x)))
+		 : (x : Set-trunc A) -> Set/type (B x) = split
   Set-trunc/unit a -> f a
   Set-trunc/squash x y p q i j ->
     square/dependent-fill
@@ -49,7 +50,8 @@ ind-Set-trunc (A : U) (B : (x : Set-trunc A) -> UU-Set) (f : (x : A) -> Set/type
       ( \ k. ind-Set-trunc A B f (p k))
       ( \ k. ind-Set-trunc A B f (q k)) i j
 
-ind-Set-trunc/Prop (A : U) (B : Set-trunc A -> UU-Prop) (f : (x : A) -> Prop/type (B (Set-trunc/unit x))) : (x : Set-trunc A) -> Prop/type (B x) =
+ind-Set-trunc/Prop (A : U) (B : Set-trunc A -> UU-Prop) (f : (x : A) -> Prop/type (B (Set-trunc/unit x)))
+		      : (x : Set-trunc A) -> Prop/type (B x) =
   ind-Set-trunc A
     ( \ x. Prop/Set (B x)) f
 
@@ -111,30 +113,33 @@ Set-trunc/Set-quotient/inv-map (X : U) : Set-quotient X (mere-eq/Eq-Rel X) -> Se
     ( Set-trunc/relation/map X)
 
 Set-trunc/Set-quotient/right-htpy (X : U) : (x : Set-quotient X (mere-eq/Eq-Rel X))
-                                          -> Path (Set-quotient X (mere-eq/Eq-Rel X)) (Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X x)) x =
+					  -> Path (Set-quotient X (mere-eq/Eq-Rel X))
+						  (Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X x)) x =
   ind-Set-quotient/Prop X
     ( mere-eq/Eq-Rel X)
     ( \ x. Set/eq/Prop
-          ( Set-quotient/Set X (mere-eq/Eq-Rel X))
-          ( Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X x)) x)
+	  ( Set-quotient/Set X (mere-eq/Eq-Rel X))
+	  ( Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X x)) x)
     ( \ x. rec-Set-trunc/Prop X
-          ( Set/eq/Prop
-            ( Set-quotient/Set X (mere-eq/Eq-Rel X))
-            ( Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X (Set-quotient/q x))) (Set-quotient/q x))
-          ( \ _. refl (Set-quotient X (mere-eq/Eq-Rel X)) (Set-quotient/q x)) (Set-trunc/unit x))          
+	  ( Set/eq/Prop
+	    ( Set-quotient/Set X (mere-eq/Eq-Rel X))
+	    ( Set-trunc/Set-quotient/map X (Set-trunc/Set-quotient/inv-map X (Set-quotient/q x))) (Set-quotient/q x))
+	  ( \ _. refl (Set-quotient X (mere-eq/Eq-Rel X)) (Set-quotient/q x)) (Set-trunc/unit x))          
 
 Set-trunc/Set-quotient/left-htpy (X : U) : (x : Set-trunc X)
-                                          -> Path (Set-trunc X) (Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X x)) x =
+					  -> Path (Set-trunc X)
+						 (Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X x)) x =
   ind-Set-trunc/Prop X
     ( \ x. Set/eq/Prop
-          ( Set-trunc/Set X)
-          ( Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X x)) x)
+	  ( Set-trunc/Set X)
+	  ( Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X x)) x)
     ( \ x. rec-Set-quotient/Prop X
-          ( mere-eq/Eq-Rel X)
-          ( Set/eq/Prop
-            ( Set-trunc/Set X)
-            ( Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X (Set-trunc/unit x))) (Set-trunc/unit x))
-          ( \ _. refl (Set-trunc X) (Set-trunc/unit x)) (Set-quotient/q x))
+	  ( mere-eq/Eq-Rel X)
+	  ( Set/eq/Prop
+	    ( Set-trunc/Set X)
+	    ( Set-trunc/Set-quotient/inv-map X (Set-trunc/Set-quotient/map X (Set-trunc/unit x)))
+	    ( Set-trunc/unit x))
+	  ( \ _. refl (Set-trunc X) (Set-trunc/unit x)) (Set-quotient/q x))
 
 Set-trunc/Set-quotient (X : U) : Equiv (Set-trunc X) (Set-quotient X (mere-eq/Eq-Rel X)) =
   has-inverse/Equiv
@@ -384,7 +389,8 @@ Set-trunc/closed-Coprod' (A B : U) : Equiv (Set-trunc (Coprod A B)) (Coprod (Set
 Set-trunc/closed-Path (A : U) (x y : A) (p : Path A x y) : Path (Set-trunc A) (Set-trunc/unit x) (Set-trunc/unit y) =
   \ i. Set-trunc/unit (p i)
 
-Set-trunc/closed-contr/aux (A : U) (is-contr-A : is-contr A) (x : A) : Path (Set-trunc A) (Set-trunc/unit (center A is-contr-A)) (Set-trunc/unit x) =
+Set-trunc/closed-contr/aux (A : U) (is-contr-A : is-contr A) (x : A)
+			      : Path (Set-trunc A) (Set-trunc/unit (center A is-contr-A)) (Set-trunc/unit x) =
   Set-trunc/closed-Path A
     ( center A is-contr-A) x
     ( contraction A is-contr-A x)
@@ -443,27 +449,30 @@ fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
   \ b. (a, b)
 
 is-connected/fiber-inclusion/Path (A : U) (B : A -> U) (H : is-conn A) (a : A) (x : A) (y : B x) (p : Path A a x)
-                                     : Path (Sg A B) (fiber-inclusion A B a (tr A x a (inv A a x p) B y)) (x, y) =
+				     : Path (Sg A B) (fiber-inclusion A B a (tr A x a (inv A a x p) B y)) (x, y) =
   J A a
     ( \ z q. (u : B z) -> Path (Sg A B) (fiber-inclusion A B a (tr A z a (inv A a z q) B u)) (z, u))
     ( \ u. comp (Sg A B)
-          ( fiber-inclusion A B a (tr A a a (inv A a a (refl A a)) B u))
-          ( fiber-inclusion A B a (tr A a a (refl A a) B u))
-          ( ap (Path A a a) (Sg A B) (\ q. fiber-inclusion A B a (tr A a a q B u)) (inv A a a (refl A a)) (refl A a) (inv/refl A a))
-          ( a, u)
-          ( ap (B a) (Sg A B) (\ v. (a, v)) (tr A a a (refl A a) B u) u (tr/refl-path A a B u))) x p y
+	  ( fiber-inclusion A B a (tr A a a (inv A a a (refl A a)) B u))
+	  ( fiber-inclusion A B a (tr A a a (refl A a) B u))
+	  ( ap (Path A a a) (Sg A B) (\ q. fiber-inclusion A B a (tr A a a q B u)) (inv A a a (refl A a)) (refl A a) (inv/refl A a))
+	  ( a, u)
+	  ( ap (B a) (Sg A B) (\ v. (a, v)) (tr A a a (refl A a) B u) u (tr/refl-path A a B u))) x p y
 
 is-connected/fiber-inclusion-is-surj (A : U) (B : A -> U) (H : is-conn A) (a : A) : is-surj (B a) (Sg A B) (fiber-inclusion A B a) =
   \ b.
     rec-Prop-trunc
       ( Path A a b.1)
       ( Prop-trunc/Prop (Fib (B a) (Sg A B) (fiber-inclusion A B a) b))
-      ( \ p. Prop-trunc/unit (tr A b.1 a (inv A a b.1 p) B b.2, inv (Sg A B) (a, tr A b.1 a (inv A a b.1 p) B b.2) b (is-connected/fiber-inclusion/Path A B H a b.1 b.2 p)))
+      ( \ p. Prop-trunc/unit
+	    ( tr A b.1 a (inv A a b.1 p) B b.2,
+	      inv (Sg A B) (a, tr A b.1 a (inv A a b.1 p) B b.2) b
+	      ( is-connected/fiber-inclusion/Path A B H a b.1 b.2 p)))
       ( Set-trunc/is-effective/map A a b.1
-        ( is-contr/all-elements-equal
-          ( Set-trunc A) H
-          ( Set-trunc/unit a)
-          ( Set-trunc/unit b.1)))
+	( is-contr/all-elements-equal
+	  ( Set-trunc A) H
+	  ( Set-trunc/unit a)
+	  ( Set-trunc/unit b.1)))
 
 Set-trunc-map (A B : U) (f : A -> B) : Set-trunc A -> Set-trunc B =
   rec-Set-trunc A
@@ -489,7 +498,9 @@ is-finite/is-finite-Set-trunc (X : U) (H : is-finite X) : is-finite (Set-trunc X
       ( X, is-finite/is-set X H)) H
 
 is-finite-Set-trunc/Prop-trunc-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
-				      : Prop-trunc ((x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x)) =
+				      : Prop-trunc ((x : Fin k)
+						      -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z)
+							      (Equiv/map (Fin k) (Set-trunc A) e x)) =
   Fin/choice k
     ( \ x. Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
     ( \ x. Set-trunc/is-surjective A
@@ -497,7 +508,9 @@ is-finite-Set-trunc/Prop-trunc-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-tru
 
 is-finite-Set-trunc/has-Equiv-map (A : U) (k : Nat) (e : Equiv (Fin k) (Set-trunc A))
 				     : Prop-trunc (Sg ((Fin k) -> A)
-						     (\ f. (x : Fin k) -> Path (Set-trunc A) (Set-trunc/unit (f x)) (Equiv/map (Fin k) (Set-trunc A) e x))) =
+						     (\ f. (x : Fin k)
+							  -> Path (Set-trunc A) (Set-trunc/unit (f x))
+								 (Equiv/map (Fin k) (Set-trunc A) e x))) =
   rec-Prop-trunc
     ( (x : Fin k) -> Fib A (Set-trunc A) (\ z. Set-trunc/unit z) (Equiv/map (Fin k) (Set-trunc A) e x))
     ( Prop-trunc/Prop

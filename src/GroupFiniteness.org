@@ -16,8 +16,8 @@ The imported packages can be accessed via the following links:
    - [[file:HomotopyFiniteness.org][HomotopyFiniteness]]
    - [[file:Lib/Groups.org][Lib/Groups]]
    #+begin_src ctt
-  import Lib.Groups
   import HomotopyFiniteness
+  import Lib.Groups
    #+end_src
 
 ** Semigroups of order

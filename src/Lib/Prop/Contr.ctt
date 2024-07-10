@@ -1,8 +1,8 @@
 module Lib.Prop.Contr where
 
 import Stdlib.Prelude
-import Lib.Prop.Sg  
-import Lib.Prop.MiscPaths
+import Lib.Prop.Paths
+import Lib.Prop.Sg
 
 center (A : U) (c : is-contr A) : A =
   c.1

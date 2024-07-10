@@ -13,14 +13,14 @@ This file defines the notion of /image/ in univalent mathematics, and the associ
 ** Packages imports
 
 The imported packages can be accessed via the following links:
-   - [[https://github.com/JonasHoefer/poset-type-theory/blob/main/library/Prelude.ctt][Prelude.ctt]]
    - [[file:PropTrunc.org][Lib/PropTrunc]]
+   - [[file:Prop/Equiv.org][Lib/Prop/Equiv]]
    - [[file:Prop/Levels.org][Lib/Prop/Levels]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.PropTrunc
-  import Lib.Prop.Levels
   import Lib.Prop.Equiv
+  import Lib.Prop.Levels
    #+end_src
 
 ** Image 
@@ -62,7 +62,7 @@ Note that if X is a set, then the image of a map to X is a set.
       ( im/Set A X f)
 #+end_src
 
-** Surjective
+** Surjection
 
 A map f : A \to B is surjective if for all b : B, there exists an unspecified x such that f x = b. 
 #+begin_src ctt

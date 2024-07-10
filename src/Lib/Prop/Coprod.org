@@ -1,3 +1,4 @@
+#+TITLE: Coproduct Properties
 #+NAME: Coprod
 #+AUTHOR: Johann Rosain
 
@@ -11,13 +12,19 @@ This file shows additional properties on coproducts.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../FundamentalTheorem.org][Lib/FundamentalTheorem]]
+   - [[../FunExt.org][Lib/FunExt]]
+   - [[../Data/Coprod.org][Lib/Data/Coprod]]
+   - [[file:Equiv.org][Lib/Prop/Equiv]]
+   - [[file:Htpy.org][Lib/Prop/Htpy]]
    #+begin_src ctt
-  import Lib.Data.Coprod
   import Stdlib.Prelude
-  import Lib.Prop.Htpy
-  import Lib.Prop.Equiv
   import Lib.FundamentalTheorem
   import Lib.FunExt
+  import Lib.Data.Coprod
+  import Lib.Prop.Equiv
+  import Lib.Prop.Htpy
    #+end_src
 
 ** If A \simeq A' and B \simeq B', then A + B \simeq A' + B'

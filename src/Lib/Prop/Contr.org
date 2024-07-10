@@ -1,3 +1,4 @@
+#+TITLE: Contractible Types Properties
 #+NAME: Contr
 #+AUTHOR: Johann Rosain
 
@@ -11,10 +12,13 @@ This file regroups properties of contractible types and maps not provided by the
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Paths.org][Lib/Prop/Paths]]
+   - [[file:Sg.org][Lib/Prop/Sg]]
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Prop.Paths
   import Lib.Prop.Sg  
-  import Lib.Prop.MiscPaths
    #+end_src
 
 ** Accessors
@@ -27,9 +31,7 @@ This file regroups properties of contractible types and maps not provided by the
     c.2  
    #+end_src
 
-** Properties
-
-*** Contractibility of \Sigma_{x: A}(a = x)
+** Contractibility of \Sigma_{x: A}(a = x)
 In this section, we show that \Sigma (a_1 : A) (a_0 = a_1) is contractible.
 
 Indeed, the center of contraction is (a_0, refl).
@@ -55,7 +57,7 @@ Thus, this space is contractible.
     (is-contr/Sg-path-center A x, is-contr/Sg-path-contr A x)
 #+end_src
 
-*** Contractible =A= implies fiber inclusion equivalence
+** Contractible =A= implies fiber inclusion equivalence
 We show that if A is contractible, then if a : A is its center of contraction, the map B a \to Sg A B is an equivalence.
 #+begin_src ctt
   Sg/left-unit-law-is-contr/map (A : U) (B : A -> U) (c : is-contr A) (a : A) : B a -> Sg A B =
@@ -74,7 +76,7 @@ We show that if A is contractible, then if a : A is its center of contraction, t
     (Sg/left-unit-law-is-contr/inv-map A B c a, (Sg/left-unit-law-is-contr/map A B c a, Sg/left-unit-law-is-contr/right-htpy A B c a))
 #+end_src
 
-*** Contractibility is closed under \Sigma types
+** Contractibility is closed under \Sigma types
 
     #+begin_src ctt
   Sg/is-contr (A : U) (B : A -> U) (is-contr-A : is-contr A) (is-contr-fam : ((x : A) -> is-contr (B x)))

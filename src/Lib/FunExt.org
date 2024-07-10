@@ -1,16 +1,19 @@
+#+TITLE: Function Extensionality
 #+NAME: FunExt
 #+AUTHOR: Johann Rosain
 
-* Function extensionnality
+* Function extensionality
 
   #+begin_src ctt
   module Lib.FunExt where
   #+end_src
 
-This file defines function extensionnality and provides utility functions.
+This file defines function extensionnality and provides the bijection between the two ways.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Data/QInv.org][Lib/Data/QInv]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Data.QInv

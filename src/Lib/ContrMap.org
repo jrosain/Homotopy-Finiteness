@@ -1,3 +1,4 @@
+#+TITLE: Contractible Maps are Bi-invertible
 #+NAME: ContrMap
 #+AUTHOR: Johann Rosain
 
@@ -11,14 +12,20 @@ This file shows that maps are contractible iff they are bi-invertible. The proof
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:FunExt.org][Lib/FunExt]]
+   - [[file:QInv.org][Lib/QInv]]
+   - [[file:Prop/BiInv.org][Lib/Prop/BiInv]]
+   - [[file:Prop/Contr.org][Lib/Prop/Contr]]
+   - [[file:Prop/Paths.org][Lib/Prop/Paths]]
+   - [[file:Prop/Sg.org][Lib/Prop/Sg]]
    #+begin_src ctt
+  import Lib.FunExt
   import Lib.QInv
   import Lib.Prop.BiInv
-  import Lib.Prop.Sg  
-  import Lib.Prop.ActionPaths
-  import Lib.Prop.MiscPaths
   import Lib.Prop.Contr
-  import Lib.FunExt
+  import Lib.Prop.Paths
+  import Lib.Prop.Sg  
    #+end_src
 
 ** Any equivalence is bi-invertible

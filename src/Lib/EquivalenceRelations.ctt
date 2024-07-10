@@ -1,7 +1,7 @@
 module Lib.EquivalenceRelations where
 
-import Lib.Prop.Proposition
 import Lib.SubTypes
+import Lib.Prop.Proposition
 
 Relation (A : U) : U =
   A -> A -> U

@@ -28,7 +28,7 @@ jobs:
         run: |
           for f in `find src -name "*.org"`
           do
-            sed -i -e 's/Sg/Σ/g' "$f"
+            sed -i -e 's/Sg /Σ/g' "$f"
             sed -i -e 's/->/→/g' "$f"
             sed -i -e 's/Pi/Π/g' "$f"
             sed -i -e 's/\\ /λ/g' "$f"

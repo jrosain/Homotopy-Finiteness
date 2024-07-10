@@ -1,3 +1,4 @@
+#+TITLE: Standard Finite Types Properties
 #+NAME: Fin
 #+AUTHOR: Johann Rosain
 
@@ -11,10 +12,14 @@ This file states and shows more properties about finite types.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Fin.org][Lib/Data/Fin]]
+   - [[file:Coprod.org][Lib/Prop/Coprod]]
+   - [[file:Equiv.org][Lib/Prop/Equiv]]
    #+begin_src ctt
   import Lib.Data.Fin
-  import Lib.Prop.Equiv
   import Lib.Prop.Coprod
+  import Lib.Prop.Equiv
    #+end_src
 
 ** =Fin k + l= is =Fin k + Fin l=

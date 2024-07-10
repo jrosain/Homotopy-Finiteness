@@ -16,8 +16,8 @@ The imported packages can be accessed via the following links:
    - [[file:EquivalenceRelations.org][Lib/EquivalenceRelations]]
    - [[file:Prop/Proposition.org][Lib/Prop/Proposition]]
    #+begin_src ctt
-  import Lib.Prop.Proposition
   import Lib.EquivalenceRelations
+  import Lib.Prop.Proposition
    #+end_src
 
 ** Specification

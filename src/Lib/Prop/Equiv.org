@@ -13,24 +13,24 @@ This file states multiple properties of equivalences. First, it shows that equiv
 ** Packages imports
 
 The imported packages can be accessed via the following links:
-   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/ContrMap.org][Lib/ContrMap]]
-   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/QInv.org][Lib/QInv]]
-   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Map.org][Lib/Data/Map]]
-   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Empty.org][Lib/Data/Empty]]
-   - [[file:~/Documents/ENS/Homotopy-Finiteness/src/Lib/Data/Decidability.org][Lib/Data/Decidability]]
+   - [[../ContrMap.org][Lib/ContrMap]]
+   - [[../QInv.org][Lib/QInv]]
+   - [[../Data/Map.org][Lib/Data/Map]]
+   - [[../Data/Empty.org][Lib/Data/Empty]]
+   - [[../Data/Decidability.org][Lib/Data/Decidability]]
    - [[file:Contr.org][Lib/Prop/Contr]]
    - [[file:Paths.org][Lib/Prop/Paths]]
    - [[file:Sg.org][Lib/Prop/Sg]]
    - [[file:Unit.org][Lib/Prop/Unit]]
    #+begin_src ctt
-  import Lib.Prop.Contr
-  import Lib.Prop.Sg
-  import Lib.Data.Map
-  import Lib.Data.Empty
-  import Lib.Data.Decidability  
-  import Lib.QInv
   import Lib.ContrMap
+  import Lib.QInv
+  import Lib.Data.Decidability  
+  import Lib.Data.Empty
+  import Lib.Data.Map
+  import Lib.Prop.Contr
   import Lib.Prop.Paths
+  import Lib.Prop.Sg
   import Lib.Prop.Unit
    #+end_src
 
@@ -881,7 +881,7 @@ This result is more or less direct from the one in the prelude.
 : Typecheck has succeeded.
 
 *** (x, y) = (x', y') is x = x' if the type of y, y' is proposition
-See the file [[Levels.org][Levels.org]].
+See the file [[file:Levels.org][Levels.org]].
 
 ** Closure of truncation levels under equivalence
 

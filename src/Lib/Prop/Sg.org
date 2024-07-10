@@ -1,3 +1,4 @@
+#+TITLE: \Sigma-types Properties
 #+NAME: Sg
 #+AUTHOR: Johann Rosain
 
@@ -11,9 +12,11 @@ This file proves some useful basic facts on \Sigma-types.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Paths.org][Lib/Prop/Paths]]
    #+begin_src ctt
   import Stdlib.Prelude
-  import Lib.Prop.MiscPaths
+  import Lib.Prop.Paths
    #+end_src
 
 ** Induction principle

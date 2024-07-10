@@ -1,3 +1,4 @@
+#+TITLE: Quasi-inverses
 #+NAME: QInv
 #+AUTHOR: Johann Rosain 
 
@@ -11,6 +12,8 @@ This file defines the notion of /quasi-inverses/, that is, map that have an inve
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Map.org][Lib/Data/Map]]
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Data.Map

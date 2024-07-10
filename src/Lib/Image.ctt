@@ -2,8 +2,8 @@ module Lib.Image where
 
 import Stdlib.Prelude
 import Lib.PropTrunc
-import Lib.Prop.Levels
 import Lib.Prop.Equiv
+import Lib.Prop.Levels
 
 im (A X : U) (f : A -> X) : U =
   Sg X (\ x. Prop-trunc (Fib A X f x))

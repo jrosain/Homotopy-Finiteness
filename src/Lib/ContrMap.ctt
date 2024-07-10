@@ -1,12 +1,11 @@
 module Lib.ContrMap where
 
+import Lib.FunExt
 import Lib.QInv
 import Lib.Prop.BiInv
-import Lib.Prop.Sg  
-import Lib.Prop.ActionPaths
-import Lib.Prop.MiscPaths
 import Lib.Prop.Contr
-import Lib.FunExt
+import Lib.Prop.Paths
+import Lib.Prop.Sg
 
 is-equiv/is-bi-inv-inv-map (A B : U) (f : A -> B) (e : is-equiv A B f) : B -> A =
   \ y. let c : Fib A B f y = (e y).1 in c.1

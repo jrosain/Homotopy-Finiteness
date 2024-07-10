@@ -1,3 +1,4 @@
+#+TITLE: Hedberg's Theorem
 #+NAME: Hedberg
 #+AUTHOR: Johann Rosain
 
@@ -11,11 +12,15 @@ This file shows Hedberg's theorem ; that is: if =A= has a decidable equality, th
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:FundamentalTheorem.org][Lib/FundamentalTheorem]]
+   - [[file:Prop/Levels.org][Lib/Prop/Levels]]
+   - [[file:Prop/Sg.org][Lib/Prop/Sg]]
 #+begin_src ctt
   import Stdlib.Prelude
   import Lib.FundamentalTheorem
-  import Lib.Prop.Sg  
   import Lib.Prop.Levels
+  import Lib.Prop.Sg  
 #+end_src
 
 ** Another statement of the fundamental theorem

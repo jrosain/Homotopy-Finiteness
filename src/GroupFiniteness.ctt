@@ -1,7 +1,7 @@
 module GroupFiniteness where
 
-import Lib.Groups
 import HomotopyFiniteness
+import Lib.Groups
 
 Semigroup-of-Order (n : Nat) : U =
   Sg Semigroup (\ G. mere-equiv (Fin n) (Semigroup/type G))

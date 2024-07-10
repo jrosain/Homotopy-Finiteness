@@ -2,8 +2,8 @@ module Lib.Hedberg where
 
 import Stdlib.Prelude
 import Lib.FundamentalTheorem
-import Lib.Prop.Sg  
 import Lib.Prop.Levels
+import Lib.Prop.Sg
 
 fundamental-theorem-id-map (A : U) (R : A -> A -> U) (r : (x : A) -> R x x) (x y : A) (p : Path A x y) : R x y =
   J A x (\ z _. R x z) (r x) y p

@@ -1,3 +1,4 @@
+#+TITLE: Homotopies Properties
 #+NAME: Htpy
 #+AUTHOR: Johann Rosain
 
@@ -11,17 +12,28 @@ This file states some properties of homotopies.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../ContrMap.org][Lib/ContrMap]]
+   - [[../FundamentalTheorem.org][Lib/FundamentalTheorem]]
+   - [[../FunExt.org][Lib/FunExt]]
 #+begin_src ctt
   import Stdlib.Prelude
-  import Lib.FunExt
-  import Lib.FundamentalTheorem
   import Lib.ContrMap
+  import Lib.FundamentalTheorem
+  import Lib.FunExt
 #+end_src
 
 ** Equivalence property
 
-*** Symmetry
+Homotopies are reflexive;
+    #+begin_src ctt
+  Htpy/refl (A : U) (B : A -> U) (f : (x : A) -> B x) : Htpy A B f f =
+    \ x. refl (B x) (f x)
 
+  Htpy'/refl (A B : U) : (f : A -> B) -> Htpy' A B f f =
+    Htpy/refl A (\ _. B)
+    #+end_src
+symmetric;
     #+begin_src ctt
   Htpy/sym (A : U) (B : A -> U) (f g : (x : A) -> B x) (H : Htpy A B f g) : Htpy A B g f =
     \ x. inv (B x) (f x) (g x) (H x)
@@ -32,16 +44,6 @@ This file states some properties of homotopies.
   Htpy/inv : (A : U) -> (B : A -> U) -> (f g : (x : A) -> B x) -> (H : Htpy A B f g) -> Htpy A B g f = Htpy/sym
 
   Htpy'/inv : (A B : U) -> (f g : A -> B) -> (H : Htpy' A B f g) -> Htpy' A B g f = Htpy'/sym
-    #+end_src
-
-*** Reflexivity
-
-    #+begin_src ctt
-  Htpy/refl (A : U) (B : A -> U) (f : (x : A) -> B x) : Htpy A B f f =
-    \ x. refl (B x) (f x)
-
-  Htpy'/refl (A B : U) : (f : A -> B) -> Htpy' A B f f =
-    Htpy/refl A (\ _. B)
     #+end_src
 
 ** The total homotopy is contractible

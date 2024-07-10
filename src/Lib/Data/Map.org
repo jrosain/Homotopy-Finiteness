@@ -1,3 +1,4 @@
+#+TITLE: Maps
 #+NAME: Map
 #+AUTHOR: Johann Rosain
 
@@ -7,10 +8,12 @@
   module Lib.Data.Map where
   #+end_src
 
-This file provides and proves basic facts about maps.
+This file is deprecated. It provides the definition of composition (that is easier to write directly due to the non-type inference) and injectivity that is usually spelled out more directly.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Empty.org][Lib/Data/Empty]]
    #+begin_src ctt
   import Lib.Data.Empty
    #+end_src

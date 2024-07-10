@@ -1,3 +1,4 @@
+#+TITLE: Equivalence Relations
 #+NAME: Equivalence Relations
 #+AUTHOR: Johann Rosain
 
@@ -11,9 +12,12 @@ This file defines equivalence relations.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:SubTypes.org][Lib/SubTypes]]
+   - [[file:Prop/Proposition.org][Lib/Proposition]]
    #+begin_src ctt
-  import Lib.Prop.Proposition
   import Lib.SubTypes
+  import Lib.Prop.Proposition
    #+end_src
 
 ** Definitions

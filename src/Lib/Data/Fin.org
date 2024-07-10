@@ -1,3 +1,4 @@
+#+TITLE: The Standard Finite Type
 #+NAME: Fin
 #+AUTHOR: Johann Rosain
 
@@ -7,15 +8,20 @@
   module Lib.Data.Fin where
   #+end_src
 
-This file defines the standard finite types as done in [[https://arxiv.org/pdf/2212.11082][[1, Def. 7.3.2]​]] by recursion over the natural numbers.
+This file defines the standard finite types as done in [[https:arxiv.org/pdf/2212.11082][[1, Def. 7.3.2]​]] by recursion over the natural numbers.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:Decidability.org][Lib/Data/Decidability]]
+   - [[file:Nat.org][Lib/Data/Nat]]
+   - [[../Prop/Coprod.org][Lib/Prop/Coprod]]
+   - [[../Prop/Unit.org][Lib/Prop/Unit]]
 #+begin_src ctt
-  import Lib.Data.Nat
   import Lib.Data.Decidability
-  import Lib.Prop.Unit
+  import Lib.Data.Nat
   import Lib.Prop.Coprod
+  import Lib.Prop.Unit
 #+end_src
 
 ** Definition

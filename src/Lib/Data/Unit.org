@@ -1,3 +1,4 @@
+#+TITLE: The Unit Type
 #+NAME: Unit
 #+AUTHOR: Johann Rosain
 

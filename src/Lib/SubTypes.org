@@ -1,3 +1,4 @@
+#+TITLE: Subtypes
 #+NAME: SubTypes
 #+AUTHOR: Johann Rosain
 
@@ -11,12 +12,17 @@ This file defines subtypes and some properties associated to them.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[file:FundamentalTheorem.org][Lib/FundamentalTheorem]]
+   - [[file:Prop/Equiv.org][Lib/Prop/Equiv]]
+   - [[file:Prop/Levels.org][Lib/Prop/Levels]]
+   - [[file:Prop/Proposition.org][Lib/Prop/Proposition]]
    #+begin_src ctt
   import Stdlib.Prelude
-  import Lib.Prop.Equiv
-  import Lib.Prop.Proposition
-  import Lib.Prop.Levels
   import Lib.FundamentalTheorem
+  import Lib.Prop.Equiv
+  import Lib.Prop.Levels
+  import Lib.Prop.Proposition
    #+end_src
 
 ** Definitions
@@ -30,15 +36,15 @@ This file defines subtypes and some properties associated to them.
 ** Equivalence of substructure
 
 We show a lemma that helps us show that the identity type of a subtype agrees with the identity type of the original type.
-
 #+begin_src ctt
-  substructure/is-contr-total-Eq (A : U) (B C : A -> U) (is-contr-tot : is-contr (Sg A B)) (is-subtype-C : is-subtype A C) (a : A) (b : B a) (c : C a)
-                                    : is-contr (Sg (Sg A C) (\ t. B t.1)) =
+  substructure/is-contr-total-Eq (A : U) (B C : A -> U) (is-contr-tot : is-contr (Sg A B))
+				 (is-subtype-C : is-subtype A C) (a : A) (b : B a) (c : C a)
+				    : is-contr (Sg (Sg A C) (\ t. B t.1)) =
     is-contr/is-contr-equiv (Sg (Sg A C) (\ t. B t.1)) (Sg (Sg A B) (\ t. C t.1))
       (Equiv/assoc-Sg A C B)
       (is-contr/closed-retract (Sg (Sg A B) (\ t. C t.1)) (C a)
-        (Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
-        (is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))
+	(Sg/left-unit-law-is-contr (Sg A B) (\ t. C t.1) is-contr-tot (a, b))
+	(is-prop/is-proof-irrelevant (C a) (is-subtype-C a) c))
 #+end_src
 
 ** Equivalent subtypes

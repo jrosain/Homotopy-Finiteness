@@ -1,3 +1,4 @@
+#+TITLE: Empty Type Properties
 #+NAME: Empty
 #+AUTHOR: Johann Rosain
 
@@ -11,11 +12,15 @@ This file contains some results on the empty type.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../FunExt.org][Lib/FunExt]]
+   - [[../Data/Empty.org][Lib/Data/Empty]]
+   - [[file:Equiv.org][Lib/Prop/Equiv]]
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.FunExt
   import Lib.Data.Empty
   import Lib.Prop.Equiv
-  import Lib.FunExt
    #+end_src
 
 ** Dependent product over empty type 

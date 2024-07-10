@@ -1,10 +1,10 @@
 module Lib.Data.Decidability where
 
-import Lib.Data.Empty
-import Lib.Data.Coprod
-import Lib.Data.Unit  
-import Lib.Prop.Prod
 import Stdlib.Prelude
+import Lib.Data.Coprod
+import Lib.Data.Empty
+import Lib.Prop.Prod
+import Lib.Data.Unit
 
 is-decidable (A : U) : U = Coprod A (neg A)
 

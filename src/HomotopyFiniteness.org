@@ -392,30 +392,33 @@ We proceed by induction over =n=.
    * If =n= is zero, then by is-finite/\Pi, is-finite (\Pi_{x: A}||B x||_0). Moreover, \Pi_{x: A}||B x||_0 is equivalent to ||\Pi_{x: A}B(x)||_0 and as is-finite is closed by equivalences, the result follows.
    * If =n > 0=, then it suffices to show that f \sim g is \pi_n finite by function extensionality and \pi_n-finiteness closure under equivalence. It then suffices to use the induction hypothesis.
 #+begin_src ctt
-  is-htpy-finite/closed-Pi : (n : Nat) -> (A : U) -> (B : A -> U) -> is-finite A -> ((x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n ((x : A) -> B x) = split
+  is-htpy-finite/closed-Pi : (n : Nat) -> (A : U) -> (B : A -> U) -> is-finite A
+			      -> ((x : A) -> is-htpy-finite n (B x))
+			      -> is-htpy-finite n ((x : A) -> B x) = split
    zero -> \ A B HA HB.
       (rec-Prop-trunc
-        ( count A)
-        ( is-finite/Prop (Set-trunc ((x : A) -> B x)))
-        ( \ c.
-            is-finite/closed-Equiv'
-              ( (x : A) -> Set-trunc (B x))
-              ( Set-trunc ((x : A) -> B x))
-              ( count/Equiv-Pi-Set-trunc A B c)
-              ( is-finite/Pi A
-                ( \ x. Set-trunc (B x)) HA HB)) HA)
+	( count A)
+	( is-finite/Prop (Set-trunc ((x : A) -> B x)))
+	( \ c.
+	    is-finite/closed-Equiv'
+	      ( (x : A) -> Set-trunc (B x))
+	      ( Set-trunc ((x : A) -> B x))
+	      ( count/Equiv-Pi-Set-trunc A B c)
+	      ( is-finite/Pi A
+		( \ x. Set-trunc (B x)) HA HB)) HA)
 
    suc n -> \ A B HA HB.
-        let IH : is-htpy-finite n ((x : A) -> B x) = is-htpy-finite/closed-Pi n A B HA (\ x. is-htpy-finite/pred n (B x) (HB x)) in
-        ( is-htpy-finite/is-finite-Set-trunc ((x : A) -> B x) n IH,
-          \ f g.
-            is-htpy-finite/closed-Equiv
-              ( Path ((x : A) -> B x) f g)
-              ( Htpy A B f g)
-              ( htpy-eq/Equiv A B f g) n
-              ( is-htpy-finite/closed-Pi n A
-                ( \ x. Path (B x) (f x) (g x)) HA
-                ( \ x. (HB x).2 (f x) (g x))))
+	let IH : is-htpy-finite n ((x : A) -> B x) =
+		   is-htpy-finite/closed-Pi n A B HA (\ x. is-htpy-finite/pred n (B x) (HB x)) in
+	( is-htpy-finite/is-finite-Set-trunc ((x : A) -> B x) n IH,
+	  \ f g.
+	    is-htpy-finite/closed-Equiv
+	      ( Path ((x : A) -> B x) f g)
+	      ( Htpy A B f g)
+	      ( htpy-eq/Equiv A B f g) n
+	      ( is-htpy-finite/closed-Pi n A
+		( \ x. Path (B x) (f x) (g x)) HA
+		( \ x. (HB x).2 (f x) (g x))))
 #+end_src
 
 ** Closure under \Sigma-types, base case
@@ -425,24 +428,25 @@ In this section, we show that if =B= is a family of \pi_0-finite types over a co
 As A is connected, and we show a property, we assume that a : A. Then, the fiber inclusion function (recall that it is defined as \ b. (a, b) for b : B(a)) is surjective. As set truncation preserves surjectivity, || \Sigma_{x: A} B(x) ||_0 is finite whenever it has decidable equality.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/base' (A : U) (B : A -> U) (H : is-conn A) (is-htpy-finite-A : is-htpy-finite one-Nat A)
-                                 (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
-                                 (has-dec-eq-Sg : has-decidable-equality (Set-trunc (Sg A B))) : is-htpy-finite zero (Sg A B) =
+				 (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+				 (has-dec-eq-Sg : has-decidable-equality (Set-trunc (Sg A B)))
+						: is-htpy-finite zero (Sg A B) =
     rec-Prop-trunc A
       ( is-htpy-finite/Prop zero (Sg A B))
       ( \ a. has-decidable-equality/is-finite
-              ( Set-trunc (B a))
-              ( Set-trunc (Sg A B))
-              ( is-htpy-finite-B a)
-              ( has-dec-eq-Sg)
-              ( Set-trunc-map
-                ( B a)
-                ( Sg A B)
-                ( fiber-inclusion A B a))
-              ( Set-trunc-map/is-surj
-                ( B a)
-                ( Sg A B)
-                ( fiber-inclusion A B a)
-                ( is-connected/fiber-inclusion-is-surj A B H a)))
+	      ( Set-trunc (B a))
+	      ( Set-trunc (Sg A B))
+	      ( is-htpy-finite-B a)
+	      ( has-dec-eq-Sg)
+	      ( Set-trunc-map
+		( B a)
+		( Sg A B)
+		( fiber-inclusion A B a))
+	      ( Set-trunc-map/is-surj
+		( B a)
+		( Sg A B)
+		( fiber-inclusion A B a)
+		( is-connected/fiber-inclusion-is-surj A B H a)))
       ( is-conn/is-inhabited A H)
 #+end_src
 
@@ -451,47 +455,49 @@ We thus focus on showing, under the same hypotheses, that || \Sigma_{x: A}B(x) |
 as A is connected, let a : A. Moreover, still by connectivity, |a|_0 = |x|_0 and |a|_0 = |x'|_0, that is, we have two mere equalities || a = x || and || a = x' ||. Hence, || (x, y) = (x', y') || \simeq || (a, y) = (a, y') ||.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/dec-mere-eq' (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
-                                        (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
-                                        (y : B a) (x' : A) (y' : B x')
-                                           : is-decidable (mere-eq (Sg A B) (a, y) (x', y')) =
+					(h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+					(y : B a) (x' : A) (y' : B x')
+					   : is-decidable (mere-eq (Sg A B) (a, y) (x', y')) =
     rec-Prop-trunc
       ( Path A a x')
       ( is-decidable/Prop
-          ( mere-eq (Sg A B) (a, y) (x', y'))
-          ( Prop-trunc/is-prop (Path (Sg A B) (a, y) (x', y'))))
+	  ( mere-eq (Sg A B) (a, y) (x', y'))
+	  ( Prop-trunc/is-prop (Path (Sg A B) (a, y) (x', y'))))
       ( \ p. J A a
-            ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (a, y) (z, b)))
-            ( h y) x' p y')
+	    ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (a, y) (z, b)))
+	    ( h y) x' p y')
       ( Set-trunc/is-effective/map A a x'
-        ( is-contr/all-elements-equal
-          ( Set-trunc A)
-          ( is-conn-A)
-          ( Set-trunc/unit a)
-          ( Set-trunc/unit x')))
+	( is-contr/all-elements-equal
+	  ( Set-trunc A)
+	  ( is-conn-A)
+	  ( Set-trunc/unit a)
+	  ( Set-trunc/unit x')))
 
   is-htpy-finite/closed-Sg/dec-mere-eq (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
-                                       (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
-                                       (x : A) (y : B x) (x' : A) (y' : B x')
-                                          : is-decidable (mere-eq (Sg A B) (x, y) (x', y')) =
+				       (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+				       (x : A) (y : B x) (x' : A) (y' : B x')
+					  : is-decidable (mere-eq (Sg A B) (x, y) (x', y')) =
     rec-Prop-trunc
       ( Path A a x)
       ( is-decidable/Prop
-          ( mere-eq (Sg A B) (x, y) (x', y'))
-          ( Prop-trunc/is-prop (Path (Sg A B) (x, y) (x', y'))))
+	  ( mere-eq (Sg A B) (x, y) (x', y'))
+	  ( Prop-trunc/is-prop (Path (Sg A B) (x, y) (x', y'))))
       ( \ p. J A a
-            ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (z, b) (x', y')))
-            ( \ b. is-htpy-finite/closed-Sg/dec-mere-eq' A B is-conn-A a h b x' y') x p y)
+	    ( \ z _. (b : B z) -> is-decidable (mere-eq (Sg A B) (z, b) (x', y')))
+	    ( \ b. is-htpy-finite/closed-Sg/dec-mere-eq' A B is-conn-A a h b x' y') x p y)
       ( Set-trunc/is-effective/map A a x
-        ( is-contr/all-elements-equal
-          ( Set-trunc A)
-          ( is-conn-A)
-          ( Set-trunc/unit a)
-          ( Set-trunc/unit x)))
+	( is-contr/all-elements-equal
+	  ( Set-trunc A)
+	  ( is-conn-A)
+	  ( Set-trunc/unit a)
+	  ( Set-trunc/unit x)))
 
   is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq' (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
-                                               (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
-                                               (x : A) (y : B x) (x' : A) (y' : B x')
-                                                  : is-decidable (Path (Set-trunc (Sg A B)) (Set-trunc/unit (x, y)) (Set-trunc/unit (x', y'))) =
+					       (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+					       (x : A) (y : B x) (x' : A) (y' : B x')
+						  : is-decidable (Path (Set-trunc (Sg A B))
+								       (Set-trunc/unit (x, y))
+								       (Set-trunc/unit (x', y'))) =
     is-decidable/closed-Equiv
       ( Path (Set-trunc (Sg A B)) (Set-trunc/unit (x, y)) (Set-trunc/unit (x', y')))
       ( mere-eq (Sg A B) (x, y) (x', y'))
@@ -499,20 +505,20 @@ as A is connected, let a : A. Moreover, still by connectivity, |a|_0 = |x|_0 and
       ( is-htpy-finite/closed-Sg/dec-mere-eq A B is-conn-A a h x y x' y')
 
   is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq (A : U) (B : A -> U) (is-conn-A : is-conn A) (a : A)
-                                              (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
-                                              (t u : Set-trunc (Sg A B))
-                                                   : is-decidable (Path (Set-trunc (Sg A B)) t u) =
+					      (h : (y y' : B a) -> is-decidable (mere-eq (Sg A B) (a, y) (a, y')))
+					      (t u : Set-trunc (Sg A B))
+						   : is-decidable (Path (Set-trunc (Sg A B)) t u) =
     ind-Set-trunc/Prop
       ( Sg A B)
       ( \ t'. is-decidable/Prop
-              ( Path (Set-trunc (Sg A B)) t' u)
-              ( Set-trunc/is-set (Sg A B) t' u))
+	      ( Path (Set-trunc (Sg A B)) t' u)
+	      ( Set-trunc/is-set (Sg A B) t' u))
       ( \ t'. ind-Set-trunc/Prop
-              ( Sg A B)
-              ( \ u'. is-decidable/Prop
-                      ( Path (Set-trunc (Sg A B)) (Set-trunc/unit t') u')
-                      ( Set-trunc/is-set (Sg A B) (Set-trunc/unit t') u'))
-              ( \ u'. is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq' A B is-conn-A a h t'.1 t'.2 u'.1 u'.2) u) t
+	      ( Sg A B)
+	      ( \ u'. is-decidable/Prop
+		      ( Path (Set-trunc (Sg A B)) (Set-trunc/unit t') u')
+		      ( Set-trunc/is-set (Sg A B) (Set-trunc/unit t') u'))
+	      ( \ u'. is-htpy-finite/closed-Sg/dec-mere-eq-dec-eq' A B is-conn-A a h t'.1 t'.2 u'.1 u'.2) u) t
 #+end_src
 Thus, it suffices to show that || (a, y) = (a, y') || is decidable. But again, we have that || (a, y) = (a, y') || \simeq || \Sigma_{p: a = a} ||tr_B(p, y) = y'|| ||. The right-hand side of the underlying type is decidable by assumption (by \pi_0 finiteness of (B a)), but not the left-hand side. But as || tr_B(p, y) = y' || is a proposition, by the induction principle of the set truncation, we get a corresponding type taking || a = a ||_0 as parameter. We can then show that both things are finite, and thus that || \Sigma_{p: a = a} ||tr_B(p, y) = y'|| || is finite; that is, it is decidable.
 
@@ -530,42 +536,46 @@ We start by defining the goal type by the induction principle of set truncation.
 We continue by showing the equivalence between || (a, y) = (a, y') || and || \Sigma_{p: || a = a ||_0} P(p) ||. As these two types are propositions, we only need a back-and-forth map between them. The forward map is immediate by the computation rule of the induction principle of set truncation.
 #+begin_src ctt
   lock Prop-trunc/is-prop UU-Prop/is-set
-  is-htpy-finite/closed-Sg/Equiv/map (A : U) (B : A -> U) (a : A) (y y' : B a) : (p : Prop-trunc (Path (Sg A B) (a, y) (a, y')))
-                                         -> (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+  is-htpy-finite/closed-Sg/Equiv/map (A : U) (B : A -> U) (a : A) (y y' : B a)
+					: (p : Prop-trunc (Path (Sg A B) (a, y) (a, y')))
+					 -> (Prop-trunc (Sg (Set-trunc (Path A a a))
+							  (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
     rec-Prop-trunc
       ( Path (Sg A B) (a, y) (a, y'))
       ( Prop-trunc/Prop (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
       ( \ p. let t : SgPathO A B (a, y) (a, y') = PathSg->SgPathO A B (a, y) (a, y') p in
-            Prop-trunc/unit
-            ( Set-trunc/unit t.1,
-              Prop-trunc/unit t.2)) 
+	    Prop-trunc/unit
+	    ( Set-trunc/unit t.1,
+	      Prop-trunc/unit t.2)) 
 #+end_src
 The backward map is also straightforward as we prove a property; that is, we can get a path in A.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/Equiv/inv-map (A : U) (B : A -> U) (a : A) (y y' : B a)
-                                            : (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
-                                             -> Prop-trunc (Path (Sg A B) (a, y) (a, y')) =
+					    : (Prop-trunc (Sg (Set-trunc (Path A a a))
+							     (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
+					     -> Prop-trunc (Path (Sg A B) (a, y) (a, y')) =
     rec-Prop-trunc
       ( Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
       ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
       ( \ t. ind-Set-trunc/Prop
-              ( Path A a a)
-              ( \ p. Prop/Pi
-                      ( Prop/type (is-htpy-finite/closed-Sg/type A B a y y' p))
-                      ( \ _. Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y'))))
-              ( \ p. rec-Prop-trunc
-                      ( Path (B a) (tr A a a p B y) y')
-                      ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
-                      ( \ q'. Prop-trunc/unit ( SgPathO->PathSg A B
-                                               ( a, y)
-                                               ( a, y')
-                                               ( p, q')))) t.1 t.2)
+	      ( Path A a a)
+	      ( \ p. Prop/Pi
+		      ( Prop/type (is-htpy-finite/closed-Sg/type A B a y y' p))
+		      ( \ _. Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y'))))
+	      ( \ p. rec-Prop-trunc
+		      ( Path (B a) (tr A a a p B y) y')
+		      ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
+		      ( \ q'. Prop-trunc/unit ( SgPathO->PathSg A B
+					       ( a, y)
+					       ( a, y')
+					       ( p, q')))) t.1 t.2)
 #+end_src
 And we have the equivalence:
 #+begin_src ctt
   is-htpy-finite/closed-Sg/Equiv (A : U) (B : A -> U) (a : A) (y y' : B a)
-                                    : Equiv (Prop-trunc (Path (Sg A B) (a, y) (a, y')))
-                                            (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+				    : Equiv (Prop-trunc (Path (Sg A B) (a, y) (a, y')))
+					    (Prop-trunc (Sg (Set-trunc (Path A a a))
+							   (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
     Prop/Equiv 
       ( Prop-trunc/Prop (Path (Sg A B) (a, y) (a, y')))
       ( Prop-trunc/Prop (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))))
@@ -577,29 +587,31 @@ And we have the equivalence:
 We start by showing that || \Sigma_{w : || a = a ||_0}P(w) || is decidable. To show this, it suffices to show that the type underlying the propositional truncation is finite. It is the case as, by hypothesis, A is \pi_1 finite and || tr_B(p, y) = y' || \simeq |tr_B(p, y)|_0 = |y'|_0 which is decidable as || B(a) ||_0 is finite.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/subtype-decidable (A : U) (B : A -> U) (is-finite-A : is-htpy-finite one-Nat A)
-                                             (is-finite-B : (x : A) -> is-htpy-finite zero (B x)) (a : A) (y y' : B a)
-                                                          : is-decidable (Prop-trunc (Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
+					     (is-finite-B : (x : A) -> is-htpy-finite zero (B x)) (a : A) (y y' : B a)
+							  : is-decidable
+							    (Prop-trunc (Sg (Set-trunc (Path A a a))
+									   (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))) =
     is-finite/is-decidable-Prop-trunc
       ( Sg (Set-trunc (Path A a a)) (\ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
       ( is-finite/closed-Sg
-          ( Set-trunc (Path A a a))
-          ( \ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))
-          ( is-finite-A.2 a a)
-          ( ind-Set-trunc/Prop
-            ( Path A a a)
-            ( \ q. is-finite/Prop (Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
-            ( \ w. is-finite/closed-Equiv
-                    ( Prop-trunc (Path (B a) (tr A a a w B y) y'))
-                    ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
-                    ( Set-trunc/is-effective' (B a) (tr A a a w B y) y')
-                    ( is-decidable/is-finite
-                      ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
-                      ( Set-trunc/is-set (B a) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
-                      ( is-finite/has-decidable-equality
-                        ( Set-trunc (B a))
-                        ( is-finite-B a)
-                        ( Set-trunc/unit (tr A a a w B y))
-                        ( Set-trunc/unit y'))))))
+	  ( Set-trunc (Path A a a))
+	  ( \ q. Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q))
+	  ( is-finite-A.2 a a)
+	  ( ind-Set-trunc/Prop
+	    ( Path A a a)
+	    ( \ q. is-finite/Prop (Prop/type (is-htpy-finite/closed-Sg/type A B a y y' q)))
+	    ( \ w. is-finite/closed-Equiv
+		    ( Prop-trunc (Path (B a) (tr A a a w B y) y'))
+		    ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+		    ( Set-trunc/is-effective' (B a) (tr A a a w B y) y')
+		    ( is-decidable/is-finite
+		      ( Path (Set-trunc (B a)) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+		      ( Set-trunc/is-set (B a) (Set-trunc/unit (tr A a a w B y)) (Set-trunc/unit y'))
+		      ( is-finite/has-decidable-equality
+			( Set-trunc (B a))
+			( is-finite-B a)
+			( Set-trunc/unit (tr A a a w B y))
+			( Set-trunc/unit y'))))))
 #+end_src
 Hence, under the same hypotheses, || (a, y) = (a, y') || is also decidable.
 #+begin_src ctt
@@ -643,14 +655,17 @@ As the finiteness hypothesis resides in the set truncation of A, we have a map f
 
 *** Maps and right homotopy
 #+begin_src ctt
-  codomain-is-coproduct/map (A1 A2 B : U) (f : Coprod A1 A2 -> B) : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y))) -> B = split
+  codomain-is-coproduct/map (A1 A2 B : U) (f : Coprod A1 A2 -> B)
+				     : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y))) -> B = split
     inl t -> t.1
     inr t -> t.1
 
   codomain-is-coproduct/inv-map' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				 (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-				 (y : B) : (x : Coprod A1 A2) -> Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x
-				  -> Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y'. f (inr y'))) = split
+				 (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+					    (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				 (y : B) : (x : Coprod A1 A2)
+					  -> Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x
+					  -> Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y'. f (inr y'))) = split
     inl x -> \ p.
       inl
       ( y,
@@ -663,10 +678,12 @@ As the finiteness hypothesis resides in the set truncation of A, we have a map f
 	    ( comp-n
 	      ( Set-trunc B) three-Nat
 	      ( Set-trunc/unit y)
-	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
 	      ( inv
 		( Set-trunc B)
-		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
 		( Set-trunc/unit y)
 		( Equiv/inv-right-htpy
 		  ( Coprod A1 A2)
@@ -693,10 +710,12 @@ As the finiteness hypothesis resides in the set truncation of A, we have a map f
 	    ( comp-n
 	      ( Set-trunc B) three-Nat
 	      ( Set-trunc/unit y)
-	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+	      ( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
 	      ( inv
 		( Set-trunc B)
-		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)))
 		( Set-trunc/unit y)
 		( Equiv/inv-right-htpy
 		  ( Coprod A1 A2)
@@ -713,7 +732,8 @@ As the finiteness hypothesis resides in the set truncation of A, we have a map f
 		( H (inr x)))))))
 
   codomain-is-coproduct/inv-map (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				(H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				(H : Htpy' (Coprod A1 A2) (Set-trunc B)
+					   (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 				(y : B) : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y'. f (inr y'))) =
     codomain-is-coproduct/inv-map' A1 A2 B f e H y
       ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y))
@@ -724,15 +744,20 @@ As the finiteness hypothesis resides in the set truncation of A, we have a map f
 As the second element of images are propositions, the homotopies are (should be) trivial.
 #+begin_src ctt
   codomain-is-coproduct/right-htpy' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				    (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-				    (y : B) : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x)
-				      -> Path B (codomain-is-coproduct/map A1 A2 B f (codomain-is-coproduct/inv-map' A1 A2 B f e H y x p)) y = split
+				    (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+					       (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				    (y : B) : (x : Coprod A1 A2)
+					      -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y)) x)
+					      -> Path B (codomain-is-coproduct/map A1 A2 B f
+							( codomain-is-coproduct/inv-map' A1 A2 B f e H y x p)) y = split
     inl _ -> \ _. refl B y
     inr _ -> \ _. refl B y
 
   codomain-is-coproduct/right-htpy (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				   (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-				   (y : B) : Path B (codomain-is-coproduct/map A1 A2 B f (codomain-is-coproduct/inv-map A1 A2 B f e H y)) y =
+				   (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+					      (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				   (y : B)
+				      : Path B (codomain-is-coproduct/map A1 A2 B f (codomain-is-coproduct/inv-map A1 A2 B f e H y)) y =
     codomain-is-coproduct/right-htpy' A1 A2 B f e H y
       ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit y))
       ( refl
@@ -745,10 +770,13 @@ The left homotopy is /very/ bothersome but nothing of note happens inside.
 #+begin_src ctt
   lock Set-trunc/is-effective/map
   codomain-is-coproduct/left-htpy/inl' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				       (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-				       (t : im A1 B (\ x. f (inl x))) (a : A1) (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inl a))
+				       (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+						  (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				       (t : im A1 B (\ x. f (inl x))) (a : A1)
+				       (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inl a))
 					 : (u : Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
-					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p)
+					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u
+						 (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p)
 					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (inl t) = split
     inl u -> \ q.
       Coprod/Eq/map
@@ -774,9 +802,11 @@ The left homotopy is /very/ bothersome but nothing of note happens inside.
 	( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inl a) p) q)
 
   codomain-is-coproduct/left-htpy/inl (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				      (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				      (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+						 (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 				      (t : im A1 B (\ x. f (inl x)))
-					 : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
+					 : (x : Coprod A1 A2)
+					  -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
 					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
 						 (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 x p) (inl t) = split
     inl u -> \ p. codomain-is-coproduct/left-htpy/inl' A1 A2 B f e H t u p
@@ -804,8 +834,10 @@ The left homotopy is /very/ bothersome but nothing of note happens inside.
 	      ( inl x)
 	      ( comp-n (Set-trunc B) four-Nat
 		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inr u))
-		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
-		( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inr u) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+		( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inr u)
+		     (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
 		     (inv (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inr u) p))
 		( Set-trunc/unit t.1)
 		( Equiv/inv-right-htpy (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
@@ -814,14 +846,18 @@ The left homotopy is /very/ bothersome but nothing of note happens inside.
 		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl x))
 		( H (inl x)))))
 	( t.2))
+
 #+end_src
 The other side is a copy/paste:
 #+begin_src ctt
   codomain-is-coproduct/left-htpy/inr' (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				       (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-				       (t : im A2 B (\ y. f (inr y))) (a : A2) (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inr a))
+				       (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+						  (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				       (t : im A2 B (\ y. f (inr y))) (a : A2)
+				       (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inr a))
 					 : (u : Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
-					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p)
+					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u
+						 (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p)
 					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y)))) u (inr t) = split
     inl v -> \ q.
       ex-falso
@@ -847,9 +883,11 @@ The other side is a copy/paste:
 		( codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 (inr a) p) q) i).1))
 
   codomain-is-coproduct/left-htpy/inr (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				      (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				      (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+						 (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 				      (t : im A2 B (\ y. f (inr y)))
-					 : (x : Coprod A1 A2) -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
+					 : (x : Coprod A1 A2)
+					  -> (p : Path (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) x)
 					  -> Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
 						 (codomain-is-coproduct/inv-map' A1 A2 B f e H t.1 x p) (inr t) = split
     inl u -> \ p.
@@ -872,8 +910,10 @@ The other side is a copy/paste:
 	      ( inr y)
 	      ( comp-n (Set-trunc B) four-Nat
 		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (inl u))
-		( Equiv/map (Coprod A1 A2) (Set-trunc B) e (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
-		( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inl u) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
+		( Equiv/map (Coprod A1 A2) (Set-trunc B) e
+		  ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)))
+		( ap (Coprod A1 A2) (Set-trunc B) (Equiv/map (Coprod A1 A2) (Set-trunc B) e) (inl u)
+		     (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
 		     (inv (Coprod A1 A2) (Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1)) (inl u) p))
 		( Set-trunc/unit t.1)
 		( Equiv/inv-right-htpy (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
@@ -891,10 +931,12 @@ The other side is a copy/paste:
 We can finally state the left homotopy:
 #+begin_src ctt
   codomain-is-coproduct/left-htpy (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-				  (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+				  (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+					     (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 				     : (x : Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) ->
 				      Path (Coprod (im A1 B (\ x'. f (inl x'))) (im A2 B (\ y. f (inr y))))
-					   (codomain-is-coproduct/inv-map A1 A2 B f e H (codomain-is-coproduct/map A1 A2 B f x)) x = split
+					   (codomain-is-coproduct/inv-map A1 A2 B f e H
+					    (codomain-is-coproduct/map A1 A2 B f x)) x = split
     inl t -> codomain-is-coproduct/left-htpy/inl A1 A2 B f e H t
 	    ( Equiv/inv-map (Coprod A1 A2) (Set-trunc B) e (Set-trunc/unit t.1))
 	    ( refl
@@ -911,7 +953,8 @@ We can finally state the left homotopy:
 Thus, B is equivalent to the coproduct of the images.
 #+begin_src ctt
   codomain-is-coproduct (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
-			(H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			(H : Htpy' (Coprod A1 A2) (Set-trunc B)
+				   (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 			   : Equiv (Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) B =
     has-inverse/Equiv
       ( Coprod (im A1 B (\ x. f (inl x))) (im A2 B (\ y. f (inr y)))) B
@@ -931,7 +974,8 @@ We can also show that the set truncation of im (f \circ inl) is equivalent to A1
 Indeed, this function is both surjective;
 #+begin_src ctt
   im-Set-trunc-map/is-surj (A1 A2 B : U) (f : Coprod A1 A2 -> B)
-				    : is-surj A1 (Set-trunc (im A1 B (\ x. f (inl x)))) (im-Set-trunc/map A1 A2 B f) =
+				    : is-surj A1 (Set-trunc (im A1 B (\ x. f (inl x))))
+						 (im-Set-trunc/map A1 A2 B f) =
     is-surj/comp A1
       ( im A1 B (\ x. f (inl x)))
       ( Set-trunc (im A1 B (\ x. f (inl x))))
@@ -944,8 +988,11 @@ Indeed, this function is both surjective;
 and injective.
 #+begin_src ctt
   im-Set-trunc-map/is-inj (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
-			  (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
-			  (x y : A1) (p : Path (Set-trunc (im A1 B (\ z. f (inl z)))) (im-Set-trunc/map A1 A2 B f x) (im-Set-trunc/map A1 A2 B f y))
+			  (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+				     (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			  (x y : A1) (p : Path (Set-trunc (im A1 B (\ z. f (inl z))))
+					       (im-Set-trunc/map A1 A2 B f x)
+					       (im-Set-trunc/map A1 A2 B f y))
 				: Path A1 x y =
     rec-Prop-trunc
       ( Path (im A1 B (\ z. f (inl z))) (im/q A1 B (\ z. f (inl z)) x) (im/q A1 B (\ z. f (inl z)) y))
@@ -978,7 +1025,8 @@ and injective.
 Hence, it is an equivalence.
 #+begin_src ctt
   im-Set-trunc/is-equiv-map (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
-			    (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+			    (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+				       (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 			       : is-equiv A1 (Set-trunc (im A1 B (\ x. f (inl x)))) (im-Set-trunc/map A1 A2 B f) =
     is-inj-is-surj/is-equiv A1
       ( Set-trunc (im A1 B (\ x. f (inl x))))
@@ -990,15 +1038,14 @@ Hence, it is an equivalence.
 #+end_src
 That is, we have an equivalence between A1 and the set truncation of the image of f \circ inl.
 #+begin_src ctt
-  im-Set-trunc/Equiv (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B)) (is-set-A1 : is-set A1)
-		     (H : Htpy' (Coprod A1 A2) (Set-trunc B) (\ x. Set-trunc/unit (f x)) (Equiv/map (Coprod A1 A2) (Set-trunc B) e))
+  im-Set-trunc/Equiv (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A2) (Set-trunc B))
+		     (is-set-A1 : is-set A1) (H : Htpy' (Coprod A1 A2) (Set-trunc B)
+							(\ x. Set-trunc/unit (f x))
+							(Equiv/map (Coprod A1 A2) (Set-trunc B) e))
 			: Equiv A1 (Set-trunc (im A1 B (\ x. f (inl x)))) =
     ( im-Set-trunc/map A1 A2 B f,
       im-Set-trunc/is-equiv-map A1 A2 B f e is-set-A1 H)
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 *** =im Unit A f= is connected
 The last component needed for the proof is to show that =im Unit A f= is connected.
@@ -1046,7 +1093,8 @@ The last component needed for the proof is to show that =im Unit A f= is connect
 We start to show the inductive case of the base case of the induction, i.e., A is \pi_1-finite and has at least one connected component, and B(x) is \pi_0-finite forall x.
 #+begin_src ctt
   is-htpy-finite/closed-Sg/z : (k : Nat) -> (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-Nat A)
-			       (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x)) -> (e : Equiv (Fin k) (Set-trunc A))
+			       (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
+				-> (e : Equiv (Fin k) (Set-trunc A))
 				-> is-htpy-finite zero (Sg A B) = split
     zero -> \ A B _ _ e.
       let e' : Equiv Empty A = Equiv/sym A Empty
@@ -1067,21 +1115,29 @@ We start to show the inductive case of the base case of the induction, i.e., A i
 	( Empty/is-htpy-finite zero)
     suc k -> \ A B is-htpy-finite-A is-htpy-finite-B e.
       rec-Prop-trunc
-	( Sg (Fin (suc k) -> A) (\ f. Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e)))
+	( Sg (Fin (suc k) -> A)
+	    (\ f. Htpy' (Fin (suc k)) (Set-trunc A)
+		       (\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e)))
 	( is-htpy-finite/Prop zero (Sg A B))
 	( \ F.
 	  let f : (Fin (suc k) -> A) = F.1
-	      H : Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e) = F.2
-	      e' : Equiv (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A = codomain-is-coproduct (Fin k) Unit A f e H
+	      H : Htpy' (Fin (suc k)) (Set-trunc A)
+			(\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e) = F.2
+	      e' : Equiv (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A =
+			codomain-is-coproduct (Fin k) Unit A f e H
 	  in
 	  is-htpy-finite/closed-Equiv
 	    ( Sg A B)
-	    ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
+	    ( Coprod
+	      ( Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1)))
+	      ( Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
 	    ( Equiv/trans
 	      ( Sg A B)
 	      ( Sg (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x))))
 		  (\ u. B (Equiv/map (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' u)))
-	      ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
+	      ( Coprod
+		( Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1)))
+		( Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
 	      ( Sg/equiv-base' 
 		( Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A B e')
 	      ( Equiv/Sg-distr-over-coprod
@@ -1150,9 +1206,6 @@ We rearrange the arguments to make it easier to call.
 			   (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) : is-htpy-finite n (Sg A B) =
     is-htpy-finite/closed-Sg' n A B is-htpy-finite-A is-htpy-finite-B
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 ** Unlock
     #+begin_src ctt

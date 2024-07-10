@@ -1,3 +1,4 @@
+#+TITLE: Unit Type Properties
 #+NAME: Unit
 #+AUTHOR: Johann Rosain
 
@@ -11,9 +12,11 @@ This file defines some useful results of the =Unit= datatype.
 
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Data/Unit.org][Lib/Data/Unit]]
    #+begin_src ctt
-  import Lib.Data.Unit
   import Stdlib.Prelude  
+  import Lib.Data.Unit
    #+end_src
 
 ** Unicity of unit

@@ -1,3 +1,4 @@
+#+TITLE: Natural Numbers Properties
 #+NAME: Nat
 #+AUTHOR: Johann Rosain
 
@@ -11,13 +12,19 @@ This file contains important properties of natural numbers such as the fact that
 
 ** Packages import
 
+The imported packages can be accessed via the following links:
+   - [[../Hedberg.org][Lib/Hedberg]]
+   - [[../Data/Decidability.org][Lib/Data/Decidability]]
+   - [[../Data/Empty.org][Lib/Data/Empty]]
+   - [[../Data/Nat.org][Lib/Data/Nat]]
+   - [[../Data/Unit.org][Lib/Data/Unit]]
    #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Hedberg
+  import Lib.Data.Decidability  
+  import Lib.Data.Empty
   import Lib.Data.Nat
   import Lib.Data.Unit
-  import Lib.Data.Empty
-  import Lib.Data.Decidability  
-  import Lib.Hedberg
-  import Stdlib.Prelude
    #+end_src
 
 ** Observational equality

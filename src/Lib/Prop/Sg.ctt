@@ -1,7 +1,7 @@
 module Lib.Prop.Sg where
 
 import Stdlib.Prelude
-import Lib.Prop.MiscPaths
+import Lib.Prop.Paths
 
 ind-Sg (A : U) (B : A -> U) (P : Sg A B -> U) (g : (x : A) (y : B x) -> P(x, y)) : (z : Sg A B) -> P z =
   \ z. g z.1 z.2

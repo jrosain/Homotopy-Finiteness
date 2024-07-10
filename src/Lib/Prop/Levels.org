@@ -1,3 +1,4 @@
+#+TITLE: =h=-Levels
 #+NAME: Levels
 #+AUTHOR: Johann Rosain
 
@@ -7,13 +8,19 @@
   module Lib.Prop.Levels where
   #+end_src
 
+This file is a collection of lemmas about Voevodsky's h-levels.
+
 ** Packages imports
 
+The imported packages can be accessed via the following links:
+   - [[../Univalence.org][Lib/Univalence]]
+   - [[file:Proposition.org][Lib/Prop/Proposition]]
+   - [[file:Set.org][Lib/Prop/Set]]
    #+begin_src ctt
   import Stdlib.Prelude
+  import Lib.Univalence
   import Lib.Prop.Proposition
   import Lib.Prop.Set
-  import Lib.Univalence
    #+end_src
 
 ** Closure under equivalence for propositions and sets
