@@ -303,3 +303,12 @@ The back-and-forth maps are already defined; one is Sg-Path/left and the other i
 
 #+RESULTS:
 : Typecheck has succeeded.
+** Proposition of equality between elements of set 
+   #+begin_src ctt
+  Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
+    ( Path (Set/type X) x y,
+      Set/is-set X x y)
+   #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

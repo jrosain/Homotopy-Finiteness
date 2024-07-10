@@ -239,3 +239,7 @@ SgPath-prop/Equiv' (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg
     ( SgPath-prop' A B H u v,
       ( SgPath-prop/left-htpy A B H u v,
         SgPath-prop/right-htpy A B H u v))
+
+Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
+  ( Path (Set/type X) x y,
+    Set/is-set X x y)

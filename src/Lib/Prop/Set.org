@@ -1,3 +1,4 @@
+#+TITLE: Sets Properties
 #+NAME: Set
 #+AUTHOR: Johann Rosain
 
@@ -7,7 +8,7 @@
   module Lib.Prop.Set where
   #+end_src
 
-This file contains properties of sets. In particular, it shows Hedberg's theorem: a type is a set whenever it has a decidable equality.
+This file contains properties of sets.
 
 ** Packages imports
 

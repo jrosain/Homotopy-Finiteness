@@ -174,26 +174,26 @@ Which straightforwardly implies the result.
         ( Semigroup-of-Order/Equiv' n))      
   unlock Prop-trunc/is-prop is-set/is-prop has-cardinality/is-finite is-finite/is-set
 #+end_src
-Combining these facts, we can show that =Semigroup-of-Order n= has a finite number of connected components.
-
-TODO: update the proof with the final version of the closure of htpy finiteness by \Sigma-types to show that it is, in fact, \pi_k-finite for k \in Nat.
+Combining these facts, we can show that =Semigroup-of-Order n= is homotopy finite forall k \in Nat.
 #+begin_src ctt
-  Semigroup-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
+  Semigroup-of-Order/is-htpy-finite (n : Nat) (k : Nat) : is-htpy-finite k (Semigroup-of-Order n) =
     is-htpy-finite/closed-Equiv
       ( Semigroup-of-Order n)
       ( Semigroup-of-Order' n)
-      ( Semigroup-of-Order/Equiv n)
-      ( zero)
-      ( is-htpy-finite/closed-Sg/base
+      ( Semigroup-of-Order/Equiv n) k
+      ( is-htpy-finite/closed-Sg
 	( Sg U (\ X. mere-equiv (Fin n) X))
-	( \ X. has-assoc-op X.1)
-	( mere-equiv-Fin/is-conn-Set-trunc n)
-	( mere-equiv-Fin/is-htpy-finite n one-Nat)
+	( \ X. has-assoc-op X.1) k
+	( mere-equiv-Fin/is-htpy-finite n (suc k))
 	( \ X. is-finite/is-htpy-finite
 	      ( has-assoc-op X.1)
 	      ( has-assoc-op/is-finite X.1
-		( has-cardinality/is-finite X.1 (n, X.2)))
-	      ( zero)))
+		( has-cardinality/is-finite X.1 (n, X.2))) k))
+#+end_src
+In particular, it has a finite amount of connected components.
+#+begin_src ctt
+  Semigroup-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
+    Semigroup-of-Order/is-htpy-finite n zero
 #+end_src
 Hence, we can compute the number of semigroups of order =n= up to isomorphism.
 #+begin_src ctt
@@ -284,16 +284,33 @@ As =Group-of-Order n= and =Group-of-Order' n= are equivalent:
       ( is-group)
       ( \ G. mere-equiv (Fin n) (Semigroup/type G))
 #+end_src
-the result follows.
+we can show that Group-of-Order is \pi_k-finite for any k \in Nat.
 #+begin_src ctt
-  -- Group-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite n (Group-of-Order n) =
+  Group-of-Order/is-htpy-finite (n : Nat) (k : Nat) : is-htpy-finite k (Group-of-Order n) =
+    is-htpy-finite/closed-Equiv
+      ( Group-of-Order n)
+      ( Group-of-Order' n)
+      ( Group-of-Order/Equiv n) k
+      ( is-htpy-finite/closed-Sg
+	( Semigroup-of-Order n)
+	( \ G. is-group G.1) k
+	( Semigroup-of-Order/is-htpy-finite n (suc k))
+	( \ G. is-finite/is-htpy-finite
+	      ( is-group G.1)
+	      ( is-group/is-finite G.1
+		( has-cardinality/is-finite (Semigroup/type G.1) (n, G.2))) k))
+#+end_src
+In particular, it has a finite amount of connected components.
+#+begin_src ctt
+  Group-of-Order/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Group-of-Order n) =
+    Group-of-Order/is-htpy-finite n zero
 #+end_src
 Hence, we can compute the number of groups of finite order =n= up to isomorphism.
 #+begin_src ctt
-  -- number-of-Group-of-Order (n : Nat) : Nat =
-  --   card
-  --     ( Set-trunc (Group-of-Order n))
-  --     ( Group-of-Order/has-finite-connected-components n)
+  number-of-Group-of-Order (n : Nat) : Nat =
+    card
+      ( Set-trunc (Group-of-Order n))
+      ( Group-of-Order/has-finite-connected-components n)
 #+end_src
 
 #+RESULTS:

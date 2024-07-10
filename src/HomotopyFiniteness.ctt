@@ -850,26 +850,71 @@ im-Set-trunc/Equiv (A1 A2 B : U) (f : Coprod A1 A2 -> B) (e : Equiv (Coprod A1 A
   ( im-Set-trunc/map A1 A2 B f,
     im-Set-trunc/is-equiv-map A1 A2 B f e is-set-A1 H)
 
-is-htpy-finite/closed-Sg/z' (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-nat A)
-			    (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
-			    (IH : (A : U) -> (B : A -> U) -> is-htpy-finite one-Nat A -> ((x : A) -> is-htpy-finite zero (B x)) -> (e : Equiv (Fin k) (Set-trunc A)) -> is-htpy-finite zero (Sg A B))
-					      : (k : Nat) -> (e : Equiv (Fin (suc k)) (Set-trunc A))
-						-> is-htpy-finite zero (Sg A B) = split
-  zero -> \ e.
-    is-htpy-finite/closed-Sg/base A B
-      ( is-contr/is-contr-equiv'
-	( Fin one-Nat)
-	( Set-trunc A) e
-	( Fin/fin-one-is-contr))
-      ( is-htpy-finite-A)
-      ( is-htpy-finite-B)
-  suc k -> \ e.
+im-Unit/is-conn (A : U) (f : Unit -> A) : is-conn (im Unit A f) =
+  is-prop/is-proof-irrelevant
+    ( Set-trunc (im Unit A f))
+    ( \ t u.
+      ind-Set-trunc/Prop
+      ( im Unit A f)
+      ( \ v. Set-trunc/eq/Prop 
+	    ( im Unit A f) v u)
+      ( \ v. ind-Set-trunc/Prop
+	    ( im Unit A f)
+	    ( \ w. Set-trunc/eq/Prop
+		  ( im Unit A f)
+		  ( Set-trunc/unit v) w)
+	    ( \ w. rec-Prop-trunc
+		  ( Fib Unit A f v.1)
+		  ( Set-trunc/eq/Prop
+		    ( im Unit A f)
+		    ( Set-trunc/unit v)
+		    ( Set-trunc/unit w))
+		  ( \ x. rec-Prop-trunc
+			( Fib Unit A f w.1)
+			( Set-trunc/eq/Prop
+			  ( im Unit A f)
+			  ( Set-trunc/unit v)
+			  ( Set-trunc/unit w))
+			( \ y. ap (im Unit A f) (Set-trunc (im Unit A f)) (\ k. Set-trunc/unit k) v w
+			      ( SgPath-prop A
+				( \ z. Prop-trunc (Fib Unit A f z))
+				( \ z. Prop-trunc/is-prop (Fib Unit A f z)) v w
+				( comp-n A three-Nat v.1
+				  ( f x.1) x.2
+				  ( f y.1)
+				  ( ap Unit A f x.1 y.1
+				    ( is-contr/all-elements-equal Unit
+				      ( Unit/is-contr) x.1 y.1)) w.1
+				  ( inv A w.1 (f y.1) y.2)))) w.2) v.2) u) t)
+    ( Set-trunc/unit (im/q Unit A f star))
+
+is-htpy-finite/closed-Sg/z : (k : Nat) -> (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-Nat A)
+			     (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x)) -> (e : Equiv (Fin k) (Set-trunc A))
+			      -> is-htpy-finite zero (Sg A B) = split
+  zero -> \ A B _ _ e.
+    let e' : Equiv Empty A = Equiv/sym A Empty
+			     ( Empty/equiv A
+			       ( is-empty-Set-trunc/is-empty A
+				 ( Equiv/inv-map Empty (Set-trunc A) e)))
+	f  : Empty -> A = Equiv/map Empty A e' in
+    is-htpy-finite/closed-Equiv
+      ( Sg A B) Empty
+      ( Equiv/trans
+	  ( Sg A B)
+	  ( Sg (Fin zero) (\ x. B (f x)))
+	  ( Empty)
+	  ( Sg/equiv-base' Empty A B e')
+	  ( Equiv/Equiv-Sg-empty
+	    (\ x. B (f x))))
+      ( zero)
+      ( Empty/is-htpy-finite zero)
+  suc k -> \ A B is-htpy-finite-A is-htpy-finite-B e.
     rec-Prop-trunc
-      ( Sg (Fin (suc k) -> A) (\ f. Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f (inl z))) (Equiv/map (Fin (suc k)) (Set-trun A) e)))
+      ( Sg (Fin (suc k) -> A) (\ f. Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e)))
       ( is-htpy-finite/Prop zero (Sg A B))
-      ( \ k.
-	let f : (Fin (suc k) -> A) = k.1
-	    H : Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f (inl z))) (Equiv/map (Fin (suc k)) (Set-trun A) e) = k.2
+      ( \ F.
+	let f : (Fin (suc k) -> A) = F.1
+	    H : Htpy' (Fin (suc k)) (Set-trunc A) (\ z. Set-trunc/unit (f z)) (Equiv/map (Fin (suc k)) (Set-trunc A) e) = F.2
 	    e' : Equiv (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A = codomain-is-coproduct (Fin k) Unit A f e H
 	in
 	is-htpy-finite/closed-Equiv
@@ -881,7 +926,7 @@ is-htpy-finite/closed-Sg/z' (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-fin
 		(\ u. B (Equiv/map (Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' u)))
 	    ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1))))
 	    ( Sg/equiv-base' 
-	      ( Coprod (Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1))) (Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1)))) A B e')
+	      ( Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A B e')
 	    ( Equiv/Sg-distr-over-coprod
 	      ( im (Fin k) A (\ x. f (inl x)))
 	      ( im Unit A (\ x. f (inr x)))
@@ -889,7 +934,7 @@ is-htpy-finite/closed-Sg/z' (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-fin
 	  ( is-htpy-finite/closed-Coprod zero
 	    ( Sg (im (Fin k) A (\ x. f (inl x))) (\ t. B (t.1)))
 	    ( Sg (im Unit A (\ x. f (inr x))) (\ t. B (t.1)))
-	    ( IH
+	    ( is-htpy-finite/closed-Sg/z k
 	      ( im (Fin k) A (\ x. f (inl x)))
 	      ( \ t. B (t.1))
 	      ( is-htpy-finite/Coprod/left 
@@ -902,69 +947,46 @@ is-htpy-finite/closed-Sg/z' (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-fin
 	      ( im-Set-trunc/Equiv 
 		( Fin k) Unit A f e
 		( count/is-set (Fin k) (count/fin-count k)) H))
-	    ( {- TODO: htpy finiteness of im Unit -})))
+	    ( is-htpy-finite/closed-Sg/base
+	      ( im Unit A (\ x. f (inr x)))
+	      ( \ t. B t.1)
+	      ( im-Unit/is-conn A (\ x. f (inr x)))
+	      ( is-htpy-finite/Coprod/right 
+		( im (Fin k) A (\ x. f (inl x)))
+		( im Unit A (\ x. f (inr x))) one-Nat
+		( is-htpy-finite/closed-Equiv
+		  ( Coprod (im (Fin k) A (\ x. f (inl x))) (im Unit A (\ x. f (inr x)))) A e' one-Nat
+		  ( is-htpy-finite-A)))
+	      ( \ t. is-htpy-finite-B t.1))))
       ( is-finite-Set-trunc/has-Equiv-map A (suc k) e)
 
--- is-htpy-finite/closed-Sg/z (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite one-Nat A)
--- 			   (is-htpy-finite-B : (x : A) -> is-htpy-finite zero (B x))
--- 			      : (k : Nat) -> (f : (Fin k) -> A) -> (e : Equiv (Fin k) (Set-trunc A)) -> is-htpy-finite zero (Sg A B) = split
---   zero -> \ f e.
---     is-htpy-finite/closed-Equiv
---       ( Sg A B) Empty
---       ( Equiv/trans
--- 	  ( Sg A B)
--- 	  ( Sg (Fin zero) (\ x. B (f x)))
--- 	  ( Empty)
--- 	  ( Equiv/sym
--- 	    ( Sg (Fin zero) (\ x. B (f x)))
--- 	    ( Sg A B)
--- 	    ( Sg/equiv-base
--- 	      ( Fin zero) A B
--- 	      ( Equiv/sym A Empty
--- 		( Empty/equiv A
--- 		  ( is-empty-Set-trunc/is-empty
--- 		    ( Equiv/inv-map Empty (Set-trunc A) e))))))
--- 	  ( Equiv/Equiv-Sg-empty
--- 	    (\ x. B (f x))))
---       ( zero)
---       ( Empty/is-htpy-finite zero)
---   suc k -> \ f e.
---     is-htpy-finite/closed-Equiv'
---       ( Sg (Fin (suc k)) ( \ x. B (f x)))
---       ( Sg A B)
---       ( Sg/equiv-base 
--- 	( Fin (suc k)) A B e)
---       ( zero)
---       ( is-htpy-finite/closed-Sg/Fin k
--- 	( \ x. B (f x))
--- 	( is-htpy-finite/closed-Equiv
--- 	  ( Fin (suc k)) A e one-Nat
--- 	  ( is-htpy-finite-A))
--- 	( \ x. is-htpy-finite-B (f x)))
+is-htpy-finite/closed-Sg' : (n : Nat) (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite (suc n) A)
+			      (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n (Sg A B) = split
+  zero -> \ A B is-htpy-finite-A is-htpy-finite-B.
+    rec-Prop-trunc
+      ( count (Set-trunc A))
+      ( is-htpy-finite/Prop zero (Sg A B))
+      ( \ c. is-htpy-finite/closed-Sg/z c.1 A B is-htpy-finite-A is-htpy-finite-B c.2)
+      ( is-htpy-finite-A.1)
+  suc n -> \ A B is-htpy-finite-A is-htpy-finite-B.
+    ( is-htpy-finite/closed-Sg' zero A B 
+      ( is-htpy-finite/is-htpy-one-finite A (suc n) is-htpy-finite-A)
+      ( \ x. is-htpy-finite/is-finite-Set-trunc
+	      ( B x)
+	      ( suc n)
+	      ( is-htpy-finite-B x)),
+	\ t u. is-htpy-finite/closed-Equiv
+		( Path (Sg A B) t u)
+		( SgPathO A B t u)
+		( PathSg/Equiv A B t u) n
+		( is-htpy-finite/closed-Sg' n
+		  ( Path A t.1 u.1)
+		  ( \ p. Path (B u.1) (tr A t.1 u.1 p B t.2) u.2)
+		  ( is-htpy-finite-A.2 t.1 u.1)
+		  ( \ p. (is-htpy-finite-B u.1).2 (tr A t.1 u.1 p B t.2) u.2)))
 
--- is-htpy-finite/closed-Sg' : (n : Nat) (A : U) (B : A -> U) (is-htpy-finite-A : is-htpy-finite (suc n) A)
---                               (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) -> is-htpy-finite n (Sg A B) = split
---   zero -> \ A B is-htpy-finite-A is-htpy-finite-B.
---     rec-Prop-trunc
---       ( count (Set-trunc A))
---       ( is-htpy-finite/Prop zero (Sg A B))
---       ( \ c. is-htpy-finite/closed-Sg/z A B is-htpy-finite-A is-htpy-finite-B c.1 c.2)
---       ( is-htpy-finite-A.1)
---   suc n -> \ A B is-htpy-finite-A is-htpy-finite-B.
---     ( is-htpy-finite/closed-Sg' zero A B 
---       ( is-htpy-finite/is-htpy-one-finite A (suc n) is-htpy-finite-A)
---       ( \ x. is-htpy-finite/is-finite-Set-trunc
---               ( B x)
---               ( suc n)
---               ( is-htpy-finite-B x)),
---         \ t u. is-htpy-finite/closed-Equiv
---                 ( Path (Sg A B) t u)
---                 ( SgPathO A B t u)
---                 ( PathSg/Equiv A B t u) n
---                 ( is-htpy-finite/closed-Sg' n
---                   ( Path A t.1 u.1)
---                   ( \ p. Path (B u.1) (tr A t.1 u.1 p B t.2) u.2)
---                   ( is-htpy-finite-A.2 t.1 u.1)
---                   ( \ p. (is-htpy-finite-B u.1).2 (tr A t.1 u.1 p B t.2) u.2)))
+is-htpy-finite/closed-Sg (A : U) (B : A -> U) (n : Nat) (is-htpy-finite-A : is-htpy-finite (suc n) A)
+			 (is-htpy-finite-B : (x : A) -> is-htpy-finite n (B x)) : is-htpy-finite n (Sg A B) =
+  is-htpy-finite/closed-Sg' n A B is-htpy-finite-A is-htpy-finite-B
 
-unlock Prop-trunc/is-prop UU-Prop/is-set
+unlock Prop-trunc/is-prop UU-Prop/is-set Set-trunc/is-effective/map

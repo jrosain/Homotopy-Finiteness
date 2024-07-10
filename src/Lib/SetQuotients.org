@@ -135,13 +135,6 @@ And thus, there's also a slightly simpler recursor.
     ind-Set-quotient/Prop A R (\ _. B) f
 #+end_src
 
-** Proposition of equality between elements of set 
-   #+begin_src ctt
-  Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
-    ( Path (Set/type X) x y,
-      Set/is-set X x y)
-   #+end_src
-
 ** Surjectivity
 The quotient of a type by an equivalence relation is obviously surjective.
 #+begin_src ctt

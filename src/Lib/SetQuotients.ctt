@@ -89,10 +89,6 @@ rec-Set-quotient/Prop (A : U) (R : Eq-Rel A) (B : UU-Prop) (f : A -> Prop/type B
                          : (x : Set-quotient A R) -> Prop/type B =
   ind-Set-quotient/Prop A R (\ _. B) f
 
-Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
-  ( Path (Set/type X) x y,
-    Set/is-set X x y)
-
 quotienting-is-surj (A : U) (R : Eq-Rel A) : is-surj A (Set-quotient A R) (\ a. Set-quotient/q a) =
   ind-Set-quotient/Prop A R
     ( \ x. Prop-trunc/Prop (Fib A (Set-quotient A R) (\ a. Set-quotient/q a) x))
