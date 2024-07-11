@@ -1,13 +1,13 @@
 module Lib.Prop.Equiv where
 
-import Lib.Prop.Contr
-import Lib.Prop.Sg
-import Lib.Data.Map
-import Lib.Data.Empty
-import Lib.Data.Decidability  
-import Lib.QInv
 import Lib.ContrMap
+import Lib.QInv
+import Lib.Data.Decidability  
+import Lib.Data.Empty
+import Lib.Data.Map
+import Lib.Prop.Contr
 import Lib.Prop.Paths
+import Lib.Prop.Sg
 import Lib.Prop.Unit
 
 Equiv/map (A B : U) (e : Equiv A B) : A -> B = e.1
@@ -162,11 +162,21 @@ is-contr/is-contr-equiv (A B : U) (e : Equiv A B) (c : is-contr B) : is-contr A 
 is-contr/is-contr-equiv' (A B : U) (e : Equiv A B) (c : is-contr A) : is-contr B =
   is-contr/is-contr-equiv B A (Equiv/sym A B e) c
 
-is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
-  is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
-
 is-contr/is-equiv (A B : U) (f : A -> B) (cA : is-contr A) (cB : is-contr B) : is-equiv A B f =
-  is-bi-inv/is-equiv A B f (is-bi-inv/is-bi-inv-contr' A B f cA cB)
+  \ y.
+    let t : Fib A B f y = (center A cA, is-contr/all-elements-equal B cB y (f (center A cA))) in
+    ( t,
+      \ u.
+	let p : Path A t.1 u.1 = is-contr/all-elements-equal A cA t.1 u.1 in
+	SgPathO->PathSg A
+	  ( \ x. Path B y (f x)) t u
+	  ( p,
+	    is-contr->is-set B cB y (f u.1) (tr A t.1 u.1 p (\ x. Path B y (f x)) t.2) u.2))
+
+is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+  let f : A -> B = \ _. center B cB in
+  ( f,
+    is-contr/is-equiv A B f cA cB)
 
 is-equiv/is-bi-inv-copr-empty-type-map (A : U) : Coprod Empty A -> A = split
   inl x -> ex-falso A x

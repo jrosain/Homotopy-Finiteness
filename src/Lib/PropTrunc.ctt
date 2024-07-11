@@ -1,7 +1,7 @@
 module Lib.PropTrunc where
 
-import Lib.Prop.Proposition
 import Lib.EquivalenceRelations
+import Lib.Prop.Proposition
 
 precomp-Prop (A : U) (P : UU-Prop) (f : A -> (Prop/type P)) (Q : UU-Prop) (g : Prop/hom P Q) : A -> Prop/type Q =
   \ z. g (f z)
@@ -49,8 +49,11 @@ Prop-trunc/is-prop-trunc (A : U) : is-prop-trunc A (Prop-trunc/Prop A) (\ a. Pro
   has-ext-property/is-prop-trunc A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (\ Q. rec-Prop-trunc A Q)
 
 Prop-trunc/map (A B : U) (f : A -> B) : (Prop-trunc A) -> Prop-trunc B =
-  is-prop-trunc/map A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (Prop-trunc/is-prop-trunc A)
-    (Prop-trunc/Prop B) (\ a. Prop-trunc/unit (f a))
+  rec-Prop-trunc A
+    ( Prop-trunc/Prop B)
+    ( \ x. Prop-trunc/unit (f x))
+  -- is-prop-trunc/map A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (Prop-trunc/is-prop-trunc A)
+  --   (Prop-trunc/Prop B) (\ a. Prop-trunc/unit (f a))
 
 Equiv/Prop-trunc-map (A B : U) (e : Equiv A B) : (Prop-trunc A) -> Prop-trunc B =
   Prop-trunc/map A B (Equiv/map A B e)

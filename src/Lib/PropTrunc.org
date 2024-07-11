@@ -101,9 +101,11 @@ This makes the eval fail (in coe). See how to report that with a concise file?
 If there is a map between A and B, then there is a map between the propositional truncations of A and B.
    #+begin_src ctt
   Prop-trunc/map (A B : U) (f : A -> B) : (Prop-trunc A) -> Prop-trunc B =
-    is-prop-trunc/map A (Prop-trunc/Prop A) (\ a. Prop-trunc/unit a) (Prop-trunc/is-prop-trunc A)
-      (Prop-trunc/Prop B) (\ a. Prop-trunc/unit (f a))
+    rec-Prop-trunc A
+      ( Prop-trunc/Prop B)
+      ( \ x. Prop-trunc/unit (f x))
    #+end_src
+
 As such, when there is an equivalence between A and B, there is an equivalence between the propositional truncation of A and the propositional truncation of B (as well as the associated maps).
 #+begin_src ctt
   Equiv/Prop-trunc-map (A B : U) (e : Equiv A B) : (Prop-trunc A) -> Prop-trunc B =

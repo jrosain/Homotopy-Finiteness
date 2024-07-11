@@ -5,9 +5,9 @@ import Lib.Data.Decidability
 import Lib.Data.Map
 import Lib.Data.Unit
 import Lib.Prop.Contr
-import Lib.Prop.Unit
-import Lib.Prop.Equiv
 import Lib.Prop.Coprod
+import Lib.Prop.Equiv
+import Lib.Prop.Unit
 
 is-proof-irrelevant (A : U) : U =
   A -> is-contr A

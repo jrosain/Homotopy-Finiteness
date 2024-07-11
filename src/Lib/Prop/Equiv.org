@@ -248,7 +248,6 @@ hold, then so does the third.
         ( is-equiv/is-bi-inv A B f e)
         ( is-equiv/is-bi-inv A C (\ z. g (f z)) e'))  
 #+end_src
-
 *** 3-for-2 property of contractibility
 Given =f : A \to B=, the 3-for-2 property of contractibility states that if any two of the three assertions
   * =A= is contractible
@@ -271,12 +270,25 @@ The other side is trivial.
 #+end_src
 Now, if two types are contractible, they are obviously equivalent: they both hold only one object, thus there is a trivial bijection between them.
 #+begin_src ctt
-  is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
-    is-bi-inv/Equiv A B (is-bi-inv/is-bi-inv-contr-map A B cB) (is-bi-inv/is-bi-inv-contr A B cA cB)
-
   is-contr/is-equiv (A B : U) (f : A -> B) (cA : is-contr A) (cB : is-contr B) : is-equiv A B f =
-    is-bi-inv/is-equiv A B f (is-bi-inv/is-bi-inv-contr' A B f cA cB)
+    \ y.
+      let t : Fib A B f y = (center A cA, is-contr/all-elements-equal B cB y (f (center A cA))) in
+      ( t,
+	\ u.
+	  let p : Path A t.1 u.1 = is-contr/all-elements-equal A cA t.1 u.1 in
+	  SgPathO->PathSg A
+	    ( \ x. Path B y (f x)) t u
+	    ( p,
+	      is-contr->is-set B cB y (f u.1) (tr A t.1 u.1 p (\ x. Path B y (f x)) t.2) u.2))
+
+  is-contr/Equiv (A B : U) (cA : is-contr A) (cB : is-contr B) : Equiv A B =
+    let f : A -> B = \ _. center B cB in
+    ( f,
+      is-contr/is-equiv A B f cA cB)
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** Equivalences between types
 *** =Coprod Empty A=

@@ -266,3 +266,5 @@ The coproduct of P and Q is a proposition under the condition that P implies \ne
 #+RESULTS:
 : Typecheck has succeeded.
 
+
+

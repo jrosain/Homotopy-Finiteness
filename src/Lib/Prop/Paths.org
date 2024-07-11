@@ -209,8 +209,6 @@ We show that if f \sim g, then =ap f= and =ap g= can be used in further computat
       ( \ p _. square A x y1 y2 z p1 q1 p q2) sq p2' s    
     #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
 ** =f= and =ap f= through homotopy
 Using this naturality square, we can show that if H : f \sim id, then H(f(x)) = ap_f(H(x)). Indeed:
 H (f x) = H (f x) . H x . H x^-1
