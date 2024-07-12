@@ -33,6 +33,9 @@ The map between =has-inverse f= and =is-bi-inv f= is trivial ; indeed, the map o
     let g : B -> A = QInv/map A B f i in
     ( (g, QInv/right-htpy A B f i),
       (g, QInv/left-htpy A B f i))
+
+  has-inverse/BiInv (A B : U) (f : A -> B) (i : has-inverse A B f) : BiInv A B =
+    ( f, has-inverse-is-bi-inv A B f i)
 #+end_src
 
 *** Map between bi-invertible and quasi-inverse

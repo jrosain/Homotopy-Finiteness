@@ -372,6 +372,70 @@ is-finite/closed-Sg (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A
             ( \ H'. Prop-trunc/unit (count/closed-Sg A B c H'))
             ( is-finite/choice A (\ x. count (B x)) is-finite-A H)) is-finite-A
 
+is-finite-Sg/is-finite-base/map (A : U) (B : A -> U) (f : (x : A) -> B x) (x : A) : Sg A B =
+  (x, f x)
+
+is-finite-Sg/is-finite-base/Equiv' (A : U) (B : A -> U) (f : (x : A) -> B x) (t : Sg A B) 
+				      : Equiv (Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f) t)
+					     (Sg (Sg A (\ x. Path A t.1 x)) (\ u. Path (B u.1) (tr A t.1 u.1 u.2 B t.2) (f u.1))) =
+  let C : (x : A) -> Path A t.1 x -> U = \ x p. Path (B x) (tr A t.1 x p B t.2) (f x) in
+  Equiv/trans
+    ( Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f) t)
+    ( Sg A (\ x. Sg (Path A t.1 x) (C x)))
+    ( Sg (Sg A (\ x. Path A t.1 x)) (\ u. C u.1 u.2))
+    ( Equiv/Sg-fam A
+      ( \ x. Path (Sg A B) t (x, f x))
+      ( \ x. Sg (Path A t.1 x) (\ p. Path (B x) (tr A t.1 x p B t.2) (f x)))
+      ( \ x. PathSg/Equiv A B t (x, f x)))
+    ( Equiv/associative-Sg A
+      ( \ x. Path A t.1 x) C)
+
+is-finite-Sg/is-finite-base/Equiv (A : U) (B : A -> U) (f : (x : A) -> B x) (t : Sg A B) 
+				     : let c : Sg A (\ x. Path A t.1 x) = (is-contr/Sg-path-is-contr A t.1).1 in
+				       Equiv (Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f) t)
+					     (Path (B c.1) (tr A t.1 c.1 c.2 B t.2) (f c.1)) =
+  let C : (x : A) -> Path A t.1 x -> U = \ x p. (Path (B x) (tr A t.1 x p B t.2) (f x))
+      c : Sg A (\ x. Path A t.1 x) = (is-contr/Sg-path-is-contr A t.1).1
+  in
+  Equiv/trans
+    ( Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f) t)
+    ( Sg (Sg A (\ x. Path A t.1 x)) (\ u. C u.1 u.2))
+    ( Path (B c.1) (tr A t.1 c.1 c.2 B t.2) (f c.1))
+    ( is-finite-Sg/is-finite-base/Equiv' A B f t)
+    ( Equiv/is-contr-total-space'
+      ( Sg A (\ x. Path A t.1 x))
+      ( \ u. C u.1 u.2)
+      ( is-contr/Sg-path-is-contr A t.1) c)
+
+is-finite-Sg/is-finite-base (A : U) (B : A -> U) (f : (x : A) -> B x)
+			    (H : (x : A) -> is-finite (B x)) (H' : is-finite (Sg A B))
+			       : is-finite A =
+  is-finite/closed-Equiv A
+    ( Sg (Sg A B) (Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f)))
+    ( Equiv/total-fib A
+      ( Sg A B)
+      ( is-finite-Sg/is-finite-base/map A B f))
+    ( is-finite/closed-Sg
+      ( Sg A B)
+      ( Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f)) H'
+      ( \ t. let c : Sg A (\ x. Path A t.1 x) = (is-contr/Sg-path-is-contr A t.1).1 in
+	    is-finite/closed-Equiv
+	    ( Fib A (Sg A B) (is-finite-Sg/is-finite-base/map A B f) t)
+	    ( Path (B c.1) (tr A t.1 c.1 c.2 B t.2) (f c.1))
+	    ( is-finite-Sg/is-finite-base/Equiv A B f t)
+	    ( is-decidable/is-finite
+	      ( Path (B c.1) (tr A t.1 c.1 c.2 B t.2) (f c.1))
+	      ( is-finite/is-set
+		( B c.1)
+		( H c.1)
+		( tr A t.1 c.1 c.2 B t.2)
+		( f c.1))
+	      ( is-finite/has-decidable-equality
+		( B c.1)
+		( H c.1)
+		( tr A t.1 c.1 c.2 B t.2)
+		( f c.1)))))
+
 has-decidable-equality/is-finite/base/map (B : U) (f : Empty -> B) (H : is-surj Empty B f)
 					     : B -> Empty =
   \ b. rec-Prop-trunc
@@ -774,6 +838,24 @@ has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-
       ( is-finite-A)
 
 unlock Coprod/Eq/map
+
+-- is-surjective/is-finite-codomain (A B : U) (H : is-finite A) (f : A -> B) (H' : is-surj A B f)
+--                                  (Heq : has-decidable-equality B) : is-finite B =
+--   rec-Prop-trunc
+--     ( (y : B) -> Fib A B f y)
+--     ( is-finite/Prop B)
+--     ( \ h. is-finite-Sg/is-finite-base B
+--           ( Fib A B f) h
+--           ( \ y. is-finite/closed-Sg A
+--                 ( \ x. Path B y (f x)) H
+--                 ( \ x. is-decidable/is-finite
+--                       ( Path B y (f x))
+--                       ( hedberg B Heq y (f x))
+--                       ( Heq y (f x))))
+--           ( is-finite/closed-Equiv
+--             ( Sg B (Fib A B f)) A
+--             ( equiv-total-fib/Equiv A B f) H))
+--     ( {- TODO: get the desired map from the surjection. -})
 
 is-contr/is-finite-is-decidable/neg-Path (A : U) (a : A) (k : Nat) (e : Equiv (Fin (suc (suc k))) A)
 					 (h : (x : A) -> Path A a x)

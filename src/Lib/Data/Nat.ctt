@@ -29,3 +29,7 @@ ten-Nat : Nat = suc nine-Nat
 plus-Nat (m : Nat) : Nat -> Nat = split
   zero -> m
   suc k -> suc (plus-Nat m k)
+
+times-Nat (m : Nat) : Nat -> Nat = split
+  zero -> zero
+  suc k -> plus-Nat m (times-Nat k m)

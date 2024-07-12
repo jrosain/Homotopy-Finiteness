@@ -1,9 +1,15 @@
 module Lib.Prop.BiInv where
 
 import Lib.QInv
-import Lib.Prop.QInv
-import Lib.Data.Nat  
+import Lib.Data.Nat 
 import Lib.Prop.Contr
+import Lib.Prop.QInv
+
+BiInv/sym (A B : U) (b : BiInv A B) : BiInv B A =
+  ( BiInv/right-inv A B b,
+    is-bi-inv/inv-is-bi-inv A B
+    ( BiInv/map A B b)
+    ( BiInv/is-bi-inv A B b))
 
 is-bi-inv/id-is-bi-inv (A : U) : is-bi-inv A A (id A) =
   ((id A, \ x. refl A x), (id A, \ x. refl A x))

@@ -559,7 +559,7 @@ A connected type is inhabited.
 
 ** Surjectivity of fiber inclusion whenever =A= is connected and pointed
 If =A= is connected, then for any family =B= over =A=, the map B a -> \Sigma A B defined as follows:
-#+begin_src ctt
+#+begin_src
   fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
     \ b. (a, b)
 #+end_src

@@ -8,6 +8,9 @@ has-inverse-is-bi-inv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-bi-inv
   ( (g, QInv/right-htpy A B f i),
     (g, QInv/left-htpy A B f i))
 
+has-inverse/BiInv (A B : U) (f : A -> B) (i : has-inverse A B f) : BiInv A B =
+  ( f, has-inverse-is-bi-inv A B f i)
+
 is-bi-inv-has-inverse (A B : U) (f : A -> B) (b : is-bi-inv A B f) : has-inverse A B f =
   let g : B -> A = is-bi-inv/right-inv A B f b in
   let h : B -> A = is-bi-inv/left-inv A B f b in

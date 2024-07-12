@@ -31,11 +31,11 @@ Once cloned, `cd poset-type-theory` and follow the installation instructions
 [here](https://github.com/JonasHoefer/poset-type-theory/blob/e1ac6042a0ae3d55469e27ef9094e8cf5ec80eb3/README.md).  
 Now, you should be able to run the command `postt repl`. Then, you should be able to load the main proof of this work:
 ```console
-:load -s src/GroupFiniteness.ctt
+:load -s src/Playground.ctt
 ```
-Afterwards, you can try (at your own risk) to compute the number of groups of order, say, one, up to isomorphism:
+Afterwards, you can unfold to compute the number of groups of order, say, one up to isomorphism:
 ```console
-number-of-Group-of-Order one-Nat
+:unfold number-of-Group-of-Order-one
 ```
 
 ## Emacs modes

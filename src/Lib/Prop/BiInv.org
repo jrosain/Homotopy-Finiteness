@@ -24,6 +24,16 @@ The imported packages can be accessed via the following links:
   import Lib.Prop.QInv
    #+end_src
 
+** Equivalence relation
+=BiInv= is an equivalence relation.
+#+begin_src ctt
+  BiInv/sym (A B : U) (b : BiInv A B) : BiInv B A =
+    ( BiInv/right-inv A B b,
+      is-bi-inv/inv-is-bi-inv A B
+      ( BiInv/map A B b)
+      ( BiInv/is-bi-inv A B b))
+#+end_src
+
 ** =id= is bi invertible
 Identity is clearly bi-invertible.
    #+begin_src ctt

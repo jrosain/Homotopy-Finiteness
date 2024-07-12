@@ -48,13 +48,18 @@ The standard library provides the usual inductive definition of natural numbers 
 
 ** Functions
 
-*** Addition
 The addition is trivially defined by induction.
     #+begin_src ctt
   plus-Nat (m : Nat) : Nat -> Nat = split
     zero -> m
     suc k -> suc (plus-Nat m k)
     #+end_src
+The multiplication is defined using addition.
+#+begin_src ctt
+  times-Nat (m : Nat) : Nat -> Nat = split
+    zero -> zero
+    suc k -> plus-Nat m (times-Nat k m)
+#+end_src
 
 #+RESULTS:
 : Typecheck has succeeded.

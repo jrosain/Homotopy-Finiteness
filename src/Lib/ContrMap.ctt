@@ -151,6 +151,9 @@ is-bi-inv/is-equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-equiv A B f
 is-bi-inv/Equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Equiv A B =
   (f, is-bi-inv/is-equiv A B f b)
 
+BiInv/Equiv (A B : U) (b : BiInv A B) : Equiv A B =
+  is-bi-inv/Equiv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
+
 has-inverse/is-equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-equiv A B f =
   is-bi-inv/is-equiv A B f (has-inverse-is-bi-inv A B f i)
 

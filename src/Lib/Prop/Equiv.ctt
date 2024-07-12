@@ -360,32 +360,39 @@ equiv-total-fib/right-htpy (A B : U) (f : A -> B) : Htpy' A A (\ z. (equiv-total
   \ x. refl A x
 
 equiv-total-fib/left-htpy/refl (A B : U) (f : A -> B) (x : A) 
-                                     : Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (f x, (x, inv B (f x) (f x) (refl B (f x))))))
-                                            (f x, (x, inv B (f x) (f x) (refl B (f x)))) =
+				     : Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (f x, (x, inv B (f x) (f x) (refl B (f x))))))
+					    (f x, (x, inv B (f x) (f x) (refl B (f x)))) =
   ap (Path B (f x) (f x)) (Sg B (Fib A B f)) (\ p. (f x, (x, p))) (refl B (f x)) (inv B (f x) (f x) (refl B (f x))) (refl/sym B (f x))
 
 equiv-total-fib/left-htpy' (A B : U) (f : A -> B) (y : B) (x : A) (p : Path B (f x) y)
-                                : Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y p)))) (y, (x, inv B (f x) y p)) =
+				: Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y p)))) (y, (x, inv B (f x) y p)) =
   J B (f x) (\ z q. Path (Sg B (Fib A B f)) ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (z, (x, inv B (f x) z q)))) (z, (x, inv B (f x) z q)))
-            (equiv-total-fib/left-htpy/refl A B f x) y p
+	    (equiv-total-fib/left-htpy/refl A B f x) y p
 
 equiv-total-fib/left-htpy (A B : U) (f : A -> B)
-                               : Htpy' (Sg B (Fib A B f)) (Sg B (Fib A B f))
-                                       (\ z. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f z)) (id (Sg B (Fib A B f))) =
+			       : Htpy' (Sg B (Fib A B f)) (Sg B (Fib A B f))
+				       (\ z. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f z)) (id (Sg B (Fib A B f))) =
   \ u.
     let x : A = u.2.1
-        y : B = u.1
-        p : Path B y (f x) = u.2.2
+	y : B = u.1
+	p : Path B y (f x) = u.2.2
     in comp-n (Sg B (Fib A B f)) three-Nat ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, p))))
-        ((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y (inv B y (f x) p)))))
-        (ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, q)))) p (inv B (f x) y (inv B y (f x) p))
-            (inv/involutive' B y (f x) p))
-        (y, (x, inv B (f x) y (inv B y (f x) p))) (equiv-total-fib/left-htpy' A B f y x (inv B y (f x) p))
-        (y, (x, p)) (ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (y, (x, q))) (inv B (f x) y (inv B y (f x) p)) p (inv/involutive B y (f x) p))
+	((equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, inv B (f x) y (inv B y (f x) p)))))
+	(ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (equiv-total-fib/inv-map A B f) (equiv-total-fib/map A B f (y, (x, q)))) p (inv B (f x) y (inv B y (f x) p))
+	    (inv/involutive' B y (f x) p))
+	(y, (x, inv B (f x) y (inv B y (f x) p))) (equiv-total-fib/left-htpy' A B f y x (inv B y (f x) p))
+	(y, (x, p)) (ap (Path B y (f x)) (Sg B (Fib A B f)) (\ q. (y, (x, q))) (inv B (f x) y (inv B y (f x) p)) p (inv/involutive B y (f x) p))
 
 equiv-total-fib/Equiv (A B : U) (f : A -> B) : Equiv (Sg B (Fib A B f)) A =
   has-inverse/Equiv (Sg B (Fib A B f)) A (equiv-total-fib/map A B f)
     (equiv-total-fib/inv-map A B f, (equiv-total-fib/right-htpy A B f, equiv-total-fib/left-htpy A B f))
+
+Equiv/total-fib (A B : U) (f : A -> B) : Equiv A (Sg B (Fib A B f)) =
+  has-inverse/Equiv A
+    ( Sg B (Fib A B f))
+    ( equiv-total-fib/inv-map A B f)
+    ( equiv-total-fib/map A B f,
+      ( equiv-total-fib/left-htpy A B f, equiv-total-fib/right-htpy A B f))
 
 Equiv/Sg-empty-map (A : U) (u : Sg A (\ _. Empty)) : Empty = u.2
 
@@ -441,6 +448,54 @@ Equiv/assoc-Sg/left-htpy (A : U) (B C : A -> U) : Htpy' (Sg (Sg A B) (\ t. C t.1
 Equiv/assoc-Sg (A : U) (B C : A -> U) : Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1)) =
   has-inverse/Equiv (Sg (Sg A B) (\ t. C t.1)) (Sg (Sg A C) (\ t. B t.1))
     (Equiv/assoc-Sg/map A B C) (Equiv/assoc-Sg/inv-map A B C, (Equiv/assoc-Sg/right-htpy A B C, Equiv/assoc-Sg/left-htpy A B C))
+
+Equiv/associative-Sg/map (A : U) (B : A -> U) (C : (x : A) -> B x -> U) :
+  Sg A (\ x. Sg (B x) (\ y. C x y)) -> Sg (Sg A B) (\ t. C t.1 t.2) =
+  \ t. ((t.1, t.2.1), t.2.2)
+
+Equiv/associative-Sg/inv-map (A : U) (B : A -> U) (C :  (x : A) -> B x -> U) :
+  Sg (Sg A B) (\ t. C t.1 t.2) -> Sg A (\ x. Sg (B x) (\ y. C x y)) =
+  \ t. (t.1.1, (t.1.2, t.2))
+
+Equiv/associative-Sg/right-htpy (A : U) (B : A -> U) (C : (x : A) -> B x -> U) (t : Sg (Sg A B) (\ t. C t.1 t.2))
+  : Path (Sg (Sg A B) (\ u. C u.1 u.2)) (Equiv/associative-Sg/map A B C (Equiv/associative-Sg/inv-map A B C t)) t =
+  refl (Sg (Sg A B) (\ u. C u.1 u.2)) t
+
+Equiv/associative-Sg/left-htpy (A : U) (B : A -> U) (C : (x : A) -> B x -> U) (t : Sg A (\ x. Sg (B x) (\ y. C x y)))
+  : Path (Sg A (\ x. Sg (B x) (\ y. C x y))) (Equiv/associative-Sg/inv-map A B C (Equiv/associative-Sg/map A B C t)) t =
+  refl (Sg A (\ x. Sg (B x) (\ y. C x y))) t
+
+BiInv/associative-Sg (A : U) (B : A -> U) (C : (x : A) -> B x -> U)
+  : BiInv (Sg A (\ x. Sg (B x) (\ y. C x y))) (Sg (Sg A B) (\ t. C t.1 t.2)) =
+  has-inverse/BiInv
+    ( Sg A (\ x. Sg (B x) (\ y. C x y)))
+    ( Sg (Sg A B) (\ t. C t.1 t.2))
+    ( Equiv/associative-Sg/map A B C)
+    ( Equiv/associative-Sg/inv-map A B C,
+      ( Equiv/associative-Sg/right-htpy A B C,
+	Equiv/associative-Sg/left-htpy A B C))
+
+BiInv/associative-Sg' (A : U) (B : A -> U) (C : (x : A) -> B x -> U)
+  : BiInv (Sg (Sg A B) (\ t. C t.1 t.2)) (Sg A (\ x. Sg (B x) (\ y. C x y))) =
+  BiInv/sym
+    ( Sg A (\ x. Sg (B x) (\ y. C x y)))
+    ( Sg (Sg A B) (\ t. C t.1 t.2))
+    ( BiInv/associative-Sg A B C)
+
+
+Equiv/associative-Sg (A : U) (B : A -> U) (C : (x : A) -> B x -> U)
+  : Equiv (Sg A (\ x. Sg (B x) (\ y. C x y))) (Sg (Sg A B) (\ t. C t.1 t.2)) =
+  BiInv/Equiv
+    ( Sg A (\ x. Sg (B x) (\ y. C x y)))
+    ( Sg (Sg A B) (\ t. C t.1 t.2))
+    ( BiInv/associative-Sg A B C)
+
+Equiv/associative-Sg' (A : U) (B : A -> U) (C : (x : A) -> B x -> U)
+  : Equiv (Sg (Sg A B) (\ t. C t.1 t.2)) (Sg A (\ x. Sg (B x) (\ y. C x y))) =
+  BiInv/Equiv
+    ( Sg (Sg A B) (\ t. C t.1 t.2))
+    ( Sg A (\ x. Sg (B x) (\ y. C x y)))
+    ( BiInv/associative-Sg' A B C)
 
 Equiv/Sg-fam/map' (A : U) (B C : A -> U) (f : (x : A) -> (B x) -> (C x)) : Sg A B -> Sg A C =
   \ t. (t.1, (f t.1) t.2)
@@ -689,6 +744,53 @@ PathSg/Equiv' (A : U) (B : A -> U) (u v : Sg A B) : Equiv (SgPathO A B u v) (Pat
     ( Path (Sg A B) u v)
     ( SgPathO A B u v)
     ( PathSg/Equiv A B u v)
+
+fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
+  \ b. (a, b)
+
+Equiv/is-contr-total-space/inv-map (A : U) (B : A -> U) (H : is-contr A) (a : A) (t : Sg A B) : B a =
+  tr A t.1 a
+    ( is-contr/all-elements-equal A H t.1 a) B t.2
+
+Equiv/is-contr-total-space/right-htpy (A : U) (B : A -> U) (H : is-contr A) (a : A) (t : Sg A B)
+  : Path (Sg A B) (fiber-inclusion A B a (Equiv/is-contr-total-space/inv-map A B H a t)) t =
+  let p : Path A t.1 a = is-contr/all-elements-equal A H t.1 a
+      q : Path A a t.1 = inv A t.1 a p in
+  SgPathO->PathSg A B
+    ( fiber-inclusion A B a (Equiv/is-contr-total-space/inv-map A B H a t)) t
+    ( q,
+      tr/left-inv A B t
+      ( fiber-inclusion A B a (Equiv/is-contr-total-space/inv-map A B H a t)) p)
+
+Equiv/is-contr-total-space/left-htpy (A : U) (B : A -> U) (H : is-contr A) (a : A) (b : B a)
+  : Path (B a) (Equiv/is-contr-total-space/inv-map A B H a (fiber-inclusion A B a b)) b =
+  comp
+    ( B a)
+    ( tr A a a (is-contr/all-elements-equal A H a a) B b)
+    ( tr A a a (refl A a) B b)
+    ( ap (Path A a a) (B a) (\ p. tr A a a p B b) (is-contr/all-elements-equal A H a a)
+	 (refl A a) (comp/inv-l A (center A H) a (contraction A H a)))
+    b ( tr/refl-path A a B b)
+
+Equiv/is-contr-total-space (A : U) (B : A -> U) (H : is-contr A) (a : A)
+			      : Equiv (B a) (Sg A B) =
+  has-inverse/Equiv
+    ( B a)
+    ( Sg A B)
+    ( fiber-inclusion A B a)
+    ( Equiv/is-contr-total-space/inv-map A B H a,
+      ( Equiv/is-contr-total-space/right-htpy A B H a,
+	Equiv/is-contr-total-space/left-htpy A B H a))
+
+Equiv/is-contr-total-space' (A : U) (B : A -> U) (H : is-contr A) (a : A)
+			       : Equiv (Sg A B) (B a) =
+  has-inverse/Equiv
+    ( Sg A B)
+    ( B a)
+    ( Equiv/is-contr-total-space/inv-map A B H a)
+    ( fiber-inclusion A B a,
+      ( Equiv/is-contr-total-space/left-htpy A B H a,
+	Equiv/is-contr-total-space/right-htpy A B H a))
 
 is-of-lvl/closed-equiv (A B : U) (e : Equiv A B) : (k : Nat) -> (H : is-of-lvl k B) -> is-of-lvl k A = split
   zero -> \ H. is-contr/is-contr-equiv A B e H

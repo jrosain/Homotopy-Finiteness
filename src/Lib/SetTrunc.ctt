@@ -445,9 +445,6 @@ is-conn/is-inhabited (A : U) (is-conn-A : is-conn A) : Prop-trunc A =
     ( \ x. Prop-trunc/unit x)
     ( center (Set-trunc A) is-conn-A)
 
-fiber-inclusion (A : U) (B : A -> U) (a : A) : B a -> Sg A B =
-  \ b. (a, b)
-
 is-connected/fiber-inclusion/Path (A : U) (B : A -> U) (H : is-conn A) (a : A) (x : A) (y : B x) (p : Path A a x)
 				     : Path (Sg A B) (fiber-inclusion A B a (tr A x a (inv A a x p) B y)) (x, y) =
   J A a
