@@ -1,0 +1,45 @@
+module Lib.GlobalChoice where
+
+import Lib.PropTrunc
+import Lib.Prop.Nat
+
+global-choice (A : U) : U =
+  Prop-trunc A -> A
+
+well-ordering/is-prop (P : Nat -> U) (H : (n : Nat) -> is-prop (P n)) : is-prop (Sg Nat (\ n. (P n) * (is-lower-bound P n))) =
+  \ t u.
+    SgPath-prop Nat
+      ( \ n. (P n) * (is-lower-bound P n))
+      ( \ n. is-prop/prod
+	    ( P n)
+	    ( is-lower-bound P n)
+	    ( H n)
+	    ( is-prop/pi Nat
+	      ( \ x. P x -> Prop/type (le n x))
+	      ( \ x. is-prop/pi
+		    ( P x)
+		    ( \ _. Prop/type (le n x))
+		    ( \ _. Prop/is-prop (le n x))))) t u
+      ( le/is-antisymmetric t.1 u.1
+	( t.2.2 u.1 u.2.1)
+	( u.2.2 t.1 t.2.1))            
+
+well-ordering/Prop (P : Nat -> UU-Prop) : UU-Prop =
+  ( Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)),
+    well-ordering/is-prop
+    ( \ x. Prop/type (P x))
+    ( \ x. Prop/is-prop (P x)))
+
+well-ordering/map (P : Nat -> UU-Prop) (H : (x : Nat) -> is-decidable (Prop/type (P x)))
+		     : Prop-trunc (Sg Nat (\ x. Prop/type (P x)))
+		      -> Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)) =
+  rec-Prop-trunc
+    ( Sg Nat (\ x. Prop/type (P x)))
+    ( well-ordering/Prop P)
+    ( well-ordering-principle
+      ( \ x. Prop/type (P x)) H)
+
+decidable-subtype/global-choice (P : Nat -> UU-Prop) (H : (x : Nat) -> is-decidable (Prop/type (P x)))
+				(p : Prop-trunc (Sg Nat (\ x. Prop/type (P x)))) : Sg Nat (\ x. Prop/type (P x)) =
+  let t : Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)) = well-ordering/map P H p in
+  ( t.1, t.2.1)

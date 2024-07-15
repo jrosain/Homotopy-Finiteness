@@ -1018,7 +1018,7 @@ The above proof is a bit complex and does not compute well. We try to give anoth
   --             ( Sg B (Fib A B f)) A
   --             ( equiv-total-fib/Equiv A B f) H))
   --     ( {- TODO: get the desired map from the surjection. -})
-            
+
 #+end_src
 
 ** It is decidable to know whether a finite type is contractible or not

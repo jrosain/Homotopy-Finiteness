@@ -105,7 +105,7 @@ Then, we can show the property by path-induction.
 #+end_src
 
 *** Decidable equality
-=Fin k= has a decidable equality. Indeed, the equality on =Fin k= is logically equivalent to =Fin/Eq=, that is defined as either =Empty= or =Unit=, that are decidable (as shown in [[src/Lib/Data/Decidability][decidability]]). 
+=Fin k= has a decidable equality. Indeed, the equality on =Fin k= is logically equivalent to =Fin/Eq=, that is defined as either =Empty= or =Unit=, that are decidable (as shown in [[file:Decidability.org][decidability]]). 
 #+begin_src ctt
   Fin/Eq-decidable (k : Nat) (x y : Fin k) : is-decidable (Fin/Eq k x y) =
     ind-Nat (\ k'. (x' : Fin k') -> (y' : Fin k') -> is-decidable (Fin/Eq k' x' y'))

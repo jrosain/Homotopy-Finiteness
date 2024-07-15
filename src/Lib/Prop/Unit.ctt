@@ -19,6 +19,9 @@ Unit/all-elements-equal (x : Unit) (y : Unit) : Path Unit x y =
 Unit/is-prop : is-prop Unit =
   Unit/all-elements-equal
 
+Unit/Prop : Prop =
+  ( Unit, Unit/is-prop)
+
 Unit/is-contr : is-contr Unit =
   (star, Unit/uniqueness)
 

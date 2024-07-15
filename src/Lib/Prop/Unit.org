@@ -43,6 +43,9 @@ That is, =Unit= is a proposition.
    #+begin_src ctt
   Unit/is-prop : is-prop Unit =
     Unit/all-elements-equal
+
+  Unit/Prop : Prop =
+    ( Unit, Unit/is-prop)
    #+end_src
 
 ** =Unit= is contractible

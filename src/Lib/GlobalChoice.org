@@ -1,0 +1,81 @@
+#+TITLE: Principle of Global Choice
+#+AUTHOR: Johann Rosain
+
+* The Principle of Global Choice
+
+  #+begin_src ctt
+  module Lib.GlobalChoice where
+  #+end_src
+
+The principle of /global choice/ states that, from an inhabitant of the propositional truncation of a type, one can get an inhabitant of the type. This file defines this notion, and exhibits some conditions for a type to satisfy the principle of global choice.
+
+** Packages imports
+
+The imported packages can be accessed via the following links:
+   - [[file:PropTrunc.org][Lib/PropTrunc]]
+   - [[file:Prop/Nat.org][Lib/Prop/Nat]]
+   #+begin_src ctt
+  import Lib.PropTrunc
+  import Lib.Prop.Nat
+   #+end_src
+
+** Principle of Global Choice
+
+   #+begin_src ctt
+  global-choice (A : U) : U =
+    Prop-trunc A -> A
+   #+end_src
+
+** Decidable subtype of natural numbers implies global choice
+In this section, we show that if P is a subtype of Nat such that each P(n) is decidable, then \Sigma_{n: Nat}P(n) satisfies the principle of global choice. For this, we use the [[file:Prop/Nat.org][well-ordering principle]]. The first thing we need to do is to show that \Sigma_{(n: Nat)}P(n) \times is-lower-bound_P(n) is a proposition.
+#+begin_src ctt
+  well-ordering/is-prop (P : Nat -> U) (H : (n : Nat) -> is-prop (P n)) : is-prop (Sg Nat (\ n. (P n) * (is-lower-bound P n))) =
+    \ t u.
+      SgPath-prop Nat
+	( \ n. (P n) * (is-lower-bound P n))
+	( \ n. is-prop/prod
+	      ( P n)
+	      ( is-lower-bound P n)
+	      ( H n)
+	      ( is-prop/pi Nat
+		( \ x. P x -> Prop/type (le n x))
+		( \ x. is-prop/pi
+		      ( P x)
+		      ( \ _. Prop/type (le n x))
+		      ( \ _. Prop/is-prop (le n x))))) t u
+	( le/is-antisymmetric t.1 u.1
+	  ( t.2.2 u.1 u.2.1)
+	  ( u.2.2 t.1 t.2.1))            
+
+  well-ordering/Prop (P : Nat -> UU-Prop) : UU-Prop =
+    ( Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)),
+      well-ordering/is-prop
+      ( \ x. Prop/type (P x))
+      ( \ x. Prop/is-prop (P x)))
+#+end_src
+By the recursion principle of propositional truncation, there is a map between || \Sigma_{(x: Nat)}P(x) || to \Sigma_{(x: Nat)}P(x) \times is-lower-bound_P(x).
+#+begin_src ctt
+  well-ordering/map (P : Nat -> UU-Prop) (H : (x : Nat) -> is-decidable (Prop/type (P x)))
+		       : Prop-trunc (Sg Nat (\ x. Prop/type (P x)))
+			-> Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)) =
+    rec-Prop-trunc
+      ( Sg Nat (\ x. Prop/type (P x)))
+      ( well-ordering/Prop P)
+      ( well-ordering-principle
+	( \ x. Prop/type (P x)) H)  
+#+end_src
+Hence, there's a map out of the propositional truncation of \Sigma_{(x: Nat)}P(x).
+#+begin_src ctt
+  Nat-decidable-subtype/global-choice (P : Nat -> UU-Prop) (H : (x : Nat) -> is-decidable (Prop/type (P x)))
+				      (p : Prop-trunc (Sg Nat (\ x. Prop/type (P x)))) : Sg Nat (\ x. Prop/type (P x)) =
+    let t : Sg Nat (\ n. (Prop/type (P n)) * (is-lower-bound (\ x. Prop/type (P x)) n)) = well-ordering/map P H p in
+    ( t.1, t.2.1)
+#+end_src
+As a corollary, any decidable subtype over =Fin k= also satisfies the global choice (by using the fact that Fin and classical-Fin are equivalent).
+#+begin_src ctt
+  -- decidable-substype/global-choice (k : Nat) (P : Fin k -> UU-Prop) (H : (x : Fin k) -> is-decidable (Prop/type (P x)))
+  -- 				 (p : Prop-trunc (Sg (Fin k) (\ x. Prop/type (P x)))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

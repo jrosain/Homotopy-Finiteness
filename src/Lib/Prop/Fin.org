@@ -16,10 +16,12 @@ The imported packages can be accessed via the following links:
    - [[../Data/Fin.org][Lib/Data/Fin]]
    - [[file:Coprod.org][Lib/Prop/Coprod]]
    - [[file:Equiv.org][Lib/Prop/Equiv]]
+   - [[file:Nat.org][Lib/Prop/Nat]]
    #+begin_src ctt
   import Lib.Data.Fin
   import Lib.Prop.Coprod
   import Lib.Prop.Equiv
+  import Lib.Prop.Nat
    #+end_src
 
 ** =Fin k + l= is =Fin k + Fin l=
@@ -34,3 +36,156 @@ The proof is easy by induction on =l=.
                                                    (Coprod/assoc (Fin k) (Fin l) Unit)
    #+end_src
 
+** Relation to classical =Fin=
+The classical version of =Fin= is defined as a \Sigma-type \Sigma_{(x: Nat)}x < k for Fin k. There's an equivalence between the classical version of the standard finite type and the classical finite type.
+#+begin_src ctt
+  classical-Fin : Nat -> U =
+    \ k. Sg Nat (\ x. Prop/type (lt x k))
+#+end_src
+First, we define the inclusion map from Fin k to Nat.
+#+begin_src ctt
+  Fin/inclusion' (k : Nat) (f : Fin k -> Nat) : Fin (suc k) -> Nat = split
+    inl x -> f x
+    inr s -> k
+
+  Fin/inclusion : (k : Nat) -> Fin k -> Nat = split
+    zero -> ex-falso Nat
+    suc k -> Fin/inclusion' k (Fin/inclusion k)
+#+end_src
+For any x in Fin k, we obviously have that inclusion(x) < k.
+#+begin_src ctt
+  Fin/inclusion/lt' (k : Nat) (H : (x : Fin k) -> Prop/type (lt (Fin/inclusion k x) k))
+		       : (x : Fin (suc k)) -> Prop/type (lt (Fin/inclusion (suc k) x) (suc k)) = split
+    inl x -> lt/suc-right (Fin/inclusion k x) k (H x)
+    inr s -> lt/next k
+
+  Fin/inclusion/lt : (k : Nat) -> (x : Fin k) -> Prop/type (lt (Fin/inclusion k x) k) = split
+    zero -> \ x. ex-falso (Prop/type (lt (Fin/inclusion zero x) zero)) x
+    suc k -> Fin/inclusion/lt' k (Fin/inclusion/lt k)
+#+end_src
+Hence, the inclusion function induces a map from Fin k to classical-Fin k.
+#+begin_src ctt
+  classical-Fin/from-Fin (k : Nat) (x : Fin k) : classical-Fin k =
+    ( Fin/inclusion k x, Fin/inclusion/lt k x)
+#+end_src
+We show that there's a map from classical-Fin to Fin.
+#+begin_src ctt
+  Fin/from-classical-Fin' (k : Nat) (x : classical-Fin (suc k)) (f : classical-Fin k -> Fin k)
+			     : Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k)) -> Fin (suc k) = split
+    inl _ -> inr star
+    inr np -> inl (f (x.1, le-neq-lt x.1 k x.2 np))
+
+  Fin/from-classical-Fin : (k : Nat) (x : classical-Fin k) -> Fin k = split
+    zero -> \ x. x.2
+    suc k -> \ x. Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) (Nat/has-decidable-eq x.1 k)
+#+end_src
+These maps are inverse to each other, as witnessed by the right homotopy:
+#+begin_src ctt
+  Fin-classical-Fin/right-htpy' (k : Nat) (x : classical-Fin (suc k))
+				(IH : (x' : classical-Fin k)
+				     -> Path (classical-Fin k) (classical-Fin/from-Fin k (Fin/from-classical-Fin k x')) x')
+				    : (u : Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k)))
+				     -> Path (Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k))) (Nat/has-decidable-eq x.1 k) u
+				     -> Path (classical-Fin (suc k)) (classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x)) x = split
+    inl p ->
+      \ q.
+	let r : Path (classical-Fin (suc k))
+		     (classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x))
+		     (classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) (inl p))) =
+	      ( ap (Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k))) (classical-Fin (suc k))
+		   (\ r'. classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) r'))
+		   (Nat/has-decidable-eq x.1 k) (inl p) q) in
+	SgPath-prop Nat
+	  ( \ z. Prop/type (lt z (suc k)))
+	  ( \ z. Prop/is-prop (lt z (suc k)))
+	  ( classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x)) x
+	  ( comp Nat
+	    ( classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x)).1
+	    ( classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) (inl p))).1
+	    ( \ i. (r i).1)
+	    x.1 (inv Nat x.1 k p))
+    inr np ->
+      \ p.
+	let x' : classical-Fin k = (x.1, le-neq-lt x.1 k x.2 np)
+	    q : Path (classical-Fin k) (classical-Fin/from-Fin k (Fin/from-classical-Fin k x')) x' = IH x'
+	    r : Path (Fin (suc k)) (Fin/from-classical-Fin (suc k) x) (inl (Fin/from-classical-Fin k x'))
+		      = ap (Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k))) (Fin (suc k))
+			   (\ u. Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) u)
+			   (Nat/has-decidable-eq x.1 k) (inr np) p
+	    s : Path (classical-Fin (suc k))
+		     (classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x))
+		     (classical-Fin/from-Fin (suc k) (inl (Fin/from-classical-Fin k x')))
+		      = ap (Fin (suc k)) (classical-Fin (suc k)) (classical-Fin/from-Fin (suc k))
+			   (Fin/from-classical-Fin (suc k) x) (inl (Fin/from-classical-Fin k x')) r
+	in
+	SgPath-prop Nat
+	  ( \ z. Prop/type (lt z (suc k)))
+	  ( \ z. Prop/is-prop (lt z (suc k)))
+	  ( classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x)) x
+	  ( comp Nat
+	    ( classical-Fin/from-Fin (suc k) (Fin/from-classical-Fin (suc k) x)).1
+	    ( classical-Fin/from-Fin (suc k) (inl (Fin/from-classical-Fin k x'))).1
+	    ( \ i. (s i).1)
+	    x.1 (\ i. (q i).1))
+
+  Fin-classical-Fin/right-htpy : (k : Nat) -> (x : classical-Fin k)
+				-> Path (classical-Fin k) (classical-Fin/from-Fin k (Fin/from-classical-Fin k x)) x = split
+    zero -> \ x. ex-falso (Path (classical-Fin zero) (classical-Fin/from-Fin zero (Fin/from-classical-Fin zero x)) x) x.2
+    suc k -> \ x. Fin-classical-Fin/right-htpy' k x (Fin-classical-Fin/right-htpy k)
+		( Nat/has-decidable-eq x.1 k)
+		( refl (Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k))) (Nat/has-decidable-eq x.1 k))
+#+end_src
+and the left homotopy:
+#+begin_src ctt
+  lock Coprod/Eq/map
+  Fin-classical-Fin/left-htpy'' (k : Nat) (s : Unit)
+				   : (u : Coprod (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k) (neg (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k)))
+				    -> Path (Coprod (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k) (neg (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k)))
+					   (Nat/has-decidable-eq (classical-Fin/from-Fin (suc k) (inr s)).1 k) u
+				    -> Path (Fin (suc k)) (Fin/from-classical-Fin (suc k) (classical-Fin/from-Fin (suc k) (inr s))) (inr s) = split
+    inl p -> \ q.
+      let x : classical-Fin (suc k) = (classical-Fin/from-Fin (suc k) (inr s)) in
+      comp
+	( Fin (suc k))
+	( Fin/from-classical-Fin (suc k) x)
+	( Fin/from-classical-Fin' k x (Fin/from-classical-Fin k) (inl p))
+	( ap (Coprod (Path Nat x.1 k) (neg (Path Nat x.1 k))) (Fin (suc k))
+	     (Fin/from-classical-Fin' k x (Fin/from-classical-Fin k))
+	     (Nat/has-decidable-eq x.1 k) (inl p) q)
+	( inr s)
+	( Coprod/Eq/map
+	  ( Fin k) Unit
+	  ( inr star)
+	  ( inr s)
+	  ( Unit/all-elements-equal star s))
+    inr np -> \ _.
+      ex-falso
+	( Path (Fin (suc k)) (Fin/from-classical-Fin (suc k) (classical-Fin/from-Fin (suc k) (inr s))) (inr s))
+	( np (refl Nat k))
+
+  Fin-classical-Fin/left-htpy' (k : Nat) (IH : (x : Fin k) -> Path (Fin k) (Fin/from-classical-Fin k (classical-Fin/from-Fin k x)) x)
+				  : (x : Fin (suc k))
+				   -> Path (Fin (suc k)) (Fin/from-classical-Fin (suc k) (classical-Fin/from-Fin (suc k) x)) x = split
+    inl x ->
+      -- Coprod/Eq/map
+      --   ( Fin k) Unit
+      --   ( Fin/from-classical-Fin (suc k) (classical-Fin/from-Fin (suc k) (inl x)))
+      --   ( inl x)
+      --   ( IH x)
+      -- again, call to an auxiliary function for the decidable equality.
+      -- there are two cases, use the code above if inr.
+      -- otherwise, we have x < k and x = k, which is a contradiction
+    inr s ->
+      Fin-classical-Fin/left-htpy'' k s
+	( Nat/has-decidable-eq (classical-Fin/from-Fin (suc k) (inr s)).1 k)
+	( refl (Coprod (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k) (neg (Path Nat (classical-Fin/from-Fin (suc k) (inr s)).1 k)))
+	  ( Nat/has-decidable-eq (classical-Fin/from-Fin (suc k) (inr s)).1 k))
+
+  -- Fin-classical-Fin/left-htpy : (k : Nat) -> (x : Fin k)
+  --                              -> Path (Fin k) (Fin/from-classical-Fin k (classical-Fin/from-Fin k x)) x = split
+  --   zero -> \ x. ex-falso (Path Empty (Fin/from-classical-Fin zero (classical-Fin/from-Fin zero x)) x) x
+  --   suc k -> 
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

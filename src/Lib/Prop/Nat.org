@@ -115,5 +115,204 @@ Using the observational equality, we show that =Nat= has a decidable equality.
       Nat/is-set m n)
    #+end_src
 
+** Ordering relation
+We define the ordering relation \leq on =Nat=.
+#+begin_src ctt
+  le/s (m : Nat) (IH : Nat -> Prop) : Nat -> Prop = split
+    zero -> Empty/Prop
+    suc n -> IH n
+
+  le : Nat -> Nat -> Prop = split
+    zero -> \ _. Unit/Prop
+    suc m -> le/s m (le m)
+#+end_src
+This relation defines a poset; that is, it is reflexive, transitive and antisymmetric.
+#+begin_src ctt
+  le/is-reflexive : (n : Nat) -> Prop/type (le n n) = split
+    zero -> star
+    suc n -> le/is-reflexive n
+
+  le/lower-bound : (n : Nat) -> Prop/type (le zero n) = split
+    zero -> star
+    suc n -> le/lower-bound n
+
+  le/suc/s (m : Nat) (IH : (n : Nat) -> Prop/type (le m n) -> Prop/type (le m (suc n)))
+	      : (n : Nat) -> Prop/type (le (suc m) n) -> Prop/type (le (suc m) (suc n)) = split
+    zero -> ex-falso (Prop/type (le (suc m) one-Nat))
+    suc n -> \ le-sm-sn. IH n le-sm-sn
+
+  le/suc : (m n : Nat) (le-m-n : Prop/type (le m n)) -> Prop/type (le m (suc n)) = split
+    zero -> \ n _. le/lower-bound (suc n)
+    suc m -> le/suc/s m (le/suc m)
+
+  le/left-inj (m : Nat) : (n : Nat) -> Prop/type (le (suc m) n) -> Prop/type (le m n) = split
+    zero -> ex-falso (Prop/type (le m zero)) 
+    suc n -> \ le-sm-sn. le/suc m n le-sm-sn
+
+  le/is-antisymmetric/z : (n : Nat) -> Prop/type (le zero n) -> Prop/type (le n zero) -> Path Nat zero n = split
+    zero -> \ _ _. refl Nat zero
+    suc n -> \ _ x. ex-falso (Path Nat zero (suc n)) x
+
+  le/is-antisymmetric/s (m : Nat) (IH : (n : Nat) -> Prop/type (le m n) -> Prop/type (le n m) -> Path Nat m n)
+			   : (n : Nat) -> Prop/type (le (suc m) n) -> Prop/type (le n (suc m)) -> Path Nat (suc m) n = split
+    zero -> \ x _. ex-falso (Path Nat (suc m) zero) x
+    suc n -> \ le-sm-sn le-sn-sm. ap Nat Nat (\ z. suc z) m n (IH n le-sm-sn le-sn-sm)
+
+  le/is-antisymmetric : (m n : Nat) -> Prop/type (le m n) -> Prop/type (le n m) -> Path Nat m n = split
+    zero -> le/is-antisymmetric/z
+    suc m -> le/is-antisymmetric/s m (le/is-antisymmetric m)
+
+  le/is-transitive/s' (m n : Nat) (le-sm-sn : Prop/type (le (suc m) (suc n)))
+		      (IH : (p : Nat) -> Prop/type (le m n) -> Prop/type (le n p) -> Prop/type (le m p))
+			  : (p : Nat) -> Prop/type (le (suc n) p) -> Prop/type (le (suc m) p) = split
+    zero -> ex-falso (Prop/type (le (suc m) zero))
+    suc p -> IH p le-sm-sn
+
+  le/is-transitive/s (m : Nat) (IH : (n p : Nat) -> Prop/type (le m n) -> Prop/type (le n p) -> Prop/type (le m p))
+			: (n p : Nat) -> Prop/type (le (suc m) n) -> Prop/type (le n p)
+			  -> Prop/type (le (suc m) p) = split
+    zero -> \ p x _. ex-falso (Prop/type (le (suc m) p)) x
+    suc n -> \ p le-sm-sn. le/is-transitive/s' m n le-sm-sn (IH n) p
+
+  le/is-transitive : (m n p : Nat) -> Prop/type (le m n) -> Prop/type (le n p)
+				   -> Prop/type (le m p) = split
+    zero -> \ _ p _ _. le/lower-bound p
+    suc m -> le/is-transitive/s m (le/is-transitive m)
+#+end_src
+The \leq relation is decidable.
+#+begin_src ctt
+  le/is-decidable/s (m : Nat) (H : (n : Nat) -> is-decidable (Prop/type (le m n)))
+		       : (n : Nat) -> is-decidable (Prop/type (le (suc m) n)) = split
+    zero -> is-decidable/Empty
+    suc n -> H n
+
+  le/is-decidable : (m n : Nat) -> is-decidable (Prop/type (le m n)) = split
+    zero -> \ _. is-decidable/Unit
+    suc m -> le/is-decidable/s m (le/is-decidable m)
+#+end_src
+We can do something friendlier, by using the fact that \neg(m \leq n) is n \leq m.
+#+begin_src ctt
+  le/neg' (m : Nat) (IH : (n : Nat) -> neg (Prop/type (le m n)) -> Prop/type (le n m))
+	     : (n : Nat) -> (neg (Prop/type (le (suc m) n))) -> Prop/type (le n (suc m)) = split
+    zero -> \ _. le/lower-bound (suc m)
+    suc n -> \ f. IH n f
+
+  le/neg : (m n : Nat) (f : neg (Prop/type (le m n))) -> Prop/type (le n m) = split
+    zero -> \ n f. ex-falso (Prop/type (le n zero)) (f (le/lower-bound n))
+    suc m -> le/neg' m (le/neg m)  
+#+end_src
+Hence:
+#+begin_src ctt
+  le/is-total' (m n : Nat) : Coprod (Prop/type (le m n)) (neg (Prop/type (le m n)))
+		    -> Coprod (Prop/type (le m n)) (Prop/type (le n m)) = split
+    inl x -> inl x
+    inr nx -> inr (le/neg m n nx)
+
+  le/is-total (m n : Nat) : Coprod (Prop/type (le m n)) (Prop/type (le n m)) =
+    le/is-total' m n
+      ( le/is-decidable m n)
+#+end_src
+We have that 1 \le suc k for any k.
+#+begin_src ctt
+  one-le-suc : (k : Nat) -> Prop/type (le one-Nat (suc k)) = split
+    zero -> le/is-reflexive one-Nat
+    suc k -> one-le-suc k
+
+  le/double-suc/s (m : Nat) : (n : Nat) -> Prop/type (le (suc m) n) -> Prop/type (le (suc (suc m)) (suc n)) = split
+    zero -> ex-falso (Prop/type (le (suc (suc m)) one-Nat))
+    suc n -> \ x. x
+
+  le/double-suc : (m n : Nat) -> Prop/type (le m n) -> Prop/type (le (suc m) (suc n)) = split
+    zero -> \ n _. one-le-suc n
+    suc m -> le/double-suc/s m
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+** Strict relation
+We define the strict version of \leq.
+#+begin_src ctt
+  lt (m n : Nat) : Prop =
+    le (suc m) n
+#+end_src
+Some basic properties:
+#+begin_src ctt
+  lt/suc-right (m n : Nat) (lt-m-n : Prop/type (lt m n)) : Prop/type (lt m (suc n)) =
+    le/suc (suc m) n lt-m-n
+
+  lt/next (n : Nat) : Prop/type (lt n (suc n)) =
+    le/is-reflexive n
+
+  lt/irreflexive : (n : Nat) -> neg (Prop/type (lt n n)) = split
+    zero -> \ x. x
+    suc n -> lt/irreflexive n
+
+  lt/double-suc (m n : Nat) (lt-m-n : Prop/type (lt m n)) : Prop/type (lt (suc m) (suc n)) =
+    le/double-suc (suc m) n lt-m-n
+#+end_src
+If k \le n and n \ne k, then k < n.
+#+begin_src ctt
+  le-neq-lt/z : (n : Nat) (f : neg (Path Nat zero n))              
+		   -> Prop/type (lt zero n) = split
+    zero -> \ f. ex-falso (Prop/type (lt zero zero)) (f (refl Nat zero))
+    suc n -> \ _. one-le-suc n
+
+  le-neq-lt/s (k : Nat) (IH : (n : Nat) -> Prop/type (le k n) -> neg (Path Nat k n) -> Prop/type (lt k n))
+		 : (n : Nat) -> Prop/type (le (suc k) n) -> neg (Path Nat (suc k) n)
+			     -> Prop/type (lt (suc k) n) = split
+    zero -> \ x _. ex-falso (Prop/type (lt (suc k) zero)) x
+    suc n -> \ le-sk-sn f.
+      IH n le-sk-sn (\ p. f (ap Nat Nat (\ x. suc x) k n p))
+
+  le-neq-lt : (k n : Nat) (le-k-n : Prop/type (le k n)) (f : neg (Path Nat k n))
+		   -> Prop/type (lt k n) = split
+    zero -> \ n _ f. le-neq-lt/z n f
+    suc k -> le-neq-lt/s k (le-neq-lt k)
+#+end_src
+If k < n, then k \ne n.
+#+begin_src ctt
+  lt-neq (k n : Nat) (lt-k-n : Prop/type (lt k n)) : neg (Path Nat k n) =
+    \ p. lt/irreflexive n
+	  ( tr Nat k n p (\ x. Prop/type (lt x n)) lt-k-n)
+#+end_src
+
+** Well-ordering of Nat
+
+If P is a family over Nat, we define the lower bound of P.
+#+begin_src ctt
+  is-lower-bound (P : Nat -> U) (n : Nat) : U =
+    (x : Nat) -> P x -> Prop/type (le n x)
+#+end_src
+Then, if P is a decidable family over Nat, where =d= witnesses the decidability, there is a function \Sigma_{(n: Nat)}P(n) \to \Sigma_{(m: Nat)}P(m) \times is-lower-bound_P(m). We show a more general version of this:
+#+begin_src ctt
+  well-ordering-principle'' (Q : Nat -> U) (qnz : neg (Q zero)) (n : Nat) (H : (x : Nat) -> is-decidable (Q x))
+			    (H' : is-lower-bound (\ x. Q (suc x)) n)
+			       : (x : Nat) -> (q : Q x) -> Prop/type (le (suc n) x) = split
+    zero -> \ q. ex-falso (Prop/type (le (suc n) zero)) (qnz q)
+    suc x -> H' x
+
+  well-ordering-principle' (Q : Nat -> U) (n : Nat) (H : (x : Nat) -> is-decidable (Q x))
+			   (IH : (Q' : Nat -> U) -> ((x : Nat) -> is-decidable (Q' x)) -> Q' n -> Sg Nat (\ m. (Q' m) * is-lower-bound Q' m))
+			   (q : Q (suc n)) : Coprod (Q zero) (neg (Q zero))
+			    -> Sg Nat (\ m. (Q m) * is-lower-bound Q m) = split
+    inl qz -> (zero, (qz, \ x _. le/lower-bound x))
+    inr qnz ->
+      let t : Sg Nat (\ m. (Q (suc m)) * is-lower-bound (\ x. Q (suc x)) m) = IH (\ m. Q (suc m)) (\ m. H (suc m)) q in
+      ( suc t.1, (t.2.1, well-ordering-principle'' Q qnz t.1 H t.2.2))
+
+  well-ordering-principle-bis : (n : Nat) (Q : Nat -> U) -> ((x : Nat) -> is-decidable (Q x)) -> Q n
+			       -> Sg Nat (\ m. (Q m) * is-lower-bound Q m) = split
+    zero -> \ Q _ q. (zero, (q, \ x _. le/lower-bound x))
+    suc n -> \ Q H q. well-ordering-principle' Q n H (well-ordering-principle-bis n) q (H zero)
+#+end_src
+which allows us to state the actual version:
+#+begin_src ctt
+  well-ordering-principle (P : Nat -> U) (H : (x : Nat) -> is-decidable (P x))
+			     : (Sg Nat P) -> (Sg Nat (\ n. (P n) * (is-lower-bound P n))) =
+    \ t.
+      well-ordering-principle-bis t.1 P H t.2
+#+end_src
+
 #+RESULTS:
 : Typecheck has succeeded.
