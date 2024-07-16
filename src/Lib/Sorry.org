@@ -17,7 +17,6 @@
 ** The proof
 
 As the system implements type in type, we can show that it is inconsistent. It allows us to use a "sorry" \lambda-term that shows everything. It is useful to build the structure of a proof.
-
 #+begin_src ctt
   data SET : U =
     set (X : U) (f : X -> SET)
