@@ -120,6 +120,25 @@ The composition of two surjective maps is surjective.
 #+RESULTS:
 : Typecheck has succeeded.
 
+** injection implies propositional fibrations
+If f : A \to B is injective, then the fibrations of =f= are a proposition.
+#+begin_src ctt
+  is-inj/is-prop-fib (A B : U) (f : A -> B) (is-inj-f : (x y : A) -> Path B (f x) (f y) -> Path A x y)
+		     (is-set-B : is-set B) (y : B) : is-prop (Fib A B f y) =
+    \ t u.
+      SgPath-prop A
+      ( \ x. Path B y (f x))
+      ( \ x. is-set-B y (f x)) t u
+      ( is-inj-f t.1 u.1
+	( comp B
+	  ( f t.1) y
+	  ( inv B y (f t.1) t.2)
+	  ( f u.1) u.2))
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
 ** injection + surjection = equivalence
 
 We show that if a map f is injective and surjective and its codomain is a set, then it is an equivalence. In fact, we do not need that the codomain is a set but it greatly simplifies the proof and it's the only case used in this formalization.

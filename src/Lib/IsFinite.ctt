@@ -1,8 +1,10 @@
 module Lib.IsFinite where
 
 import Lib.Counting
+import Lib.GlobalChoice
 import Lib.PropTrunc
 import Lib.Image
+import Lib.Sorry
 import Lib.Prop.Coprod
 import Lib.Prop.Decidability
 import Lib.Prop.Empty  
@@ -359,6 +361,24 @@ is-finite/choice (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -
           ( Fin/choice k
             ( \ x. B (f x))
             ( \ x. H (f x)))) is-finite-A
+
+count-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+	     (k : Nat) (e : Equiv (Fin k) (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
+	     (H : (x : A) -> Prop-trunc (B x)) : (x : A) -> B x =
+  \ x.
+    let t : count (B x) = sorry (count (B x)) in
+    count/global-choice
+      ( B x) t.1 t.2
+      ( H x)
+
+finite-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+	      (is-finite-AB : is-finite (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
+	      (H : (x : A) -> Prop-trunc (B x)) : Prop-trunc ((x : A) -> B x) =
+  rec-Prop-trunc
+    ( count (Sg A B))
+    ( Prop-trunc/Prop ((x : A) -> B x))
+    ( \ c. Prop-trunc/unit (count-choice A B is-set-A c.1 c.2 is-finite-B H))
+    ( is-finite-AB)
 
 is-finite/closed-Sg (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -> is-finite (B x)) : is-finite (Sg A B) =
   rec-Prop-trunc
@@ -839,23 +859,33 @@ has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-
 
 unlock Coprod/Eq/map
 
--- is-surjective/is-finite-codomain (A B : U) (H : is-finite A) (f : A -> B) (H' : is-surj A B f)
---                                  (Heq : has-decidable-equality B) : is-finite B =
---   rec-Prop-trunc
---     ( (y : B) -> Fib A B f y)
---     ( is-finite/Prop B)
---     ( \ h. is-finite-Sg/is-finite-base B
---           ( Fib A B f) h
---           ( \ y. is-finite/closed-Sg A
---                 ( \ x. Path B y (f x)) H
---                 ( \ x. is-decidable/is-finite
---                       ( Path B y (f x))
---                       ( hedberg B Heq y (f x))
---                       ( Heq y (f x))))
---           ( is-finite/closed-Equiv
---             ( Sg B (Fib A B f)) A
---             ( equiv-total-fib/Equiv A B f) H))
---     ( {- TODO: get the desired map from the surjection. -})
+is-surjective/is-finite-codomain (A B : U) (H : is-finite A) (Heq : has-decidable-equality B)
+				 (f : A -> B) (H' : is-surj A B f) : is-finite B =
+  let is-finite-F : (y : B) -> is-finite (Fib A B f y) =
+	  ( \ y. is-finite/closed-Sg A
+		( \ x. Path B y (f x)) H
+		( \ x. is-decidable/is-finite
+		      ( Path B y (f x))
+		      ( hedberg B Heq y (f x))
+		      ( Heq y (f x))))
+      is-finite-BF : is-finite (Sg B (Fib A B f)) =
+	  ( is-finite/closed-Equiv
+	    ( Sg B (Fib A B f)) A
+	    ( equiv-total-fib/Equiv A B f) H)
+  in
+  rec-Prop-trunc
+    ( (y : B) -> Fib A B f y)
+    ( is-finite/Prop B)
+    ( \ h. is-finite-Sg/is-finite-base B
+	  ( Fib A B f) h
+	  ( is-finite-F)
+	  ( is-finite-BF))
+    ( finite-choice B
+      ( Fib A B f)
+      ( hedberg B Heq)
+      ( is-finite-BF)
+      ( is-finite-F)
+      ( H'))
 
 is-contr/is-finite-is-decidable/neg-Path (A : U) (a : A) (k : Nat) (e : Equiv (Fin (suc (suc k))) A)
 					 (h : (x : A) -> Path A a x)

@@ -200,3 +200,21 @@ classical-Fin-is-Fin (k : Nat) : Equiv (classical-Fin k) (Fin k) =
     ( classical-Fin/from-Fin k,
       ( Fin-classical-Fin/left-htpy k,
 	Fin-classical-Fin/right-htpy k))
+
+Fin-Nat-family (k : Nat) (P : Fin k -> U) : Nat -> U =
+  \ n.
+    Sg ( Prop/type (lt n k))
+      (\ p. P ( Fin/from-classical-Fin k ( n, p)))
+
+Fin-Nat-family/Equiv (k : Nat) (P : Fin k -> U) : Equiv (Sg (Fin k) P) (Sg Nat (Fin-Nat-family k P)) =
+  Equiv/trans
+    ( Sg (Fin k) P)
+    ( Sg (classical-Fin k) (\ x. P (Fin/from-classical-Fin k x)))
+    ( Sg Nat (Fin-Nat-family k P))
+    ( Sg/equiv-base'
+      ( classical-Fin k)
+      ( Fin k) P
+      ( classical-Fin-is-Fin k))
+    ( Equiv/associative-Sg' Nat
+      ( \ n. Prop/type (lt n k))
+      ( \ n p. P (Fin/from-classical-Fin k (n, p))))

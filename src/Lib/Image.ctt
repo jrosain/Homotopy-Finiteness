@@ -78,6 +78,18 @@ is-surj/comp (A B C : U) (g : B -> C) (is-surj-g : is-surj B C g) (f : A -> B) (
 		( ap B C g t.1 (f u.1) u.2))) (is-surj-f t.1))
     ( is-surj-g c)
 
+is-inj/is-prop-fib (A B : U) (f : A -> B) (is-inj-f : (x y : A) -> Path B (f x) (f y) -> Path A x y)
+		   (is-set-B : is-set B) (y : B) : is-prop (Fib A B f y) =
+  \ t u.
+    SgPath-prop A
+    ( \ x. Path B y (f x))
+    ( \ x. is-set-B y (f x)) t u
+    ( is-inj-f t.1 u.1
+      ( comp B
+	( f t.1) y
+	( inv B y (f t.1) t.2)
+	( f u.1) u.2))
+
 is-inj-is-surj/is-equiv (A B : U) (is-set-B : is-set B) (f : A -> B) (is-surj-f : is-surj A B f) (is-inj-f : (x y : A) -> Path B (f x) (f y) -> Path A x y)
 			     : is-equiv A B f =
   \ y.

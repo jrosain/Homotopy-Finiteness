@@ -14,16 +14,20 @@ Finite types are types that can be counted. However, when defining finite types,
 
 The imported packages can be accessed via the following links:
    - [[file:Counting.org][Lib/Counting]]
+   - [[file:GlobalChoice.org][Lib/GlobalChoice]]
    - [[file:PropTrunc.org][Lib/PropTrunc]]
    - [[file:Image.org][Lib/Image]]
+   - [[file:Sorry.org][Lib/Sorry]]
    - [[file:Prop/Coprod.org][Lib/Prop/Coprod]]
    - [[file:Prop/Decidability.org][Lib/Prop/Decidability]]
    - [[file:Prop/Empty.org][Lib/Prop/Empty]]
    - [[file:Prop/Nat.org][Lib/Prop/Nat]]
 #+begin_src ctt
   import Lib.Counting
+  import Lib.GlobalChoice
   import Lib.PropTrunc
   import Lib.Image
+  import Lib.Sorry
   import Lib.Prop.Coprod
   import Lib.Prop.Decidability
   import Lib.Prop.Empty  
@@ -456,6 +460,29 @@ There is a finite choice map (\Pi_{x: A}||B x||) \to ||\Pi_{x: A}B(x)|| for any 
             ( Fin/choice k
               ( \ x. B (f x))
               ( \ x. H (f x)))) is-finite-A
+#+end_src
+
+** Another "finite" choice
+There is another case where we can make such a choice.
+TODO: finish the proof =count-choice=.
+#+begin_src ctt
+  count-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+	       (k : Nat) (e : Equiv (Fin k) (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
+	       (H : (x : A) -> Prop-trunc (B x)) : (x : A) -> B x =
+    \ x.
+      let t : count (B x) = sorry (count (B x)) in
+      count/global-choice
+	( B x) t.1 t.2
+	( H x)
+
+  finite-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+		(is-finite-AB : is-finite (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
+		(H : (x : A) -> Prop-trunc (B x)) : Prop-trunc ((x : A) -> B x) =
+    rec-Prop-trunc
+      ( count (Sg A B))
+      ( Prop-trunc/Prop ((x : A) -> B x))
+      ( \ c. Prop-trunc/unit (count-choice A B is-set-A c.1 c.2 is-finite-B H))
+      ( is-finite-AB)
 #+end_src
 
 ** Closure under \Sigma-types
@@ -1001,25 +1028,37 @@ As we prove a property, it holds for any finite type.
 *** Another proof
 The above proof is a bit complex and does not compute well. We try to give another proof of that fact here. 
 #+begin_src ctt
-  -- is-surjective/is-finite-codomain (A B : U) (H : is-finite A) (f : A -> B) (H' : is-surj A B f)
-  --                                  (Heq : has-decidable-equality B) : is-finite B =
-  --   rec-Prop-trunc
-  --     ( (y : B) -> Fib A B f y)
-  --     ( is-finite/Prop B)
-  --     ( \ h. is-finite-Sg/is-finite-base B
-  --           ( Fib A B f) h
-  --           ( \ y. is-finite/closed-Sg A
-  --                 ( \ x. Path B y (f x)) H
-  --                 ( \ x. is-decidable/is-finite
-  --                       ( Path B y (f x))
-  --                       ( hedberg B Heq y (f x))
-  --                       ( Heq y (f x))))
-  --           ( is-finite/closed-Equiv
-  --             ( Sg B (Fib A B f)) A
-  --             ( equiv-total-fib/Equiv A B f) H))
-  --     ( {- TODO: get the desired map from the surjection. -})
-
+  is-surjective/is-finite-codomain (A B : U) (H : is-finite A) (Heq : has-decidable-equality B)
+				   (f : A -> B) (H' : is-surj A B f) : is-finite B =
+    let is-finite-F : (y : B) -> is-finite (Fib A B f y) =
+	    ( \ y. is-finite/closed-Sg A
+		  ( \ x. Path B y (f x)) H
+		  ( \ x. is-decidable/is-finite
+			( Path B y (f x))
+			( hedberg B Heq y (f x))
+			( Heq y (f x))))
+	is-finite-BF : is-finite (Sg B (Fib A B f)) =
+	    ( is-finite/closed-Equiv
+	      ( Sg B (Fib A B f)) A
+	      ( equiv-total-fib/Equiv A B f) H)
+    in
+    rec-Prop-trunc
+      ( (y : B) -> Fib A B f y)
+      ( is-finite/Prop B)
+      ( \ h. is-finite-Sg/is-finite-base B
+	    ( Fib A B f) h
+	    ( is-finite-F)
+	    ( is-finite-BF))
+      ( finite-choice B
+	( Fib A B f)
+	( hedberg B Heq)
+	( is-finite-BF)
+	( is-finite-F)
+	( H'))
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 ** It is decidable to know whether a finite type is contractible or not
    #+begin_src ctt

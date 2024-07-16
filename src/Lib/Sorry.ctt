@@ -2,6 +2,7 @@ module Lib.Sorry where
 
 import Stdlib.Prelude
 import Lib.Data.Empty
+import Lib.Data.Unit
 
 data SET : U =
   set (X : U) (f : X -> SET)
@@ -31,5 +32,12 @@ falso : Empty =
   RUSSEL-SET-NOT-IN-RUSSEL-SET
     ( IN-RUSSEL-SET' RUSSEL-SET RUSSEL-SET-NOT-IN-RUSSEL-SET)
 
-sorry (P : U) : P =
-  ex-falso P falso
+falso' (P : U) : Unit -> P = split
+  star -> falso' P star
+
+sorry (P : U) : P = falso' P star
+
+lock sorry
+
+-- sorry (P : U) : P =
+--   ex-falso P falso

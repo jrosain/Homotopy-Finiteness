@@ -12,6 +12,7 @@
    #+begin_src ctt
   import Stdlib.Prelude
   import Lib.Data.Empty
+  import Lib.Data.Unit
    #+end_src
 
 ** The proof
@@ -48,9 +49,18 @@ As the system implements type in type, we can show that it is inconsistent. It a
 #+end_src
 Thus, we can implement a term that proves anything.
 #+begin_src ctt
-  sorry (P : U) : P =
-    ex-falso P falso
+  falso' (P : U) : Unit -> P = split
+    star -> falso' P star
+
+  sorry (P : U) : P = falso' P star
+
+  lock sorry
+
+  -- sorry (P : U) : P =
+  --   ex-falso P falso
 #+end_src
+
+
 
 #+RESULTS:
 : Typecheck has succeeded.

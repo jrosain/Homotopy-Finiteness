@@ -210,6 +210,9 @@ lt-neq (k n : Nat) (lt-k-n : Prop/type (lt k n)) : neg (Path Nat k n) =
   \ p. lt/irreflexive n
 	( tr Nat k n p (\ x. Prop/type (lt x n)) lt-k-n)
 
+lt/is-decidable (k n : Nat) : is-decidable (Prop/type (lt k n)) =
+  le/is-decidable (suc k) n
+
 is-lower-bound (P : Nat -> U) (n : Nat) : U =
   (x : Nat) -> P x -> Prop/type (le n x)
 

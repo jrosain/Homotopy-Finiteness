@@ -276,6 +276,11 @@ If k < n, then k \ne n.
     \ p. lt/irreflexive n
 	  ( tr Nat k n p (\ x. Prop/type (lt x n)) lt-k-n)
 #+end_src
+Of course, < is decidable.
+#+begin_src ctt
+  lt/is-decidable (k n : Nat) : is-decidable (Prop/type (lt k n)) =
+    le/is-decidable (suc k) n
+#+end_src
 
 ** Well-ordering of Nat
 
