@@ -47,11 +47,11 @@ number-of-Fin-Mul (n : Nat) : Nat =
 number-of-Fin-Mul-zero : Nat =
   number-of-Fin-Mul zero
 
-number-of-Fin-Mul-one : Nat =
-  number-of-Fin-Mul one-Nat
-
-number-of-Fin-Mul-two : Nat =
-  number-of-Fin-Mul two-Nat
+-- number-of-Fin-Mul-one : Nat =
+--   number-of-Fin-Mul one-Nat
+  
+-- number-of-Fin-Mul-two : Nat =
+--   number-of-Fin-Mul two-Nat
 
 -- Unfold counts: Coprod/dependent-universal-property: 2
 -- Coprod/dependent-universal-property/is-equiv: 1
@@ -150,54 +150,54 @@ number-of-Fin-Mul-two : Nat =
 
 
 -- -- We were too optimistic, an easier example:
-Map : U =
-  Sg U (\ A. A -> A)
+-- Map : U =
+--   Sg U (\ A. A -> A)
 
-Fin-Map (n : Nat) : U =
-  Sg Map (\ m. mere-equiv (Fin n) m.1)
+-- Fin-Map (n : Nat) : U =
+--   Sg Map (\ m. mere-equiv (Fin n) m.1)
 
--- Of course, we inverse the order of the types.
-Fin-Map/Equiv (n : Nat) : Equiv (Fin-Map n)
-                                (Sg (Sg U (mere-equiv (Fin n))) (\ X. X.1 -> X.1)) =
-  Equiv/assoc-Sg U
-    ( \ A. A -> A)
-    ( mere-equiv (Fin n))
+-- -- Of course, we inverse the order of the types.
+-- Fin-Map/Equiv (n : Nat) : Equiv (Fin-Map n)
+--                                 (Sg (Sg U (mere-equiv (Fin n))) (\ X. X.1 -> X.1)) =
+--   Equiv/assoc-Sg U
+--     ( \ A. A -> A)
+--     ( mere-equiv (Fin n))
 
--- We have already shown that mere-equiv-Fin/is-htpy-finite.
-Fin-Map/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Fin-Map n) =
-  is-htpy-finite/closed-Equiv
-    ( Fin-Map n)
-    ( Sg (Sg U (mere-equiv (Fin n))) (\ X. X.1 -> X.1))
-    ( Fin-Map/Equiv n) zero
-    ( is-htpy-finite/closed-Sg
-      ( Sg U (mere-equiv (Fin n)))
-      ( \ X. X.1 -> X.1) zero
-      ( mere-equiv-Fin/is-htpy-finite n one-Nat)
-      ( \ X. is-finite/is-htpy-finite
-	    ( X.1 -> X.1)
-	    ( is-finite/Pi X.1
-              ( \ _. X.1)
-              ( has-cardinality/is-finite X.1 (n, X.2))
-              ( \ _. has-cardinality/is-finite X.1 (n, X.2))) zero))
+-- -- We have already shown that mere-equiv-Fin/is-htpy-finite.
+-- Fin-Map/has-finite-connected-components (n : Nat) : is-htpy-finite zero (Fin-Map n) =
+--   is-htpy-finite/closed-Equiv
+--     ( Fin-Map n)
+--     ( Sg (Sg U (mere-equiv (Fin n))) (\ X. X.1 -> X.1))
+--     ( Fin-Map/Equiv n) zero
+--     ( is-htpy-finite/closed-Sg
+--       ( Sg U (mere-equiv (Fin n)))
+--       ( \ X. X.1 -> X.1) zero
+--       ( mere-equiv-Fin/is-htpy-finite n one-Nat)
+--       ( \ X. is-finite/is-htpy-finite
+-- 	    ( X.1 -> X.1)
+-- 	    ( is-finite/Pi X.1
+--               ( \ _. X.1)
+--               ( has-cardinality/is-finite X.1 (n, X.2))
+--               ( \ _. has-cardinality/is-finite X.1 (n, X.2))) zero))
 
-number-of-Fin-Map (n : Nat) : Nat =
-  card
-    ( Set-trunc (Fin-Map n))
-    ( Fin-Map/has-finite-connected-components n)
+-- number-of-Fin-Map (n : Nat) : Nat =
+--   card
+--     ( Set-trunc (Fin-Map n))
+--     ( Fin-Map/has-finite-connected-components n)
 
-number-of-Fin-Map-zero : Nat =
-  number-of-Fin-Map zero
+-- number-of-Fin-Map-zero : Nat =
+--   number-of-Fin-Map zero
 
-number-of-Map (n : Nat) : Nat =
-  card
-    ( (Fin n) -> (Fin n))
-    ( is-finite/Pi (Fin n)
-      ( \ _. Fin n)
-      ( Fin/is-finite n)
-      ( \ _. Fin/is-finite n))
+-- number-of-Map (n : Nat) : Nat =
+--   card
+--     ( (Fin n) -> (Fin n))
+--     ( is-finite/Pi (Fin n)
+--       ( \ _. Fin n)
+--       ( Fin/is-finite n)
+--       ( \ _. Fin/is-finite n))
 
-number-of-Map-k : Nat =
-  number-of-Map eight-Nat 
+-- number-of-Map-k : Nat =
+--   number-of-Map eight-Nat 
 
 -- number-of-Fin-Map-one : Nat =
 --   number-of-Fin-Map one-Nat 

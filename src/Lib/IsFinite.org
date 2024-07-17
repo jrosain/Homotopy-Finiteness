@@ -462,26 +462,63 @@ There is a finite choice map (\Pi_{x: A}||B x||) \to ||\Pi_{x: A}B(x)|| for any 
               ( \ x. H (f x)))) is-finite-A
 #+end_src
 
+** Extracting count from finiteness
+Under some conditions, counting can be extracted from finiteness.
+#+begin_src ctt
+  is-finite/count (A : U) (B : A -> U) (Heq : has-decidable-equality A) (c : count (Sg A B))
+		  (H : (x : A) -> is-finite (B x)) (f : (x : A) -> Prop-trunc (B x)) (a : A)
+		   : count (B a) =
+    let is-inj-fib-incl : (z z' : B a) -> Path (Sg A B) (a, z) (a, z') -> Path (B a) z z'
+			= is-set-is-inj-fib A B a (hedberg A Heq)
+	is-prop-fib : (t : Sg A B) -> is-prop (Sg (B a) (\ z. Path (Sg A B) t (a, z)))
+		    = \ t u v. SgPath-prop
+			      ( B a)
+			      ( \ z. Path (Sg A B) t (a, z))
+			      ( \ z. count/is-set (Sg A B) c t (a, z)) u v
+			      ( is-inj-fib-incl u.1 v.1
+				( comp (Sg A B) (a, u.1) t
+				  ( inv (Sg A B) t (a, u.1) u.2)
+				  (a, v.1) v.2))
+    in
+    count/closed-equiv
+      ( B a)
+      ( Sg (Sg A B) (Fib (B a) (Sg A B) (fiber-inclusion A B a)))
+      ( Equiv/total-fib (B a) (Sg A B) (fiber-inclusion A B a))
+      ( count/closed-Sg
+	( Sg A B)
+	( Fib (B a) (Sg A B) (fiber-inclusion A B a)) c
+	( \ t. count/closed-equiv
+	      ( Sg (B a) (\ z. Path (Sg A B) t (a, z)))
+	      ( Path A t.1 a)
+	      ( Equiv/Path-tot A B a t.1 t.2)
+	      ( count/is-decidable-is-countable
+		( Path A t.1 a)
+		( hedberg A Heq t.1 a)
+		( Heq t.1 a))))
+#+end_src
+
 ** Another "finite" choice
 There is another case where we can make such a choice.
-TODO: finish the proof =count-choice=.
+
 #+begin_src ctt
-  count-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+  lock is-finite/count
+  count-choice (A : U) (B : A -> U) (Heq : has-decidable-equality A)
 	       (k : Nat) (e : Equiv (Fin k) (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
 	       (H : (x : A) -> Prop-trunc (B x)) : (x : A) -> B x =
     \ x.
-      let t : count (B x) = sorry (count (B x)) in
+      let t : count (B x) = is-finite/count A B Heq (k, e) is-finite-B H x in
       count/global-choice
 	( B x) t.1 t.2
 	( H x)
+  unlock is-finite/count
 
-  finite-choice (A : U) (B : A -> U) (is-set-A : is-set A)
+  finite-choice (A : U) (B : A -> U) (Heq : has-decidable-equality A)
 		(is-finite-AB : is-finite (Sg A B)) (is-finite-B : (x : A) -> is-finite (B x))
 		(H : (x : A) -> Prop-trunc (B x)) : Prop-trunc ((x : A) -> B x) =
     rec-Prop-trunc
       ( count (Sg A B))
       ( Prop-trunc/Prop ((x : A) -> B x))
-      ( \ c. Prop-trunc/unit (count-choice A B is-set-A c.1 c.2 is-finite-B H))
+      ( \ c. Prop-trunc/unit (count-choice A B Heq c.1 c.2 is-finite-B H))
       ( is-finite-AB)
 #+end_src
 
@@ -1050,15 +1087,11 @@ The above proof is a bit complex and does not compute well. We try to give anoth
 	    ( is-finite-F)
 	    ( is-finite-BF))
       ( finite-choice B
-	( Fib A B f)
-	( hedberg B Heq)
+	( Fib A B f) Heq      
 	( is-finite-BF)
 	( is-finite-F)
 	( H'))
 #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
 
 ** It is decidable to know whether a finite type is contractible or not
    #+begin_src ctt

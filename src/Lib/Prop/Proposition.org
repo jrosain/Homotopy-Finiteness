@@ -268,3 +268,52 @@ The coproduct of P and Q is a proposition under the condition that P implies \ne
 
 
 
+** Consequence that is-prop implies subterminal: Σ A B is A if B is contractible
+#+begin_src ctt
+  Equiv/Sg-target (A : U) (B : A -> U) (f : (x : A) -> is-contr (B x)) : Equiv (Sg A B) A =
+    Equiv/trans
+      ( Sg A B)
+      ( Sg A (\ _. Unit)) A
+      ( Equiv/Sg-fam A B (\ _. Unit)
+	( \ x. is-prop/is-subterminal
+	      ( B x)
+	      ( is-contr/all-elements-equal
+		( B x)
+		( f x))
+	      ( f x).1))
+      ( Equiv/Sg-base-unit A)
+#+end_src
+
+** Σ_(z: B(x))(x, y) = (a, z) ≃ x = a
+#+begin_src ctt
+  Equiv/Path-tot (A : U) (B : A -> U) (a : A) (x : A) (y : B x) : Equiv (Sg (B a) (\ z. Path (Sg A B) (x, y) (a, z))) (Path A x a) =
+    Equiv/comp two-Nat
+      ( Sg (B a) (\ z. Path (Sg A B) (x, y) (a, z)))
+      ( Sg (B a) (\ z. SgPathO A B (x, y) (a, z)))
+      ( Equiv/Sg-fam
+	( B a)
+	( \ z. Path (Sg A B) (x, y) (a, z))
+	( \ z. SgPathO A B (x, y) (a, z))
+	( \ z. PathSg/Equiv A B (x, y) (a, z)))
+      ( Sg (Path A x a) (\ p. Sg (B a) (\ z. Path (B a) (tr A x a p B y) z)))
+      ( Equiv/assoc-non-dep-Sg
+	( B a)
+	( Path A x a)
+	( \ z p. Path (B a) (tr A x a p B y) z))
+      ( Path A x a)
+      ( Equiv/Sg-target
+	( Path A x a)
+	( \ p. Sg (B a) (\ z. Path (B a) (tr A x a p B y) z))
+	( \ p. is-contr/Sg-path-is-contr
+	      ( B a)
+	      ( tr A x a p B y)))
+
+  Equiv/Path-tot' (A : U) (B : A -> U) (a : A) (x : A) (y : B x) : Equiv (Path A x a) (Sg (B a) (\ z. Path (Sg A B) (x, y) (a, z))) =
+    Equiv/sym
+      ( Sg (B a) (\ z. Path (Sg A B) (x, y) (a, z)))
+      ( Path A x a)
+      ( Equiv/Path-tot A B a x y)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

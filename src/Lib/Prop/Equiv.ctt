@@ -497,6 +497,30 @@ Equiv/associative-Sg' (A : U) (B : A -> U) (C : (x : A) -> B x -> U)
     ( Sg A (\ x. Sg (B x) (\ y. C x y)))
     ( BiInv/associative-Sg' A B C)
 
+Equiv/assoc-non-dep-Sg/map (A B : U) (C : A -> B -> U) (t : Sg A (\ x. Sg B (C x))) : Sg B (\ y. Sg A (\ x. C x y)) =
+  (t.2.1, (t.1, t.2.2))
+
+Equiv/assoc-non-dep-Sg/inv-map (A B : U) (C : A -> B -> U) (t : Sg B (\ y. Sg A (\ x. C x y))) : Sg A (\ x. Sg B (C x)) =
+  (t.2.1, (t.1, t.2.2))
+
+Equiv/assoc-non-dep-Sg (A B : U) (C : A -> B -> U) : Equiv (Sg A (\ x. Sg B (C x))) (Sg B (\ y. Sg A (\ x. C x y))) =
+  has-inverse/Equiv
+    ( Sg A (\ x. Sg B (C x)))
+    ( Sg B (\ y. Sg A (\ x. C x y)))
+    ( Equiv/assoc-non-dep-Sg/map A B C)
+    ( Equiv/assoc-non-dep-Sg/inv-map A B C,
+      ( \ t. refl (Sg B (\ y. Sg A (\ x. C x y))) t,
+	\ t. refl (Sg A (\ x. Sg B (C x))) t))
+
+Equiv/assoc-non-dep-Sg' (A B : U) (C : A -> B -> U) : Equiv (Sg B (\ y. Sg A (\ x. C x y))) (Sg A (\ x. Sg B (C x))) =
+  has-inverse/Equiv
+    ( Sg B (\ y. Sg A (\ x. C x y)))
+    ( Sg A (\ x. Sg B (C x)))
+    ( Equiv/assoc-non-dep-Sg/inv-map A B C)
+    ( Equiv/assoc-non-dep-Sg/map A B C,
+      ( \ t. refl (Sg A (\ x. Sg B (C x))) t,
+	\ t. refl (Sg B (\ y. Sg A (\ x. C x y))) t))
+
 Equiv/Sg-fam/map' (A : U) (B C : A -> U) (f : (x : A) -> (B x) -> (C x)) : Sg A B -> Sg A C =
   \ t. (t.1, (f t.1) t.2)
 

@@ -1,9 +1,9 @@
 module Lib.Prop.Levels where
 
 import Stdlib.Prelude
+import Lib.Univalence
 import Lib.Prop.Proposition
 import Lib.Prop.Set
-import Lib.Univalence
 
 is-prop/closed-equiv (A B : U) (e : Equiv A B) (H : is-prop B) : is-prop A =
   has-contr-eq/is-prop A (is-of-lvl/closed-equiv A B e one-Nat (is-prop/has-contr-eq B H))
@@ -243,3 +243,19 @@ SgPath-prop/Equiv' (A : U) (B : A -> U) (H : (x : A) -> is-prop (B x)) (u v : Sg
 Set/eq/Prop (X : UU-Set) (x y : Set/type X) : UU-Prop =
   ( Path (Set/type X) x y,
     Set/is-set X x y)
+
+is-set-is-inj-fib (A : U) (B : A -> U) (a : A) (H : is-set A)
+		  (y z : B a) (p : Path (Sg A B) (a, y) (a, z))
+		       : Path (B a) y z =
+  let axiom-K-A : axiom-K A = is-set/axiom-K A H
+      p' : SgPathO A B (a, y) (a, z) = PathSg->SgPathO A B (a, y) (a, z) p in
+  tr
+    ( B a)
+    ( tr A a a p'.1 B y) y
+    ( comp
+      ( B a)
+      ( tr A a a p'.1 B y)
+      ( tr A a a (refl A a) B y)
+      ( ap (Path A a a) (B a) (\ q. tr A a a q B y) p'.1 (refl A a) (inv (Path A a a) (refl A a) p'.1 (axiom-K-A a p'.1))) y
+      ( tr/refl-path A a B y))
+    ( \ u. Path (B a) u z) p'.2

@@ -667,6 +667,33 @@ Result:
       ( Sg A (\ x. Sg (B x) (\ y. C x y)))
       ( BiInv/associative-Sg' A B C)
 #+end_src
+*** Σ A (Σ B (C x y)) ≃ Σ B (Σ A (C x y))
+The same result but where B is not a family of types over A.
+#+begin_src ctt
+  Equiv/assoc-non-dep-Sg/map (A B : U) (C : A -> B -> U) (t : Sg A (\ x. Sg B (C x))) : Sg B (\ y. Sg A (\ x. C x y)) =
+    (t.2.1, (t.1, t.2.2))
+
+  Equiv/assoc-non-dep-Sg/inv-map (A B : U) (C : A -> B -> U) (t : Sg B (\ y. Sg A (\ x. C x y))) : Sg A (\ x. Sg B (C x)) =
+    (t.2.1, (t.1, t.2.2))
+
+  Equiv/assoc-non-dep-Sg (A B : U) (C : A -> B -> U) : Equiv (Sg A (\ x. Sg B (C x))) (Sg B (\ y. Sg A (\ x. C x y))) =
+    has-inverse/Equiv
+      ( Sg A (\ x. Sg B (C x)))
+      ( Sg B (\ y. Sg A (\ x. C x y)))
+      ( Equiv/assoc-non-dep-Sg/map A B C)
+      ( Equiv/assoc-non-dep-Sg/inv-map A B C,
+	( \ t. refl (Sg B (\ y. Sg A (\ x. C x y))) t,
+	  \ t. refl (Sg A (\ x. Sg B (C x))) t))
+
+  Equiv/assoc-non-dep-Sg' (A B : U) (C : A -> B -> U) : Equiv (Sg B (\ y. Sg A (\ x. C x y))) (Sg A (\ x. Sg B (C x))) =
+    has-inverse/Equiv
+      ( Sg B (\ y. Sg A (\ x. C x y)))
+      ( Sg A (\ x. Sg B (C x)))
+      ( Equiv/assoc-non-dep-Sg/inv-map A B C)
+      ( Equiv/assoc-non-dep-Sg/map A B C,
+	( \ t. refl (Sg A (\ x. Sg B (C x))) t,
+	  \ t. refl (Sg B (\ y. Sg A (\ x. C x y))) t))
+#+end_src
 
 *** \Sigma A B and \Sigma A C whenever B is equivalent to C
     #+begin_src ctt
@@ -718,6 +745,12 @@ Result:
     ( Equiv/Sg-fam/map A B C e,
       is-equiv/Sg-fam A B C e)
     #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
+
+*** Σ A B is A if B is contractible
+Because if B is contractible, B ≃ Unit, and by previous results: Σ_(x:A)Unit ≃ A. The result is in the file [[file:Proposition.org][Lib/Prop/Proposition]].
 
 *** A \times B and A' \times B
 If A is equivalent to C and B is equivalent to D, then A \times B is equivalent to C \times D.
@@ -1015,8 +1048,8 @@ Hence, B a is equivalent to \Sigma A B.
 	  Equiv/is-contr-total-space/right-htpy A B H a))
 #+end_src
 
-#+RESULTS:
-: Typecheck has succeeded.
+*** Σ_(z: B(x))(x, y) = (a, z) ≃ x = a
+See the result in the file [[file:Proposition.org][Lib/Prop/Proposition]] as it needs that Σ A B ≃ A whenever B is contractible.
 
 ** Closure of truncation levels under equivalence
 

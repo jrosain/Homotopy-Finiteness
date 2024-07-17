@@ -103,6 +103,7 @@ decidable-subtype/global-choice' (k : Nat) (P : Fin k -> UU-Prop)
 	    ( Sg Nat (Fin-Nat-family k (\ x. Prop/type (P x))))
 	    ( Fin-Nat-family/Equiv k (\ x. Prop/type (P x)))) p))
 
+lock decidable-subtype/global-choice'
 decidable-subtype/global-choice (A : U) (k : Nat) (e : Equiv (Fin k) A) (P : A -> UU-Prop)
 				(d : (x : A) -> is-decidable (Prop/type (P x)))
 				   : global-choice (Sg A (\ x. Prop/type (P x))) =
@@ -120,7 +121,8 @@ decidable-subtype/global-choice (A : U) (k : Nat) (e : Equiv (Fin k) A) (P : A -
 					     ( inv A (f (g t.1)) t.1 (Equiv/inv-right-htpy (Fin k) A e t.1))
 					     ( \ x. Prop/type (P x)) t.2)) p)
     in
-  ( f u.1, u.2)
+  ( f u.1, u.2)    
+unlock decidable-subtype/global-choice'
 
 count/global-choice (A : U) : (k : Nat) (e : Equiv (Fin k) A) -> global-choice A = split
   zero -> \ e a.

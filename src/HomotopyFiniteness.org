@@ -433,7 +433,7 @@ As A is connected, and we show a property, we assume that a : A. Then, the fiber
 						: is-htpy-finite zero (Sg A B) =
     rec-Prop-trunc A
       ( is-htpy-finite/Prop zero (Sg A B))
-      ( \ a. is-surjective/is-finite-codomain -- has-decidable-equality/is-finite
+      ( \ a. has-decidable-equality/is-finite 
 	      ( Set-trunc (B a))
 	      ( Set-trunc (Sg A B))
 	      ( is-htpy-finite-B a)
@@ -449,7 +449,6 @@ As A is connected, and we show a property, we assume that a : A. Then, the fiber
 		( is-connected/fiber-inclusion-is-surj A B H a)))
       ( is-conn/is-inhabited A H)
 #+end_src
-
 We thus focus on showing, under the same hypotheses, that || \Sigma_{x: A}B(x) ||_0 has decidable equality. In fact, recall that decidability is closed under equivalence. Thus, let |(x, y)|_0 and |(x', y')|_0 of type || \Sigma_{x: A}B(x) ||_0. We have the following equivalences: 
    - |(x, y)|_0 = |(x', y')|_0 \simeq || (x, y) = (x', y') ||
 as A is connected, let a : A. Moreover, still by connectivity, |a|_0 = |x|_0 and |a|_0 = |x'|_0, that is, we have two mere equalities || a = x || and || a = x' ||. Hence, || (x, y) = (x', y') || \simeq || (a, y) = (a, y') ||.

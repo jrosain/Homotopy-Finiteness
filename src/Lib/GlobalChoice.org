@@ -137,6 +137,7 @@ As such, we can show the result.
 #+end_src
 A more useful statement for this lemma is as follows:
 #+begin_src ctt
+  lock decidable-subtype/global-choice'
   decidable-subtype/global-choice (A : U) (k : Nat) (e : Equiv (Fin k) A) (P : A -> UU-Prop)
 				  (d : (x : A) -> is-decidable (Prop/type (P x)))
 				     : global-choice (Sg A (\ x. Prop/type (P x))) =
@@ -155,7 +156,9 @@ A more useful statement for this lemma is as follows:
 					       ( \ x. Prop/type (P x)) t.2)) p)
       in
     ( f u.1, u.2)    
+  unlock decidable-subtype/global-choice'
 #+end_src
+
 Another result would be:
 #+begin_src ctt
   count/global-choice (A : U) : (k : Nat) (e : Equiv (Fin k) A) -> global-choice A = split

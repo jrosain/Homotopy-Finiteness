@@ -351,7 +351,7 @@ is-htpy-finite/closed-Sg/base' (A : U) (B : A -> U) (H : is-conn A) (is-htpy-fin
 					      : is-htpy-finite zero (Sg A B) =
   rec-Prop-trunc A
     ( is-htpy-finite/Prop zero (Sg A B))
-    ( \ a. is-surjective/is-finite-codomain -- has-decidable-equality/is-finite
+    ( \ a. has-decidable-equality/is-finite -- is-surjective/is-finite-codomain 
 	    ( Set-trunc (B a))
 	    ( Set-trunc (Sg A B))
 	    ( is-htpy-finite-B a)
