@@ -1,0 +1,165 @@
+#+TITLE: Isomorphisms to Equivalences
+#+AUTHOR: Johann Rosain
+
+* Isomorphisms to equivalences
+
+  #+begin_src ctt
+  module Lib.IsoToEquiv where
+  #+end_src
+
+This file is an alternative to the proof in [[file:ContrMap.org][Lib/ContrMap]]. It uses squares that are built «by hand» instead of using others fancy features like funext or closure by retraction of contractibility. The hope is that it computes better than the previous proof (i.e., that it avoids the explosion in the size of the term).
+
+** Packages imports
+
+The imported packages can be accessed via the following links:
+   - [[file:QInv.org][Lib/QInv]]
+   #+begin_src ctt
+  import Stdlib.Prelude
+  import Lib.Data.QInv
+   #+end_src
+
+** The proof
+
+First, we define the notion of a square. The setting is the following:
+#+begin_center
+a₀ ⟶ a₁
+↓     ↓
+b₀ ⟶ b₁
+#+end_center
+and the goal is to show that we can "fill" this square.
+#+begin_src ctt
+  Square (A : U) (a0 b0 a1 b1 : A)
+	 (p : Path A a0 a1) (q : Path A b0 b1)
+	 (r0 : Path A a0 b0) (r1 : Path A a1 b1) : U =
+    PathP (i. (Path A (p i) (q i))) r0 r1
+#+end_src
+First, we define the center of contraction.
+#+begin_src ctt
+  iso-to-equiv/center (A B : U) (f : A -> B) (i : has-inverse A B f) (y : B)
+			   : Fib A B f y =
+    let g : B -> A = QInv/map A B f i in      
+    ( g y,
+      inv B (f (g y)) y
+      ( QInv/right-htpy A B f i y))
+#+end_src
+Then, we show that the fibers are a proposition, i.e., that all elements of fib_f(y) are equal. We start by showing that all first elements are equal to g(y).
+#+begin_src ctt
+  lem-iso/rem (A B : U) (f : A -> B) (g : B -> A)
+	      (K : Htpy' A A (\ x. g (f x)) (id A))
+	      (y : B) (x : A) (p : Path B y (f x))
+		 : Path A (g y) x =
+    \ i. hComp 0 1 A (g (p i)) [ (i=0) -> _. g y, (i=1) -> j. K x j ]
+#+end_src
+In particular, for any two fibers, their first element are equal.
+#+begin_src ctt
+  lem-iso/p (A B : U) (f : A -> B) (g : B -> A)
+	    (K : Htpy' A A (\ x. g (f x)) (id A))
+	    (y : B) (x0 x1 : A)
+	    (p0 : Path B y (f x0))
+	    (p1 : Path B y (f x1))
+		: Path A x0 x1 =
+    \ i. hComp 0 1 A (g y) [ (i=0) -> j. lem-iso/rem A B f g K y x0 p0 j,
+			    (i=1) -> j. lem-iso/rem A B f g K y x1 p1 j ]
+#+end_src
+We show that under these conditions, the following square can be filled:
+#+begin_center
+g(y) ⟶ g(f(x))
+  ↓         ↓
+g(y) ⟶     x
+#+end_center
+#+begin_src ctt
+  lem-iso/fill (A B : U) (f : A -> B) (g : B -> A)
+	       (K : Htpy' A A (\ x. g (f x)) (id A))
+	       (y : B) (x : A) (p : Path B y (f x))
+    : Square A (g y) (g y) (g (f x)) x
+	       (\ i. g (p i))
+	       (lem-iso/rem A B f g K y x p)
+	       (\ i. g y)
+	       (K x) =
+    \ i j. hComp 0 1 A (g (p i)) [ (i=0) -> _. g y,
+				  (i=1) -> k. K x (j /\ k),
+				  (j=0) -> _. g (p i) ]  
+#+end_src
+Moreover, between two fibers (x₀,p₀), (x₁,p₁), we have that the following square can be filled:
+#+begin_center
+g(y) ⟶ g(y)
+↓       ↓ 
+x₀   ⟶ x₁
+#+end_center
+#+begin_src ctt
+  lem-iso/fill' (A B : U) (f : A -> B) (g : B -> A)
+		(K : Htpy' A A (\ x. g (f x)) (id A))
+		(y : B) (x0 x1 : A)
+		(p0 : Path B y (f x0))
+		(p1 : Path B y (f x1))
+    : Square A (g y) x0 (g y) x1
+	       (\ _. g y)
+	       (lem-iso/p A B f g K y x0 x1 p0 p1)
+	       (lem-iso/rem A B f g K y x0 p0)
+	       (lem-iso/rem A B f g K y x1 p1) =
+    \ i j. hComp 0 1 A (g y) [ (i=0) -> k. lem-iso/rem A B f g K y x0 p0 (j /\ k),
+			      (i=1) -> k. lem-iso/rem A B f g K y x1 p1 (j /\ k),
+			      (j=0) -> _. g y ]
+#+end_src
+Hence, the following square can be filled:
+#+begin_center
+g(y)    ⟶ g(y)
+ ↓           ↓
+g(f(x0) ⟶ g(f(x1))
+#+end_center
+#+begin_src ctt
+  lem-iso/sq (A B : U) (f : A -> B) (g : B -> A)
+	     (K : Htpy' A A (\ x. g (f x)) (id A))
+	     (y : B) (x0 x1 : A)
+	     (p0 : Path B y (f x0))
+	     (p1 : Path B y (f x1))
+    : Square A (g y) (g (f x0)) (g y) (g (f x1))
+	(\ _. g y)
+	(\ i. g (f (lem-iso/p A B f g K y x0 x1 p0 p1 i)))
+	(\ i. g (p0 i))
+	(\ i. g (p1 i)) =
+    \ i j. hComp 1 0 A (lem-iso/fill' A B f g K y x0 x1 p0 p1 i j)
+	    [ (i=0) -> k. lem-iso/fill A B f g K y x0 p0 j k,
+	      (i=1) -> k. lem-iso/fill A B f g K y x1 p1 j k,
+	      (j=0) -> _. g y,
+	      (j=1) -> k. K (lem-iso/p A B f g K y x0 x1 p0 p1 i) k ]
+#+end_src
+Which finally implies the awaited path between p₀ and p₁:
+#+begin_src ctt
+  lem-iso/sq' (A B : U) (f : A -> B) (g : B -> A)
+	      (H : Htpy' B B (\ y. f (g y)) (id B))
+	      (K : Htpy' A A (\ x. g (f x)) (id A))
+	      (y : B) (x0 x1 : A)
+	      (p0 : Path B y (f x0))
+	      (p1 : Path B y (f x1))
+    : Square B y (f x0) y (f x1)
+	(\ _. y)
+	(\ i. f (lem-iso/p A B f g K y x0 x1 p0 p1 i)) p0 p1 =
+    \ i j. hComp 0 1 B (f (lem-iso/sq A B f g K y x0 x1 p0 p1 i j))
+	    [ (i=0) -> k. H (p0 j) k,
+	      (i=1) -> k. H (p1 j) k,
+	      (j=0) -> k. H y k,
+	      (j=1) -> k. H (f (lem-iso/p A B f g K y x0 x1 p0 p1 i)) k ]      
+#+end_src
+Thus, the fibers of f at y is a proposition.
+#+begin_src ctt
+  lem-iso/is-prop-fib (A B : U) (f : A -> B) (e : has-inverse A B f)
+		      (y : B) : is-prop (Fib A B f y) =
+    let g : B -> A = QInv/map A B f e
+	H : Htpy' B B (\ y'. f (g y')) (id B) = QInv/right-htpy A B f e
+	K : Htpy' A A (\ x. g (f x)) (id A) = QInv/left-htpy A B f e in
+    \ t u i.
+      ( lem-iso/p A B f g K y t.1 u.1 t.2 u.2 i,
+	lem-iso/sq' A B f g H K y t.1 u.1 t.2 u.2 i)
+#+end_src
+Hence, f has contractible fibers.
+#+begin_src ctt
+  iso-to-equiv (A B : U) (f : A -> B) (i : has-inverse A B f)
+		    : is-equiv A B f =
+    \ y.
+    let c : Fib A B f y = iso-to-equiv/center A B f i y in
+    ( c, lem-iso/is-prop-fib A B f i y c)
+#+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.

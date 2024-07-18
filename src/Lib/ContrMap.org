@@ -21,6 +21,7 @@ The imported packages can be accessed via the following links:
    - [[file:Prop/Sg.org][Lib/Prop/Sg]]
    #+begin_src ctt
   import Lib.FunExt
+  import Lib.IsoToEquiv
   import Lib.QInv
   import Lib.Prop.BiInv
   import Lib.Prop.Contr
@@ -215,23 +216,28 @@ That is, the map =f= is contractible: any =y : B= corresponds to a unique =x : A
 *** Bi-invertibility implies equivalence
 Thus, if f : A \to B is a bi-invertible map, it is also an equivalence.
     #+begin_src ctt
+  -- is-bi-inv/is-equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-equiv A B f =
+  --   is-bi-inv/is-equiv-is-bi-inv-ap A B f b (is-bi-inv/is-inj A B f b)
+    #+end_src
+The above version is kept because it is clearer than the following version.
+#+begin_src ctt
   is-bi-inv/is-equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : is-equiv A B f =
-    is-bi-inv/is-equiv-is-bi-inv-ap A B f b (is-bi-inv/is-inj A B f b)
+    iso-to-equiv A B f
+      ( is-bi-inv-has-inverse A B f b)
+#+end_src
 
+Hence:
+#+begin_src ctt
   is-bi-inv/Equiv (A B : U) (f : A -> B) (b : is-bi-inv A B f) : Equiv A B =
     (f, is-bi-inv/is-equiv A B f b)
 
   BiInv/Equiv (A B : U) (b : BiInv A B) : Equiv A B =
     is-bi-inv/Equiv A B (BiInv/map A B b) (BiInv/is-bi-inv A B b)
-    #+end_src
-
-#+RESULTS:
-: Typecheck has succeeded.
+#+end_src
 
 *** Inverse implies equivalence
     #+begin_src ctt
-  has-inverse/is-equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : is-equiv A B f =
-    is-bi-inv/is-equiv A B f (has-inverse-is-bi-inv A B f i)
+  has-inverse/is-equiv : (A B : U) (f : A -> B) (i : has-inverse A B f) -> is-equiv A B f = iso-to-equiv 
 
   has-inverse/Equiv (A B : U) (f : A -> B) (i : has-inverse A B f) : Equiv A B =
     is-bi-inv/Equiv A B f (has-inverse-is-bi-inv A B f i)
