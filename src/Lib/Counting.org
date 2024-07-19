@@ -172,24 +172,51 @@ If =A= and =B= come equipped with a counting, then =Coprod A B= also comes with 
 If =A= comes equipped with a counting and =B= is a type family over =A=, then all =B x= come equipped with a counting iff Sg A B comes equipped with a counting.
 #+begin_src ctt
   count/closed-Sg/sg (A : U) (B : A -> U) (H : (x : A) -> count (B x)) : (k : Nat) -> (e : Equiv (Fin k) A) -> count (Sg A B) = split
-    zero -> \ e. count/closed-equiv (Sg A B) (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Equiv/sym (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Sg A B) (Sg/equiv-base Empty A B e))
-                (count/closed-equiv (Sg Empty (\ x. B (Equiv/map Empty A e x))) Empty (Equiv/Equiv-Sg-empty (\ x. B (Equiv/map Empty A e x))) (count/zero-count))
+    zero -> \ e.
+      count/closed-equiv
+	( Sg A B)
+	( Empty)
+	( Equiv/trans
+	  ( Sg A B)
+	  ( Sg Empty (\ x. B (Equiv/map Empty A e x)))
+	  ( Empty)
+	  ( Equiv/sym (Sg Empty (\ x. B (Equiv/map Empty A e x))) (Sg A B) (Sg/equiv-base Empty A B e))
+	  ( Equiv/Equiv-Sg-empty (\ x. B (Equiv/map Empty A e x))))
+	( count/zero-count)
     suc k -> \ e.
       let f : Fin (suc k) -> A = (Equiv/map (Fin (suc k)) A e) in
-        count/closed-equiv (Sg A B) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
-          (Equiv/trans (Sg A B) (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
-            (Equiv/sym (Sg (Fin (suc k)) (\ x. B (f x))) (Sg A B) (Sg/equiv-base (Fin (suc k)) A B e)) -- Sg A B ~ Sg (Fin k+1) (B o e)
-            (Equiv/trans (Sg (Fin (suc k)) (\ x. B (f x))) (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (Sg Unit (\ x. B (f (inr x)))))
-                         (Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star)))) (Equiv/Sg-distr-over-coprod (Fin k) Unit (\ x. B (f x)))
-                                                                                      -- Sg (Fin k + 1) (B o e) ~ (Sg (Fin k) (B o e o inl)) + (Sg Unit (B o e o inr))
-                         (Coprod/closed-Equiv (Sg (Fin k) (\ x. B (f (inl x)))) (Sg (Fin k) (\ x. B (f (inl x))))
-                                              (Sg Unit (\ x. B (f (inr x)))) (B (f (inr star)))
-                                              (Equiv/refl (Sg (Fin k) (\ x. B (f (inl x)))))
-                                              (Equiv/Sg-unit (\ x. B (f (inr x))))))) -- Sg Unit (B o e o inr) ~ B(e(inr(star)))
-          (count/closed-Coprod (Sg (Fin k) (\ x. B (f (inl x))))
-                               (B (f (inr star)))
-                               (count/closed-Sg/sg (Fin k) (\ x. B (f (inl x))) (\ x. H (f (inl x))) k (Equiv/refl (Fin k)))
-                               (H (f (inr star))))
+	count/closed-equiv
+	( Sg A B)
+	( Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+	( Equiv/trans
+	  ( Sg A B)
+	  ( Sg (Fin (suc k)) (\ x. B (f x)))
+	  ( Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+	  ( Equiv/sym
+	    ( Sg (Fin (suc k)) (\ x. B (f x)))
+	    ( Sg A B)
+	    ( Sg/equiv-base (Fin (suc k)) A B e)) -- Sg A B ~ Sg (Fin k+1) (B o e)
+	  ( Equiv/trans
+	    ( Sg (Fin (suc k)) (\ x. B (f x)))
+	    ( Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (Sg Unit (\ x. B (f (inr x)))))
+	    ( Coprod (Sg (Fin k) (\ x. B (f (inl x)))) (B (f (inr star))))
+	    ( Equiv/Sg-distr-over-coprod (Fin k) Unit (\ x. B (f x)))
+	    ( Coprod/closed-Equiv
+	      ( Sg (Fin k) (\ x. B (f (inl x))))
+	      ( Sg (Fin k) (\ x. B (f (inl x))))
+	      ( Sg Unit (\ x. B (f (inr x))))
+	      ( B (f (inr star)))
+	      ( Equiv/refl (Sg (Fin k) (\ x. B (f (inl x)))))
+	      ( Equiv/Sg-unit (\ x. B (f (inr x))))))) -- Sg Unit (B o e o inr) ~ B(e(inr(star)))
+      ( count/closed-Coprod
+	( Sg (Fin k) (\ x. B (f (inl x))))
+	( B (f (inr star)))
+	( count/closed-Sg/sg
+	  ( Fin k)
+	  ( \ x. B (f (inl x)))
+	  ( \ x. H (f (inl x))) k
+	  ( Equiv/refl (Fin k)))
+	  ( H (f (inr star))))
 
   count/closed-Sg (A : U) (B : A -> U) (cA : count A) (H : (x : A) -> count (B x)) : count (Sg A B) =
     count/closed-Sg/sg A B H (number-of-elements A cA) (count/Equiv A cA)
@@ -208,11 +235,28 @@ We can also show that if \Sigma A B comes with a counting, as well as =B x= come
 #+begin_src ctt
   count/closed-base-sg-map (A : U) (B : A -> U) (b : (x : A) -> B x) (x : A) : Sg A B = (x, b x)
 
-  count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) A =
+  count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv A (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) =
     equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
 
   -- count/closed-base-sg (A : U) (B : A -> U) (b : (x : A) -> B x) (cT : count (Sg A B)) (cF : (x : A) -> count B x) : count A =
-    --count/closed-equiv
+  --   count/closed-equiv A
+  --     ( Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b)))
+  --     ( count/closed-Sg
+  --       ( Sg A B)
+  --       ( Fib A (Sg A B) (count/closed-base-sg-map A B b)) cT
+  --       ( \ t. count/closed-equiv
+  --             ( Fib A (Sg A B) (count/closed-base-sg-map A B b))
+  --             ( Sg A (\ x. Path A t.1 x))
+  --             ( Equiv/trans
+  --               ( Fib A (Sg A B) (count/closed-base-sg-map A B b))  
+  --               ( Sg A (\ x. Sg (Path A t.1 x) (\ p. Path (B x) (tr A t.1 x p B t.2) (b x))))
+  --               ( Sg A (\ x. Path A t.1 x))
+  --               ( Equiv/Sg-fam A
+  --                 ( \ x. Path (Sg A B) t (x, b x))
+  --                 ( \ x. Sg (Path A t.1 x) (\ p. Path (B x) (tr A t.1 x p B t.2) (b x)))
+  --                 ( PathSg/Equiv A B t (x, b x)))
+  --               ( Equiv/Sg-target ? ?                      
+  --                 ( \ x. count/is-set (B x) (cF x))))))
 #+end_src
 Remark that if =P= is a decidable subtype of =X=, then =P= is countable whenever =X= is countable.
 #+begin_src ctt

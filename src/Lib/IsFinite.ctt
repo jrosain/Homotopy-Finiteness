@@ -866,9 +866,9 @@ has-decidable-equality/Fin-is-finite : (k : Nat) (B : U) (H : has-decidable-equa
       ( has-decidable-equality/Fin-is-finite k)
       ( has-decidable-equality/is-finite/decide B (f (inr star)) H k f)
 
-has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-decidable-equality B)
-				 (f : A -> B) (is-surj-f : is-surj A B f)
-				    : is-finite B =
+has-decidable-equality/is-finite-codomain (A B : U) (is-finite-A : is-finite A) (H : has-decidable-equality B)
+					  (f : A -> B) (is-surj-f : is-surj A B f)
+  : is-finite B =
   rec-Prop-trunc
     ( count A)
     ( is-finite/Prop B)

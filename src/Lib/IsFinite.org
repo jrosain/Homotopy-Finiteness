@@ -1032,9 +1032,9 @@ Then, we can prove the result for Fin k.
 #+end_src
 As we prove a property, it holds for any finite type.
 #+begin_src ctt
-  has-decidable-equality/is-finite (A B : U) (is-finite-A : is-finite A) (H : has-decidable-equality B)
-				   (f : A -> B) (is-surj-f : is-surj A B f)
-				      : is-finite B =
+  has-decidable-equality/is-finite-codomain (A B : U) (is-finite-A : is-finite A) (H : has-decidable-equality B)
+					    (f : A -> B) (is-surj-f : is-surj A B f)
+    : is-finite B =
     rec-Prop-trunc
       ( count A)
       ( is-finite/Prop B)
@@ -1056,6 +1056,9 @@ As we prove a property, it holds for any finite type.
 		  ( is-surj-f y)))
 	( is-finite-A)
 #+end_src
+
+#+RESULTS:
+: Typecheck has succeeded.
 
 *** Unlock
     #+begin_src ctt

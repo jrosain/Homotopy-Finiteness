@@ -44,97 +44,16 @@ number-of-Fin-Mul (n : Nat) : Nat =
     ( Set-trunc (Fin-Mul n))
     ( Fin-Mul/has-finite-connected-components n)
 
+-- instantaneous
 number-of-Fin-Mul-zero : Nat =
   number-of-Fin-Mul zero
-
--- Unfold counts: Coprod/dependent-universal-property: 4
--- Coprod/dependent-universal-property/is-equiv: 3
--- Coprod/dependent-universal-property/map: 1
--- Empty/is-finite: 2
--- Equiv/Prop-trunc: 2
--- Equiv/Prop-trunc-map: 2
--- Equiv/inv-equiv: 6
--- Equiv/inv-map: 6
--- Equiv/is-equiv: 6
--- Equiv/map: 25
--- Equiv/pi-Unit: 4
--- Equiv/pi-Unit/is-equiv: 3
--- Equiv/pi-Unit/map: 1
--- Equiv/prod: 2
--- Equiv/prod': 4
--- Equiv/prod'/map: 4
--- Equiv/prod/map: 2
--- Equiv/sym: 6
--- Equiv/trans: 6
--- Fin-Mul/has-finite-connected-components: 1
--- Prop-trunc/closed-Prod: 1
--- Prop-trunc/closed-Prod/map: 1
--- Prop-trunc/map: 15
--- Prop/Equiv: 4
--- QInv/map: 6
--- Set-trunc/is-surjective: 1
--- Unit/is-finite: 1
--- Unit/is-htpy-finite: 1
--- card: 1
--- center: 2
--- count/Unit: 1
--- count/closed-Coprod: 5
--- count/closed-Prod: 2
--- count/closed-Sg: 2
--- count/closed-equiv: 20
--- count/contr-count: 5
--- count/fin-count: 5
--- count/is-finite: 8
--- count/is-htpy-finite: 1
--- count/zero-count: 5
--- five-Nat: 1
--- four-Nat: 1
--- has-cardinality/card: 1
--- has-cardinality/is-finite: 3
--- has-cardinality/is-finite': 3
--- has-decidable-equality/is-finite: 1
--- has-decidable-equality/is-finite/base: 1
--- has-inverse/is-equiv: 6
--- im-Unit/is-conn: 1
--- im/q: 3
--- ind-Set-trunc/Prop: 1
--- is-conn/is-inhabited: 1
--- is-contr/Equiv: 1
--- is-contr/is-finite: 2
--- is-equiv/inv-map: 6
--- is-finite-A-is-finite-mul: 1
--- is-finite-Set-trunc/Prop-trunc-map: 1
--- is-finite-Set-trunc/has-Equiv-map: 1
--- is-finite/Pi: 2
--- is-finite/closed-Coprod: 3
--- is-finite/closed-Equiv: 13
--- is-finite/closed-Equiv': 2
--- is-finite/closed-Prod: 2
--- is-finite/has-cardinality: 1
--- is-finite/is-htpy-finite: 1
--- is-htpy-finite/closed-Equiv: 4
--- is-htpy-finite/closed-Equiv': 1
--- is-htpy-finite/closed-Sg: 1
--- is-htpy-finite/closed-Sg/base: 1
--- is-htpy-finite/closed-Sg/base': 1
--- is-prop/is-proof-irrelevant: 1
--- iso-to-equiv: 6
--- iso-to-equiv/center: 6
--- map/comp: 6
--- mere-equiv-Fin/is-conn-Set-trunc: 1
--- number-of-Fin-Mul: 1
--- number-of-elements: 37
--- one-Nat: 10
--- three-Nat: 1
--- two-Nat: 1
--- Hence 314 unfold steps
 
 number-of-Fin-Mul-one : Nat =
   number-of-Fin-Mul one-Nat
 
--- todo: understand why the following crashes:
--- number-of-Fin-Mul-two : Nat =
---   number-of-Fin-Mul two-Nat
+-- crashes
+number-of-Fin-Mul-two : Nat =
+  number-of-Fin-Mul two-Nat
 
 -- In this file, we try to compute the number of (semi)groups of order k up to isomorphism, for a
 -- fixed k. 
@@ -154,7 +73,7 @@ number-of-Fin-Mul-one : Nat =
 -- 	    ( has-assoc-op/is-finite X.1
 -- 	      ( has-cardinality/is-finite X.1 (n, X.2))) zero))
 
--- -- First, consider semigroups of order 0:
+-- -- instantaneous
 -- number-of-Semigroup-of-Order-zero : Nat =
 --   card
 --   ( Set-trunc (Semigroup-of-Order zero))
@@ -164,10 +83,22 @@ number-of-Fin-Mul-one : Nat =
 --   card
 --   ( Set-trunc (Semigroup-of-Order one-Nat))
 --   ( Semigroup-of-Order/has-conn-components one-Nat)      
-  
--- And groups of order 0:  
+
+-- -- crashes
+-- -- strangely, it doesn't seem to typecheck?
+-- lock card Semigroup-of-Order/has-conn-components
+-- number-of-Semigroup-of-Order-two : Nat =
+--   card
+--   ( Set-trunc (Semigroup-of-Order two-Nat))
+--   ( Semigroup-of-Order/has-conn-components two-Nat)      
+
+-- -- instantaneous  
 -- number-of-Group-of-Order-zero : Nat =
 --   number-of-Group-of-Order zero
 
 -- number-of-Group-of-Order-one : Nat =
 --   number-of-Group-of-Order one-Nat
+
+-- -- crashes
+-- number-of-Group-of-Order-two : Nat =
+--   number-of-Group-of-Order two-Nat

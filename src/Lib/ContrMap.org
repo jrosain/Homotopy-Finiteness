@@ -14,6 +14,7 @@ This file shows that maps are contractible iff they are bi-invertible. The proof
 
 The imported packages can be accessed via the following links:
    - [[file:FunExt.org][Lib/FunExt]]
+   - [[file:IsoToEquiv.org][Lib/IsoToEquiv]]
    - [[file:QInv.org][Lib/QInv]]
    - [[file:Prop/BiInv.org][Lib/Prop/BiInv]]
    - [[file:Prop/Contr.org][Lib/Prop/Contr]]

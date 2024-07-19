@@ -433,7 +433,7 @@ As A is connected, and we show a property, we assume that a : A. Then, the fiber
 						: is-htpy-finite zero (Sg A B) =
     rec-Prop-trunc A
       ( is-htpy-finite/Prop zero (Sg A B))
-      ( \ a. has-decidable-equality/is-finite 
+      ( \ a. has-decidable-equality/is-finite-codomain
 	      ( Set-trunc (B a))
 	      ( Set-trunc (Sg A B))
 	      ( is-htpy-finite-B a)
