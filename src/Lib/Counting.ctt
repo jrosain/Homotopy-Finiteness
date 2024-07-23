@@ -4,6 +4,7 @@ import Lib.FundamentalTheorem
 import Lib.Hedberg
 import Lib.SubTypes
 import Lib.Data.Fin  
+import Lib.Prop.Empty
 import Lib.Prop.Equiv
 import Lib.Prop.Fin
 import Lib.Prop.Proposition
@@ -153,11 +154,28 @@ count/closed-fam (A : U) (B : A -> U) (cA : count A) (cT : count (Sg A B)) (x : 
 
 count/closed-base-sg-map (A : U) (B : A -> U) (b : (x : A) -> B x) (x : A) : Sg A B = (x, b x)
 
-count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) A =
-  equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
+-- count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv A (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) =
+--   equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
 
 -- count/closed-base-sg (A : U) (B : A -> U) (b : (x : A) -> B x) (cT : count (Sg A B)) (cF : (x : A) -> count B x) : count A =
-  --count/closed-equiv
+--   count/closed-equiv A
+--     ( Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b)))
+--     ( count/closed-Sg
+--       ( Sg A B)
+--       ( Fib A (Sg A B) (count/closed-base-sg-map A B b)) cT
+--       ( \ t. count/closed-equiv
+--             ( Fib A (Sg A B) (count/closed-base-sg-map A B b))
+--             ( Sg A (\ x. Path A t.1 x))
+--             ( Equiv/trans
+--               ( Fib A (Sg A B) (count/closed-base-sg-map A B b))  
+--               ( Sg A (\ x. Sg (Path A t.1 x) (\ p. Path (B x) (tr A t.1 x p B t.2) (b x))))
+--               ( Sg A (\ x. Path A t.1 x))
+--               ( Equiv/Sg-fam A
+--                 ( \ x. Path (Sg A B) t (x, b x))
+--                 ( \ x. Sg (Path A t.1 x) (\ p. Path (B x) (tr A t.1 x p B t.2) (b x)))
+--                 ( PathSg/Equiv A B t (x, b x)))
+--               ( Equiv/Sg-target ? ?                      
+--                 ( \ x. count/is-set (B x) (cF x))))))
 
 count/closed-decidable-subtype (X : U) (P : X -> U) (c : count X) (s : is-decidable-subtype X P) (x : X) : count (P x) =
   count/closed-fam X P c
@@ -497,5 +515,49 @@ double-counting' (A : U) (c c' : count A)
                     : Path Nat (number-of-elements A c) (number-of-elements A c') =
   double-counting A A c c'
     ( Equiv/refl A)
+
+Fin/closed-Pi : (k : Nat) (B : Fin k -> U) (cB : (x : Fin k) -> count (B x)) -> count ((x : Fin k) -> B x) = split
+  zero -> \ B _.
+    count/contr-count
+    ( (x : Empty) -> B x)
+    ( Empty/universal-dependent-property
+      ( Empty) B
+      ( Equiv/refl Empty))
+  suc k -> \ B cB.
+    count/closed-equiv
+      ( (x : Fin (suc k)) -> B x)
+      ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+      ( Equiv/trans
+	( (x : Fin (suc k)) -> B x)
+	( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
+	( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+	( Coprod/dependent-universal-property
+	  ( Fin k) Unit B)
+	( Equiv/prod'
+	  ( (x : Fin k) -> B (inl x))
+	  ( (u : Unit) -> B (inr u))
+	  ( B (inr star))
+	  ( Equiv/pi-Unit
+	    ( \ u. B (inr u)))))
+      ( count/closed-Prod
+	( (x : Fin k) -> B (inl x))
+	( B (inr star))
+	( Fin/closed-Pi k
+	  ( \ x. B (inl x))
+	  ( \ x. cB (inl x)))
+	( cB (inr star)))          
+
+count/closed-Pi (A : U) (B : A -> U) (cA : count A) (cB : (x : A) -> count (B x)) : count ((x : A) -> B x) =
+  let k : Nat = number-of-elements A cA
+      e : Equiv (Fin k) A = count/Equiv A cA 
+  in
+  count/closed-equiv
+    ( (x : A) -> B x)
+    ( (x : Fin k) -> B (Equiv/map (Fin k) A e x))
+    ( Equiv/dependent
+      ( Fin k) A B e)
+    ( Fin/closed-Pi k
+      ( \ x. B (Equiv/map (Fin k) A e x))
+      ( \ x. cB (Equiv/map (Fin k) A e x)))
 
 unlock has-inverse/is-equiv

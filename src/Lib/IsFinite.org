@@ -537,6 +537,17 @@ Given a finite type =A= and a family of finite types =B= over =A=, \Sigma A B is
               ( \ H'. Prop-trunc/unit (count/closed-Sg A B c H'))
               ( is-finite/choice A (\ x. count (B x)) is-finite-A H)) is-finite-A
 #+end_src
+The following is shown for testing purposes, when a counting can directly be extracted from =B x=.
+#+begin_src ctt
+  is-finite/closed-Sg' (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -> count (B x))
+    : is-finite (Sg A B) =
+    rec-Prop-trunc
+      ( count A)
+      ( is-finite/Prop
+	( Sg A B))
+      ( \ c. Prop-trunc/unit (count/closed-Sg A B c H))
+      ( is-finite-A)
+#+end_src
 Moreover, if =B(x)= is finite forall =x : A= and if \Sigma A B is finite and the type family B has a section, then it follows that =A= is finite. We start by defining a function such that =A= is equivalent to its fibrations.
 #+begin_src ctt
   is-finite-Sg/is-finite-base/map (A : U) (B : A -> U) (f : (x : A) -> B x) (x : A) : Sg A B =

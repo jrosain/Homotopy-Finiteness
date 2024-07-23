@@ -425,6 +425,15 @@ is-finite/closed-Sg (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A
             ( \ H'. Prop-trunc/unit (count/closed-Sg A B c H'))
             ( is-finite/choice A (\ x. count (B x)) is-finite-A H)) is-finite-A
 
+is-finite/closed-Sg' (A : U) (B : A -> U) (is-finite-A : is-finite A) (H : (x : A) -> count (B x))
+  : is-finite (Sg A B) =
+  rec-Prop-trunc
+    ( count A)
+    ( is-finite/Prop
+      ( Sg A B))
+    ( \ c. Prop-trunc/unit (count/closed-Sg A B c H))
+    ( is-finite-A)
+
 is-finite-Sg/is-finite-base/map (A : U) (B : A -> U) (f : (x : A) -> B x) (x : A) : Sg A B =
   (x, f x)
 

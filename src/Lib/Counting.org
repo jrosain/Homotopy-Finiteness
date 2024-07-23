@@ -17,6 +17,7 @@ The imported packages can be accessed via the following links:
    - [[file:Hedberg.org][Lib/Hedberg]]
    - [[file:SubTypes.org][Lib/SubTypes]]
    - [[file:Data/Fin.org][Lib/Data/Fin]]
+   - [[file:Prop/Empty.org][Lib/Prop/Empty]]
    - [[file:Prop/Equiv.org][Lib/Prop/Equiv]]
    - [[file:Prop/Fin.org][Lib/Prop/Fin]]
    - [[file:Prop/Proposition.org][Lib/Prop/Proposition]]
@@ -25,6 +26,7 @@ The imported packages can be accessed via the following links:
   import Lib.Hedberg
   import Lib.SubTypes
   import Lib.Data.Fin  
+  import Lib.Prop.Empty
   import Lib.Prop.Equiv
   import Lib.Prop.Fin
   import Lib.Prop.Proposition
@@ -235,8 +237,8 @@ We can also show that if \Sigma A B comes with a counting, as well as =B x= come
 #+begin_src ctt
   count/closed-base-sg-map (A : U) (B : A -> U) (b : (x : A) -> B x) (x : A) : Sg A B = (x, b x)
 
-  count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv A (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) =
-    equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
+  -- count/closed-base-sg-equiv (A : U) (B : A -> U) (b : (x : A) -> B x) : Equiv A (Sg (Sg A B) (Fib A (Sg A B) (count/closed-base-sg-map A B b))) =
+  --   equiv-total-fib/Equiv A (Sg A B) (count/closed-base-sg-map A B b)
 
   -- count/closed-base-sg (A : U) (B : A -> U) (b : (x : A) -> B x) (cT : count (Sg A B)) (cF : (x : A) -> count B x) : count A =
   --   count/closed-equiv A
@@ -675,6 +677,54 @@ Using the previous theorem, we can show that equivalent types that have count ha
     double-counting A A c c'
       ( Equiv/refl A)
    #+end_src
+
+** Closure under Π-types
+Counting is closed under Π-types.
+#+begin_src ctt
+  Fin/closed-Pi : (k : Nat) (B : Fin k -> U) (cB : (x : Fin k) -> count (B x)) -> count ((x : Fin k) -> B x) = split
+    zero -> \ B _.
+      count/contr-count
+      ( (x : Empty) -> B x)
+      ( Empty/universal-dependent-property
+	( Empty) B
+	( Equiv/refl Empty))
+    suc k -> \ B cB.
+      count/closed-equiv
+	( (x : Fin (suc k)) -> B x)
+	( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+	( Equiv/trans
+	  ( (x : Fin (suc k)) -> B x)
+	  ( ((x : Fin k) -> B (inl x)) * ((u : Unit) -> B (inr u)))
+	  ( ((x : Fin k) -> B (inl x)) * (B (inr star)))
+	  ( Coprod/dependent-universal-property
+	    ( Fin k) Unit B)
+	  ( Equiv/prod'
+	    ( (x : Fin k) -> B (inl x))
+	    ( (u : Unit) -> B (inr u))
+	    ( B (inr star))
+	    ( Equiv/pi-Unit
+	      ( \ u. B (inr u)))))
+	( count/closed-Prod
+	  ( (x : Fin k) -> B (inl x))
+	  ( B (inr star))
+	  ( Fin/closed-Pi k
+	    ( \ x. B (inl x))
+	    ( \ x. cB (inl x)))
+	  ( cB (inr star)))          
+
+  count/closed-Pi (A : U) (B : A -> U) (cA : count A) (cB : (x : A) -> count (B x)) : count ((x : A) -> B x) =
+    let k : Nat = number-of-elements A cA
+	e : Equiv (Fin k) A = count/Equiv A cA 
+    in
+    count/closed-equiv
+      ( (x : A) -> B x)
+      ( (x : Fin k) -> B (Equiv/map (Fin k) A e x))
+      ( Equiv/dependent
+	( Fin k) A B e)
+      ( Fin/closed-Pi k
+	( \ x. B (Equiv/map (Fin k) A e x))
+	( \ x. cB (Equiv/map (Fin k) A e x)))
+#+end_src
 
 ** Unlock
 

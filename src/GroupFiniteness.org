@@ -36,31 +36,34 @@ Recall that a Semigroup is defined as follows: \Sigma_{X: Set}(has-assoc-op(X)).
 
 Indeed, it is easy to show that has-assoc-op is \pi_0-finite; in fact, it is finite by finiteness of X.
 #+begin_src ctt
-  has-assoc-op/is-finite (X : U) (H : is-finite X) : is-finite (has-assoc-op X) =
-    is-finite/closed-Sg
-      ( X -> X -> X)
-      ( is-assoc X)
-      ( is-finite/Pi X
-          ( \ _. X -> X) H
-          ( \ _. is-finite/Pi X
-                ( \ _. X) H
-                ( \ _. H)))
-      ( \ h. is-finite/Pi X
-            ( \ x. (y z : X) -> Path X (h (h x y) z) (h x (h y z))) H
-            ( \ x. is-finite/Pi X
-                  ( \ y. (z : X) -> Path X (h (h x y) z) (h x (h y z))) H
-                  ( \ y. is-finite/Pi X
-                        ( \ z. Path X (h (h x y) z) (h x (h y z))) H
-                        ( \ z. is-decidable/is-finite
-                                ( Path X (h (h x y) z) (h x (h y z)))
-                                ( is-finite/is-set X H
-                                  ( h (h x y) z)
-                                  ( h x (h y z)))
-                                ( is-finite/has-decidable-equality X H
-                                  ( h (h x y) z)
-                                  ( h x (h y z)))))))
+  has-assoc-op/is-finite (X : U) : (H : is-finite X) -> is-finite (has-assoc-op X) =
+    rec-Prop-trunc
+      ( count X)
+      ( is-finite/Prop (has-assoc-op X))
+      ( \ H. Prop-trunc/unit
+	    ( count/closed-Sg
+	      ( X -> X -> X)
+	      ( is-assoc X)
+	      ( count/closed-Pi X
+		( \ _. X -> X) H
+		( \ _. count/closed-Pi X
+		  ( \ _. X) H
+		  ( \ _. H)))          
+	      ( \ h. count/closed-Pi X
+		    ( \ x. (y z : X) -> Path X (h (h x y) z) (h x (h y z))) H
+		    ( \ x. count/closed-Pi X
+			  ( \ y. (z : X) -> Path X (h (h x y) z) (h x (h y z))) H
+			  ( \ y. count/closed-Pi X
+				( \ z. Path X (h (h x y) z) (h x (h y z))) H
+				( \ z. count/is-decidable-is-countable
+				      ( Path X (h (h x y) z) (h x (h y z)))
+				      ( count/is-set X H
+					( h (h x y) z)
+					( h x (h y z)))
+				      ( count/has-decidable-eq X H
+					( h (h x y) z)
+					( h x (h y z)))))))))
 #+end_src
-
 Moreover, it is also easy to show that \Sigma_{(X: U)}|| Fin n \simeq X || is \pi_k-finite, forall k. First, we show that \Sigma_{(X: U)}|| Fin n \simeq X || is contractible. Indeed, its center of contraction is (Fin n, refl-Equiv) and by univalence, any X such that || Fin n \simeq X ||, we have Fin n = X as we show a property.
 #+begin_src ctt
   mere-equiv-Fin/is-conn-Set-trunc (n : Nat) : is-conn (Sg U (\ X. mere-equiv (Fin n) X)) = 
@@ -217,64 +220,69 @@ Though, like =Semigroup-of-Order n=, we will show that it is equivalent to the f
 #+end_src
 As we have already shown in the previous section that =Semigroup-of-Order n= is \pi_k-finite for k \in Nat, we show that =is-group= is finite whenever the underlying type is finite in two steps. First, we show that =is-unital= is finite.
 #+begin_src ctt
-  lock is-finite
-  is-unital/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-unital G) =
-    is-finite/closed-Sg
-      ( Semigroup/type G)
-      ( \ e. (left-unit-law G e) * (right-unit-law G e)) H
-      ( \ e. is-finite/closed-Prod
-	    ( left-unit-law G e)
-	    ( right-unit-law G e)
-	    ( is-finite/Pi
-	      ( Semigroup/type G)
-	      ( \ y. Path (Semigroup/type G) (Semigroup/op G e y) y) H
-	      ( \ y. is-decidable/is-finite
-		    ( Path (Semigroup/type G) (Semigroup/op G e y) y)
-		    ( Semigroup/is-set G (Semigroup/op G e y) y)
-		    ( is-finite/has-decidable-equality
-		      ( Semigroup/type G) H (Semigroup/op G e y) y)))
-	    ( is-finite/Pi
-	      ( Semigroup/type G)
-	      ( \ x. Path (Semigroup/type G) (Semigroup/op G x e) x) H
-	      ( \ x. is-decidable/is-finite
-		    ( Path (Semigroup/type G) (Semigroup/op G x e) x)
-		    ( Semigroup/is-set G (Semigroup/op G x e) x)
-		    ( is-finite/has-decidable-equality
-		      ( Semigroup/type G) H (Semigroup/op G x e) x))))
+  is-unital/is-finite (G : Semigroup) (is-finite-G : is-finite (Semigroup/type G)) : is-finite (is-unital G) =
+    rec-Prop-trunc
+      ( count (Semigroup/type G))
+      ( is-finite/Prop (is-unital G))
+      ( \ H. is-finite/closed-Sg'
+	    ( Semigroup/type G)
+	    ( \ e. (left-unit-law G e) * (right-unit-law G e)) is-finite-G
+	    ( \ e. count/closed-Prod
+		  ( left-unit-law G e)
+		  ( right-unit-law G e)
+		  ( count/closed-Pi
+		    ( Semigroup/type G)
+		    ( \ y. Path (Semigroup/type G) (Semigroup/op G e y) y) H
+		    ( \ y. count/is-decidable-is-countable
+			  ( Path (Semigroup/type G) (Semigroup/op G e y) y)
+			  ( Semigroup/is-set G (Semigroup/op G e y) y)
+			  ( count/has-decidable-eq
+			    ( Semigroup/type G) H (Semigroup/op G e y) y)))
+		  ( count/closed-Pi
+		    ( Semigroup/type G)
+		    ( \ x. Path (Semigroup/type G) (Semigroup/op G x e) x) H
+		    ( \ x. count/is-decidable-is-countable
+			  ( Path (Semigroup/type G) (Semigroup/op G x e) x)
+			  ( Semigroup/is-set G (Semigroup/op G x e) x)
+			  ( count/has-decidable-eq
+			  ( Semigroup/type G) H (Semigroup/op G x e) x))))) is-finite-G
 #+end_src
 And then, we show that =is-group= is also finite.
 #+begin_src ctt
-  is-group/is-finite (G : Semigroup) (H : is-finite (Semigroup/type G)) : is-finite (is-group G) =
-    is-finite/closed-Sg
-      ( is-unital G)
-      ( is-group' G)
-    ( is-unital/is-finite G H)
-    ( \ e. is-finite/closed-Sg
-	  ( Semigroup/map G G)
-	  ( \ i. ((x : Semigroup/type G) -> left-inv (G, e) x (i x)) * ((x : Semigroup/type G) -> right-inv (G, e) x (i x)))
-	  ( is-finite/Pi
-	    ( Semigroup/type G)
-	    ( \ _. Semigroup/type G) H
-	    ( \ _. H))
-	  ( \ i. is-finite/closed-Prod
-		( (x : Semigroup/type G) -> left-inv (G, e) x (i x))
-		( (x : Semigroup/type G) -> right-inv (G, e) x (i x))
-		( is-finite/Pi
-		  ( Semigroup/type G)
-		  ( \ x. left-inv (G, e) x (i x)) H
-		  ( \ x. is-decidable/is-finite
-			( Path (Semigroup/type G) (Semigroup/op G (i x) x) e.1)
-			( Semigroup/is-set G (Semigroup/op G (i x) x) e.1)
-			( is-finite/has-decidable-equality
-			      ( Semigroup/type G) H (Semigroup/op G (i x) x) e.1)))
-		( is-finite/Pi
-		  ( Semigroup/type G)
-		  ( \ x. left-inv (G, e) (i x) x) H
-		  ( \ x. is-decidable/is-finite
-			( Path (Semigroup/type G) (Semigroup/op G x (i x)) e.1)
-			( Semigroup/is-set G (Semigroup/op G x (i x)) e.1)
-			( is-finite/has-decidable-equality
-			      ( Semigroup/type G) H (Semigroup/op G x (i x)) e.1)))))
+  is-group/is-finite (G : Semigroup) (is-finite-G : is-finite (Semigroup/type G)) : is-finite (is-group G) =
+    rec-Prop-trunc
+      ( count (Semigroup/type G))
+      ( is-finite/Prop (is-group G))
+      ( \ H. is-finite/closed-Sg'
+	    ( is-unital G)
+	    ( is-group' G)
+	    ( is-unital/is-finite G is-finite-G)
+	    ( \ e. count/closed-Sg
+		  ( Semigroup/map G G)
+		  ( \ i. ((x : Semigroup/type G) -> left-inv (G, e) x (i x)) * ((x : Semigroup/type G) -> right-inv (G, e) x (i x)))
+		  ( count/closed-Pi
+		    ( Semigroup/type G)
+		    ( \ _. Semigroup/type G) H
+		    ( \ _. H))
+		  ( \ i. count/closed-Prod
+			( (x : Semigroup/type G) -> left-inv (G, e) x (i x))
+			( (x : Semigroup/type G) -> right-inv (G, e) x (i x))
+			( count/closed-Pi
+			  ( Semigroup/type G)
+			  ( \ x. left-inv (G, e) x (i x)) H
+			  ( \ x. count/is-decidable-is-countable
+				( Path (Semigroup/type G) (Semigroup/op G (i x) x) e.1)
+				( Semigroup/is-set G (Semigroup/op G (i x) x) e.1)
+				( count/has-decidable-eq
+				  ( Semigroup/type G) H (Semigroup/op G (i x) x) e.1)))
+			( count/closed-Pi
+			  ( Semigroup/type G)
+			  ( \ x. left-inv (G, e) (i x) x) H
+			  ( \ x. count/is-decidable-is-countable
+				( Path (Semigroup/type G) (Semigroup/op G x (i x)) e.1)
+				( Semigroup/is-set G (Semigroup/op G x (i x)) e.1)
+				( count/has-decidable-eq
+				  ( Semigroup/type G) H (Semigroup/op G x (i x)) e.1)))))) is-finite-G
 #+end_src
 As =Group-of-Order n= and =Group-of-Order' n= are equivalent:
 #+begin_src ctt

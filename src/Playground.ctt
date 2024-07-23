@@ -55,50 +55,46 @@ number-of-Fin-Mul-one : Nat =
 number-of-Fin-Mul-two : Nat =
   number-of-Fin-Mul two-Nat
 
--- In this file, we try to compute the number of (semi)groups of order k up to isomorphism, for a
--- fixed k. 
+Semigroup-of-Order/has-conn-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
+  is-htpy-finite/closed-Equiv
+    ( Semigroup-of-Order n)
+    ( Semigroup-of-Order' n)
+    ( Semigroup-of-Order/Equiv n) zero
+    ( is-htpy-finite/closed-Sg/base
+      ( Sg U (\ X. mere-equiv (Fin n) X))
+      ( \ X. has-assoc-op X.1)
+      ( mere-equiv-Fin/is-conn-Set-trunc n) 
+      ( mere-equiv-Fin/is-htpy-finite n one-Nat)
+      ( \ X. is-finite/is-htpy-finite
+	    ( has-assoc-op X.1)
+	    ( has-assoc-op/is-finite X.1
+	      ( has-cardinality/is-finite X.1 (n, X.2))) zero))
 
--- Semigroup-of-Order/has-conn-components (n : Nat) : is-htpy-finite zero (Semigroup-of-Order n) =
---   is-htpy-finite/closed-Equiv
---     ( Semigroup-of-Order n)
---     ( Semigroup-of-Order' n)
---     ( Semigroup-of-Order/Equiv n) zero
---     ( is-htpy-finite/closed-Sg/base
---       ( Sg U (\ X. mere-equiv (Fin n) X))
---       ( \ X. has-assoc-op X.1)
---       ( mere-equiv-Fin/is-conn-Set-trunc n) 
---       ( mere-equiv-Fin/is-htpy-finite n one-Nat)
---       ( \ X. is-finite/is-htpy-finite
--- 	    ( has-assoc-op X.1)
--- 	    ( has-assoc-op/is-finite X.1
--- 	      ( has-cardinality/is-finite X.1 (n, X.2))) zero))
+-- instantaneous
+number-of-Semigroup-of-Order-zero : Nat =
+  card
+  ( Set-trunc (Semigroup-of-Order zero))
+  ( Semigroup-of-Order/has-conn-components zero)      
 
--- -- instantaneous
--- number-of-Semigroup-of-Order-zero : Nat =
---   card
---   ( Set-trunc (Semigroup-of-Order zero))
---   ( Semigroup-of-Order/has-conn-components zero)      
+number-of-Semigroup-of-Order-one : Nat =
+  card
+  ( Set-trunc (Semigroup-of-Order one-Nat))
+  ( Semigroup-of-Order/has-conn-components one-Nat)      
 
--- number-of-Semigroup-of-Order-one : Nat =
---   card
---   ( Set-trunc (Semigroup-of-Order one-Nat))
---   ( Semigroup-of-Order/has-conn-components one-Nat)      
+-- crashes
+lock card Semigroup-of-Order/has-conn-components
+number-of-Semigroup-of-Order-two : Nat =
+  card
+  ( Set-trunc (Semigroup-of-Order two-Nat))
+  ( Semigroup-of-Order/has-conn-components two-Nat)
 
--- -- crashes
--- -- strangely, it doesn't seem to typecheck?
--- lock card Semigroup-of-Order/has-conn-components
--- number-of-Semigroup-of-Order-two : Nat =
---   card
---   ( Set-trunc (Semigroup-of-Order two-Nat))
---   ( Semigroup-of-Order/has-conn-components two-Nat)      
+-- instantaneous  
+number-of-Group-of-Order-zero : Nat =
+  number-of-Group-of-Order zero
 
--- -- instantaneous  
--- number-of-Group-of-Order-zero : Nat =
---   number-of-Group-of-Order zero
+number-of-Group-of-Order-one : Nat =
+  number-of-Group-of-Order one-Nat
 
--- number-of-Group-of-Order-one : Nat =
---   number-of-Group-of-Order one-Nat
-
--- -- crashes
--- number-of-Group-of-Order-two : Nat =
---   number-of-Group-of-Order two-Nat
+-- crashes
+number-of-Group-of-Order-two : Nat =
+  number-of-Group-of-Order two-Nat
